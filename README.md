@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 <h1 align="center">
   <br>
-  <a href="https://shadps4.net/"><img src="https://github.com/shadps4-emu/shadPS4-qtlauncher/blob/main/.github/shadps4.png" width="220"></a>
+  <a href="https://shadps4.net/"><img src=".github/shadps4.png" width="220"></a>
   <br>
   <b>QtLauncher</b>
   <br>
