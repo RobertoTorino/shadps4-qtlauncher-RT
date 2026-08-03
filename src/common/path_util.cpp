@@ -18,7 +18,6 @@
 #ifdef _WIN32
 // This is the maximum number of UTF-16 code units permissible in Windows file paths
 #define MAX_PATH 260
-#include <Shlobj.h>
 #include <windows.h>
 #else
 // This is the maximum number of UTF-8 code units permissible in all other OSes' file paths
@@ -31,6 +30,23 @@
 namespace Common::FS {
 
 namespace fs = std::filesystem;
+
+#ifdef _WIN32
+static fs::path GetExecutableDirectory() {
+    std::vector<wchar_t> module_path(MAX_PATH);
+    while (true) {
+        const DWORD length = GetModuleFileNameW(nullptr, module_path.data(),
+                                                static_cast<DWORD>(module_path.size()));
+        if (length == 0) {
+            return fs::current_path();
+        }
+        if (length < module_path.size()) {
+            return fs::path(module_path.data()).parent_path();
+        }
+        module_path.resize(module_path.size() * 2);
+    }
+}
+#endif
 
 #ifdef __APPLE__
 using IsTranslocatedURLFunc = Boolean (*)(CFURLRef path, bool* isTranslocated,
@@ -90,11 +106,12 @@ static auto UserPaths = [] {
     }
 #endif
 
-    // Try the portable launcher directory first.
     auto user_dir = std::filesystem::current_path() / PORTABLE_DIR;
+#ifdef _WIN32
+    user_dir = GetExecutableDirectory();
+#else
     if (!std::filesystem::exists(user_dir)) {
         // If it doesn't exist, use the standard path for the platform instead.
-        // NOTE: On Windows we currently just create the portable directory instead.
 #ifdef __APPLE__
         user_dir =
             std::filesystem::path(getenv("HOME")) / "Library" / "Application Support" / "shadPS4";
@@ -105,18 +122,16 @@ static auto UserPaths = [] {
         } else {
             user_dir = std::filesystem::path(getenv("HOME")) / ".local" / "share" / "shadPS4";
         }
-#elif _WIN32
-        TCHAR appdata[MAX_PATH] = {0};
-        SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, appdata);
-        user_dir = std::filesystem::path(appdata) / "shadPS4";
 #endif
     }
+#endif
 
-    // Try the portable user directory first.
     auto launcher_dir = std::filesystem::current_path() / PORTABLE_LAUNCHER_DIR;
+#ifdef _WIN32
+    launcher_dir = GetExecutableDirectory();
+#else
     if (!std::filesystem::exists(launcher_dir)) {
         // If it doesn't exist, use the standard path for the platform instead.
-        // NOTE: On Windows we currently just create the portable directory instead.
 #ifdef __APPLE__
         launcher_dir = std::filesystem::path(getenv("HOME")) / "Library" / "Application Support" /
                        "shadPS4QtLauncher";
@@ -128,12 +143,9 @@ static auto UserPaths = [] {
             launcher_dir =
                 std::filesystem::path(getenv("HOME")) / ".local" / "share" / "shadPS4QtLauncher";
         }
-#elif _WIN32
-        TCHAR appdata[MAX_PATH] = {0};
-        SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, appdata);
-        launcher_dir = std::filesystem::path(appdata) / "shadPS4QtLauncher";
 #endif
     }
+#endif
 
     std::unordered_map<PathType, fs::path> paths;
 
@@ -165,6 +177,16 @@ static auto UserPaths = [] {
     create_path(PathType::LauncherMetaData, launcher_dir / METADATA_DIR);
     create_path(PathType::VersionDir, launcher_dir / VERSION_DIR);
 
+    for (const char* directory : {"games", "dlc", "saves", "sys"}) {
+        std::filesystem::create_directories(user_dir / directory);
+    }
+    for (const char* user : {"1000", "1001", "1002", "1003"}) {
+        const auto profile_dir = user_dir / HOME_DIR / user;
+        std::filesystem::create_directories(profile_dir / "inputs");
+        std::filesystem::create_directories(profile_dir / "savedata");
+        std::filesystem::create_directories(profile_dir / "trophy");
+    }
+
     std::ofstream notice_file(user_dir / CUSTOM_TROPHY / "Notice.txt");
     if (notice_file.is_open()) {
         notice_file
@@ -175,7 +197,7 @@ static auto UserPaths = [] {
 
 "You can add custom images to the trophies.\n"
 "*We recommend a square resolution image, for example 200x200, 500x500, the same size as the height and width.\n"
-"In this folder ('user\\custom_trophy'), add the files with the following names:\n\n"
+"In this folder ('custom_trophy'), add the files with the following names:\n\n"
 "bronze.png\n"
 "silver.png\n"
 "gold.png\n"
@@ -183,7 +205,7 @@ static auto UserPaths = [] {
 
 "You can add a custom sound for trophy notifications.\n"
 "*By default, no audio is played unless it is in this folder and you are using the QT version.\n"
-"In this folder ('user\\custom_trophy'), add the files with the following names:\n\n"
+"In this folder ('custom_trophy'), add the files with the following names:\n\n"
 
 "trophy.wav OR trophy.mp3";
         // clang-format on
