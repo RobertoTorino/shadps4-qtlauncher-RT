@@ -19,6 +19,16 @@ endif()
 
 project(shadPS4QtLauncher CXX C ASM ${ADDITIONAL_LANGUAGES})
 
+if(WIN32 AND MSVC)
+  get_filename_component(WINDOWS_SDK_BIN_DIR "${CMAKE_RC_COMPILER}" DIRECTORY)
+  find_program(MICROSOFT_MT_EXECUTABLE NAMES mt.exe
+    HINTS "${WINDOWS_SDK_BIN_DIR}"
+    NO_DEFAULT_PATH
+    REQUIRED
+    NO_CACHE
+  )
+endif()
+
 include(FetchContent)
 
 # Forcing PIE makes sure that the base address is high enough so that it doesn't clash with the PS4 memory.
@@ -448,6 +458,15 @@ endif()
 
 if (WIN32)
     target_sources(shadPS4QtLauncher PRIVATE src/shadps4.rc)
+    if (MSVC)
+        add_custom_command(TARGET shadPS4QtLauncher POST_BUILD
+            COMMAND "${MICROSOFT_MT_EXECUTABLE}"
+                -manifest "$<TARGET_FILE:shadPS4QtLauncher>.manifest"
+                "-outputresource:$<TARGET_FILE:shadPS4QtLauncher>;#1"
+            COMMENT "Embedding Windows application manifest"
+            VERBATIM
+        )
+    endif()
 endif()
 
 target_include_directories(shadPS4QtLauncher PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
