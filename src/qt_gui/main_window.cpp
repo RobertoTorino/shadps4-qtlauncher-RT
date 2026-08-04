@@ -172,7 +172,7 @@ bool MainWindow::Init() {
     SetLastUsedTheme();
     SetLastIconSizeBullet();
     // show ui
-    setMinimumSize(1280, 405);
+    setMinimumSize(720, 405);
     const std::string_view revision(Common::g_scm_rev);
     const std::string window_title =
         fmt::format("shadPS4QtLauncher - build {} - {}", revision.substr(0, 7),
@@ -463,7 +463,6 @@ void MainWindow::AddUiWidgets() {
     ui->toolBar->clear();
     ui->mw_searchbar->hide();
     ui->refreshButton->hide();
-    ui->controllerButton->hide();
     ui->keyboardButton->hide();
 
     if (!m_snapshot_burst_spinbox) {
@@ -472,8 +471,12 @@ void MainWindow::AddUiWidgets() {
         m_snapshot_burst_spinbox->setAccelerated(true);
         m_snapshot_burst_spinbox->setAlignment(Qt::AlignCenter);
         m_snapshot_burst_spinbox->setValue(1);
-        m_snapshot_burst_spinbox->setFixedWidth(68);
     }
+    m_snapshot_burst_spinbox->setFixedSize(QSize(68, 40));
+    QFont burst_font = m_snapshot_burst_spinbox->font();
+    burst_font.setPointSize(16);
+    m_snapshot_burst_spinbox->setFont(burst_font);
+    m_snapshot_burst_spinbox->setToolTip(tr("Screenshots per click (1-99)"));
 
     ui->sizeSliderContainer->setFixedWidth(150);
     const auto add_button = [this, showLabels](QPushButton* button, const QString& label) {
@@ -503,6 +506,7 @@ void MainWindow::AddUiWidgets() {
     add_button(ui->restartButton, tr("Restart"));
     add_button(ui->exitButton, tr("Terminate"));
     add_button(ui->fullscreenButton, tr("Fullscreen"));
+    add_button(ui->controllerButton, tr("Controllers"));
     add_button(ui->settingsButton, tr("Settings"));
     add_button(ui->systemInfoButton, tr("Info"));
     add_button(ui->snapshotButton, tr("Screenshot"));
