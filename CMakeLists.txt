@@ -460,6 +460,14 @@ if (WIN32)
     target_sources(shadPS4QtLauncher PRIVATE src/shadps4.rc)
     if (MSVC)
         add_custom_command(TARGET shadPS4QtLauncher POST_BUILD
+            COMMAND "${WINDEPLOYQT_EXECUTABLE}"
+                --release
+                --no-compiler-runtime
+                "$<TARGET_FILE:shadPS4QtLauncher>"
+            COMMENT "Deploying Qt runtime"
+            VERBATIM
+        )
+        add_custom_command(TARGET shadPS4QtLauncher POST_BUILD
             COMMAND "${MICROSOFT_MT_EXECUTABLE}"
                 -manifest "$<TARGET_FILE:shadPS4QtLauncher>.manifest"
                 "-outputresource:$<TARGET_FILE:shadPS4QtLauncher>;#1"
