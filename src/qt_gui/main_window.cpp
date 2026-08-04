@@ -2,10 +2,23 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <QDockWidget>
+#include <QDateTime>
+#include <QDir>
+#include <QFileInfo>
 #include <QKeyEvent>
 #include <QPlainTextEdit>
 #include <QProgressDialog>
+#include <QRegularExpression>
+#include <QScreen>
+#include <QSettings>
 #include <QStatusBar>
+#include <QSysInfo>
+#include <QTimer>
+
+#ifdef _WIN32
+#include <Windows.h>
+#include <psapi.h>
+#endif
 
 #include "about_dialog.h"
 #include "cheats_patches.h"
@@ -32,6 +45,100 @@
 #include "settings_dialog.h"
 #include "skylander_dialog.h"
 #include "user_manager_dialog.h"
+
+namespace {
+
+QString SanitizeCaptureComponent(QString value) {
+    static const QRegularExpression invalid_chars(QStringLiteral(R"([<>:"/\\|?*\x00-\x1F])"));
+
+    value = value.trimmed();
+    value.replace(invalid_chars, QStringLiteral("_"));
+    while (value.endsWith(' ') || value.endsWith('.')) {
+        value.chop(1);
+    }
+    return value.isEmpty() ? QStringLiteral("Generic") : value;
+}
+
+#ifdef _WIN32
+struct ProcessWindowSearchData {
+    DWORD process_id;
+    HWND window{nullptr};
+};
+
+BOOL CALLBACK FindProcessMainWindowCallback(HWND hwnd, LPARAM lparam) {
+    auto* data = reinterpret_cast<ProcessWindowSearchData*>(lparam);
+    DWORD window_process_id = 0;
+    GetWindowThreadProcessId(hwnd, &window_process_id);
+    if (window_process_id != data->process_id || !IsWindowVisible(hwnd) ||
+        GetWindow(hwnd, GW_OWNER) != nullptr) {
+        return TRUE;
+    }
+
+    wchar_t class_name[256]{};
+    GetClassNameW(hwnd, class_name, static_cast<int>(std::size(class_name)));
+    const std::wstring_view window_class(class_name);
+    if (window_class == L"PseudoConsoleWindow" || window_class == L"ConsoleWindowClass") {
+        return TRUE;
+    }
+
+    data->window = hwnd;
+    return FALSE;
+}
+
+HWND FindMainWindowForProcess(DWORD process_id) {
+    ProcessWindowSearchData data{process_id, nullptr};
+    EnumWindows(&FindProcessMainWindowCallback, reinterpret_cast<LPARAM>(&data));
+    return data.window;
+}
+
+QPixmap CaptureGameWindowPixmap(HWND hwnd) {
+    RECT window_rect{};
+    if (!hwnd || !GetWindowRect(hwnd, &window_rect)) {
+        return {};
+    }
+
+    const int width = window_rect.right - window_rect.left;
+    const int height = window_rect.bottom - window_rect.top;
+    HDC screen_dc = GetDC(nullptr);
+    if (width <= 0 || height <= 0 || !screen_dc) {
+        return {};
+    }
+
+    HDC memory_dc = CreateCompatibleDC(screen_dc);
+    BITMAPINFO bitmap_info{};
+    bitmap_info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bitmap_info.bmiHeader.biWidth = width;
+    bitmap_info.bmiHeader.biHeight = -height;
+    bitmap_info.bmiHeader.biPlanes = 1;
+    bitmap_info.bmiHeader.biBitCount = 32;
+    bitmap_info.bmiHeader.biCompression = BI_RGB;
+
+    void* bits = nullptr;
+    HBITMAP bitmap = memory_dc ? CreateDIBSection(screen_dc, &bitmap_info, DIB_RGB_COLORS, &bits,
+                                                  nullptr, 0)
+                               : nullptr;
+    QPixmap result;
+    if (bitmap && bits) {
+        const HGDIOBJ old_bitmap = SelectObject(memory_dc, bitmap);
+        constexpr UINT render_full_content = 0x00000002u;
+        PrintWindow(hwnd, memory_dc, render_full_content);
+        GdiFlush();
+        const QImage image(static_cast<const uchar*>(bits), width, height, width * 4,
+                           QImage::Format_RGB32);
+        result = QPixmap::fromImage(image.copy());
+        SelectObject(memory_dc, old_bitmap);
+    }
+
+    if (bitmap)
+        DeleteObject(bitmap);
+    if (memory_dc)
+        DeleteDC(memory_dc);
+    ReleaseDC(nullptr, screen_dc);
+    return result;
+}
+#endif
+
+} // namespace
 
 MainWindow::MainWindow(QWidget* parent, bool log_to_terminal)
     : QMainWindow(parent), ui(new Ui::MainWindow),
@@ -65,7 +172,7 @@ bool MainWindow::Init() {
     SetLastUsedTheme();
     SetLastIconSizeBullet();
     // show ui
-    setMinimumSize(900, 405);
+    setMinimumSize(1280, 405);
     const std::string_view revision(Common::g_scm_rev);
     const std::string window_title =
         fmt::format("shadPS4QtLauncher - build {} - {}", revision.substr(0, 7),
@@ -126,6 +233,9 @@ void MainWindow::CreateActions() {
 }
 
 void MainWindow::PauseGame() {
+    if (!m_ipc_client->isProcessRunning()) {
+        return;
+    }
     if (is_paused) {
         m_ipc_client->resumeGame();
         is_paused = false;
@@ -133,28 +243,21 @@ void MainWindow::PauseGame() {
         m_ipc_client->pauseGame();
         is_paused = true;
     }
+    UpdateToolbarButtons();
 }
 
 void MainWindow::StopGame() {
+    if (!m_ipc_client->isProcessRunning()) {
+        return;
+    }
     m_ipc_client->stopEmulator();
+    ScheduleForcedProcessShutdown();
 }
 
 void MainWindow::onGameClosed() {
     EmulatorState::GetInstance()->SetGameRunning(false);
     is_paused = false;
-
-    // swap the pause button back to the play button on close
-    ui->playButton->setVisible(true);
-    ui->pauseButton->setVisible(false);
-    if (ui->toggleLabelsAct->isChecked()) {
-        QLabel* playButtonLabel = ui->playButton->parentWidget()->findChild<QLabel*>();
-        if (playButtonLabel)
-            playButtonLabel->setVisible(true);
-
-        QLabel* pauseButtonLabel = ui->pauseButton->parentWidget()->findChild<QLabel*>();
-        if (pauseButtonLabel)
-            pauseButtonLabel->setVisible(false);
-    }
+    UpdateToolbarButtons();
 
     // clear dialogs when game closed
     skylander_dialog* sky_diag = skylander_dialog::get_dlg(this, m_ipc_client);
@@ -163,6 +266,11 @@ void MainWindow::onGameClosed() {
     dim_diag->clear_all();
     infinity_dialog* inf_diag = infinity_dialog::get_dlg(this, m_ipc_client);
     inf_diag->clear_all();
+
+    if (exit_after_game_closes) {
+        exit_after_game_closes = false;
+        QTimer::singleShot(0, this, &QWidget::close);
+    }
 }
 
 void MainWindow::RestartGame() {
@@ -179,7 +287,142 @@ void MainWindow::toggleLabelsUnderIcons() {
 }
 
 void MainWindow::toggleFullscreen() {
-    m_ipc_client->toggleFullscreen();
+    if (m_ipc_client->isProcessRunning()) {
+        m_ipc_client->toggleFullscreen();
+    }
+}
+
+void MainWindow::ExitApplication() {
+    if (m_ipc_client->isProcessRunning()) {
+        exit_after_game_closes = true;
+        m_ipc_client->stopEmulator();
+        ScheduleForcedProcessShutdown();
+        return;
+    }
+    close();
+}
+
+void MainWindow::ScheduleForcedProcessShutdown() {
+    QTimer::singleShot(3000, this, [this]() {
+        if (m_ipc_client->isProcessRunning()) {
+            m_ipc_client->killEmulator();
+        }
+    });
+}
+
+QString MainWindow::BuildCaptureTimestamp() const {
+    return QDateTime::currentDateTime().toString(QStringLiteral("yyyy-MM-dd_HH-mm-ss_zzz"));
+}
+
+QString MainWindow::BuildCaptureGameFolderName() const {
+    return SanitizeCaptureComponent(runningGameSerial.empty()
+                                        ? QStringLiteral("Generic")
+                                        : QString::fromStdString(runningGameSerial));
+}
+
+std::filesystem::path MainWindow::EnsureCaptureOutputDirectory() const {
+    const auto output_path = Common::FS::GetUserPath(Common::FS::PathType::ScreenshotsDir) /
+                             Common::FS::PathFromQString(BuildCaptureGameFolderName());
+    std::filesystem::create_directories(output_path);
+    return output_path;
+}
+
+quintptr MainWindow::GetRunningGameWindowId() const {
+#ifdef _WIN32
+    const qint64 process_id = m_ipc_client->processId();
+    return process_id > 0
+               ? reinterpret_cast<quintptr>(FindMainWindowForProcess(static_cast<DWORD>(process_id)))
+               : 0;
+#else
+    return 0;
+#endif
+}
+
+void MainWindow::SnapshotCapture() {
+#ifndef _WIN32
+    QMessageBox::information(this, tr("Screenshot"),
+                             tr("Screenshot capture is currently implemented only on Windows."));
+    return;
+#else
+    if (!m_ipc_client->isProcessRunning()) {
+        if (statusBar) {
+            statusBar->showMessage(tr("Start a game before taking a screenshot."), 3000);
+        }
+        return;
+    }
+
+    const quintptr window_id = GetRunningGameWindowId();
+    if (window_id == 0) {
+        QMessageBox::warning(this, tr("Screenshot"),
+                             tr("Could not find the emulator window to capture."));
+        return;
+    }
+
+    const int burst_count = qBound(1, m_snapshot_burst_spinbox->value(), 99);
+    const QString timestamp = BuildCaptureTimestamp();
+    const auto output_dir = EnsureCaptureOutputDirectory();
+    int saved_count = 0;
+    QString last_file;
+
+    for (int index = 0; index < burst_count; ++index) {
+        const QPixmap snapshot =
+            CaptureGameWindowPixmap(reinterpret_cast<HWND>(window_id));
+        if (snapshot.isNull()) {
+            break;
+        }
+
+        const QString suffix = burst_count > 1
+                                   ? QStringLiteral("_%1").arg(index + 1, 2, 10, QLatin1Char('0'))
+                                   : QString();
+        const auto output_path = output_dir / Common::FS::PathFromQString(
+                                                  QStringLiteral("Snapshot_%1%2.png")
+                                                      .arg(timestamp, suffix));
+        Common::FS::PathToQString(last_file, output_path);
+        if (!snapshot.save(last_file, "PNG")) {
+            break;
+        }
+        ++saved_count;
+    }
+
+    if (saved_count == 0) {
+        QMessageBox::warning(this, tr("Screenshot"), tr("The emulator window could not be captured."));
+    } else if (saved_count == 1) {
+        if (statusBar) {
+            statusBar->showMessage(
+                tr("Screenshot saved: %1").arg(QDir::toNativeSeparators(last_file)), 5000);
+        }
+    } else {
+        if (statusBar) {
+            statusBar->showMessage(tr("Screenshot burst saved: %1 images.").arg(saved_count),
+                                   5000);
+        }
+    }
+#endif
+}
+
+QString MainWindow::BuildSystemInfoText() const {
+#ifdef _WIN32
+    QSettings cpu_settings(
+        "HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
+        QSettings::NativeFormat);
+    MEMORYSTATUSEX memory_status{};
+    memory_status.dwLength = sizeof(memory_status);
+    const QString cpu_name = cpu_settings.value("ProcessorNameString", tr("Unavailable"))
+                                 .toString()
+                                 .simplified();
+    const qulonglong total_ram_mb = GlobalMemoryStatusEx(&memory_status)
+                                        ? memory_status.ullTotalPhys / (1024ull * 1024ull)
+                                        : 0;
+    return tr("Operating System: %1\nCPU: %2\nTotal RAM: %3 MB")
+        .arg(QSysInfo::prettyProductName(), cpu_name, QString::number(total_ram_mb));
+#else
+    return tr("Operating System: %1\nCPU: Unavailable\nTotal RAM: Unavailable")
+        .arg(QSysInfo::prettyProductName());
+#endif
+}
+
+void MainWindow::ShowSystemInfo() {
+    QMessageBox::information(this, tr("System Information"), BuildSystemInfoText());
 }
 
 QWidget* MainWindow::createButtonWithLabel(QPushButton* button, const QString& labelText,
@@ -218,90 +461,89 @@ void MainWindow::AddUiWidgets() {
 
     bool showLabels = ui->toggleLabelsAct->isChecked();
     ui->toolBar->clear();
+    ui->mw_searchbar->hide();
+    ui->refreshButton->hide();
+    ui->controllerButton->hide();
+    ui->keyboardButton->hide();
 
-    ui->toolBar->addWidget(createSpacer(this));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->playButton, tr("Play"), showLabels));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->pauseButton, tr("Pause"), showLabels));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->stopButton, tr("Stop"), showLabels));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->restartButton, tr("Restart"), showLabels));
-    ui->toolBar->addWidget(createSpacer(this));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->settingsButton, tr("Settings"), showLabels));
-    ui->toolBar->addWidget(
-        createButtonWithLabel(ui->fullscreenButton, tr("Full Screen"), showLabels));
-    ui->toolBar->addWidget(createSpacer(this));
-    ui->toolBar->addWidget(
-        createButtonWithLabel(ui->controllerButton, tr("Controllers"), showLabels));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->keyboardButton, tr("Keyboard"), showLabels));
-    ui->toolBar->addWidget(createSpacer(this));
-    QFrame* line = new QFrame(this);
-    line->setFrameShape(QFrame::VLine);
-    line->setFrameShadow(QFrame::Sunken);
-    line->setMinimumWidth(2);
-    ui->toolBar->addWidget(line);
-    ui->toolBar->addWidget(createSpacer(this));
-    if (showLabels) {
-        QLabel* pauseButtonLabel = ui->pauseButton->parentWidget()->findChild<QLabel*>();
-        if (pauseButtonLabel) {
-            pauseButtonLabel->setVisible(false);
-        }
+    if (!m_snapshot_burst_spinbox) {
+        m_snapshot_burst_spinbox = new QSpinBox(this);
+        m_snapshot_burst_spinbox->setRange(1, 99);
+        m_snapshot_burst_spinbox->setAccelerated(true);
+        m_snapshot_burst_spinbox->setAlignment(Qt::AlignCenter);
+        m_snapshot_burst_spinbox->setValue(1);
+        m_snapshot_burst_spinbox->setFixedWidth(68);
     }
-    ui->toolBar->addWidget(
-        createButtonWithLabel(ui->refreshButton, tr("Refresh List"), showLabels));
-    ui->toolBar->addWidget(createSpacer(this));
 
-    QBoxLayout* toolbarLayout = new QBoxLayout(QBoxLayout::TopToBottom);
-    toolbarLayout->setSpacing(2);
-    toolbarLayout->setContentsMargins(2, 2, 2, 2);
     ui->sizeSliderContainer->setFixedWidth(150);
+    const auto add_button = [this, showLabels](QPushButton* button, const QString& label) {
+        button->setAccessibleName(label);
+        ui->toolBar->addWidget(createButtonWithLabel(button, label, showLabels));
+    };
+    const auto add_labeled_widget = [this, showLabels](QWidget* widget, const QString& label) {
+        widget->setAccessibleName(label);
+        auto* container = new QWidget(this);
+        auto* layout = new QVBoxLayout(container);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setAlignment(Qt::AlignCenter);
+        layout->addWidget(widget);
+        if (showLabels) {
+            auto* text = new QLabel(label, container);
+            text->setAlignment(Qt::AlignCenter);
+            layout->addWidget(text);
+        } else {
+            widget->setToolTip(label);
+        }
+        ui->toolBar->addWidget(container);
+    };
 
-    QWidget* searchSliderContainer = new QWidget(this);
-    QBoxLayout* searchSliderLayout = new QBoxLayout(QBoxLayout::TopToBottom);
-    searchSliderLayout->setContentsMargins(0, 0, 6, 6);
-    searchSliderLayout->setSpacing(2);
-    ui->mw_searchbar->setFixedWidth(150);
+    add_button(ui->playButton, tr("Play"));
+    add_button(ui->pauseButton, tr("Pause"));
+    add_button(ui->stopButton, tr("Stop"));
+    add_button(ui->restartButton, tr("Restart"));
+    add_button(ui->exitButton, tr("Terminate"));
+    add_button(ui->fullscreenButton, tr("Fullscreen"));
+    add_button(ui->settingsButton, tr("Settings"));
+    add_button(ui->systemInfoButton, tr("Info"));
+    add_button(ui->snapshotButton, tr("Screenshot"));
+    add_labeled_widget(m_snapshot_burst_spinbox, tr("Burst"));
+    ui->sizeSlider->setAccessibleName(tr("Icon Size"));
+    add_labeled_widget(ui->sizeSliderContainer, tr("Icon Size"));
 
-    searchSliderLayout->addWidget(ui->sizeSliderContainer);
-    searchSliderLayout->addWidget(ui->mw_searchbar);
+    auto* versionArea = new QWidget(this);
+    versionArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    auto* versionAreaLayout = new QHBoxLayout(versionArea);
+    versionAreaLayout->setContentsMargins(0, 0, 4, 0);
+    versionAreaLayout->addStretch();
 
-    searchSliderContainer->setLayout(searchSliderLayout);
-
-    ui->toolBar->addWidget(searchSliderContainer);
-
-    if (!showLabels) {
-        toolbarLayout->addWidget(searchSliderContainer);
-    }
-
-    ui->playButton->setVisible(true);
-    ui->pauseButton->setVisible(false);
-
-    // Expandable spacer to push elements to the right (Version Manager)
-    QWidget* expandingSpacer = new QWidget(this);
-    expandingSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    ui->toolBar->addWidget(expandingSpacer);
-    QWidget* versionContainer = new QWidget(this);
-    QVBoxLayout* versionLayout = new QVBoxLayout(versionContainer);
+    auto* versionContainer = new QWidget(versionArea);
+    versionContainer->setFixedWidth(180);
+    delete ui->versionComboBox;
+    delete ui->versionManagerButton;
+    ui->versionComboBox = new QComboBox(versionContainer);
+    ui->versionComboBox->setObjectName("versionComboBox");
+    ui->versionComboBox->setAccessibleName(tr("Emulator Version"));
+    ui->versionManagerButton = new QPushButton(versionContainer);
+    ui->versionManagerButton->setObjectName("versionManagerButton");
+    ui->versionManagerButton->setAccessibleName(tr("Version Manager"));
+    auto* versionLayout = new QVBoxLayout(versionContainer);
     versionLayout->setContentsMargins(0, 0, 0, 0);
     versionLayout->addWidget(ui->versionComboBox);
     versionLayout->addWidget(ui->versionManagerButton);
+    ui->versionComboBox->setMinimumWidth(180);
+    ui->versionManagerButton->setMinimumWidth(180);
     ui->versionManagerButton->setText(tr("Version Manager"));
-#ifdef HIDE_VERSION_MANAGER
-    versionContainer->setHidden(true);
-#endif
-    ui->toolBar->addWidget(versionContainer);
+    versionAreaLayout->addWidget(versionContainer);
+    ui->toolBar->addWidget(versionArea);
+    ui->versionComboBox->show();
+    ui->versionManagerButton->show();
+    versionContainer->show();
+    versionArea->show();
+    UpdateToolbarButtons();
 }
 
 void MainWindow::UpdateToolbarButtons() {
-    // add toolbar widgets when game is running
-    bool showLabels = ui->toggleLabelsAct->isChecked();
-
-    ui->playButton->setVisible(false);
-    ui->pauseButton->setVisible(true);
-
-    if (showLabels) {
-        QLabel* playButtonLabel = ui->playButton->parentWidget()->findChild<QLabel*>();
-        if (playButtonLabel)
-            playButtonLabel->setVisible(false);
-    }
+    const bool game_running = m_ipc_client->isProcessRunning();
 
     if (is_paused) {
         ui->pauseButton->setIcon(ui->playButton->icon());
@@ -315,13 +557,20 @@ void MainWindow::UpdateToolbarButtons() {
         ui->pauseButton->setToolTip(tr("Pause"));
     }
 
-    if (showLabels) {
+    if (ui->toggleLabelsAct->isChecked()) {
         QLabel* pauseButtonLabel = ui->pauseButton->parentWidget()->findChild<QLabel*>();
         if (pauseButtonLabel) {
             pauseButtonLabel->setText(is_paused ? tr("Resume") : tr("Pause"));
-            pauseButtonLabel->setVisible(true);
         }
     }
+
+    ui->playButton->setEnabled(!game_running);
+    ui->pauseButton->setEnabled(game_running);
+    ui->stopButton->setEnabled(game_running);
+    ui->restartButton->setEnabled(game_running);
+    ui->fullscreenButton->setEnabled(game_running);
+    ui->snapshotButton->setEnabled(game_running);
+    m_snapshot_burst_spinbox->setEnabled(game_running);
 }
 
 void MainWindow::UpdateToolbarLabels() {
@@ -453,12 +702,21 @@ void MainWindow::CheckUpdateMain(bool checkSave) {
 void MainWindow::CreateConnects() {
     connect(this, &MainWindow::WindowResized, this, &MainWindow::HandleResize);
     connect(ui->mw_searchbar, &QLineEdit::textChanged, this, &MainWindow::SearchGameTable);
-    connect(ui->exitAct, &QAction::triggered, this, &QWidget::close);
+    connect(ui->exitAct, &QAction::triggered, this, &MainWindow::ExitApplication);
     connect(ui->refreshGameListAct, &QAction::triggered, this, &MainWindow::RefreshGameTable);
     connect(ui->refreshButton, &QPushButton::clicked, this, &MainWindow::RefreshGameTable);
     connect(ui->showGameListAct, &QAction::triggered, this, &MainWindow::ShowGameList);
     connect(ui->toggleLabelsAct, &QAction::toggled, this, &MainWindow::toggleLabelsUnderIcons);
     connect(ui->fullscreenButton, &QPushButton::clicked, this, &MainWindow::toggleFullscreen);
+    connect(ui->exitButton, &QPushButton::clicked, this, &MainWindow::ExitApplication);
+    connect(ui->systemInfoButton, &QPushButton::clicked, this, &MainWindow::ShowSystemInfo);
+    connect(ui->snapshotButton, &QPushButton::clicked, this, &MainWindow::SnapshotCapture);
+
+    auto* snapshot_hotkey_action = new QAction(this);
+    snapshot_hotkey_action->setShortcut(QKeySequence(Qt::Key_F12));
+    snapshot_hotkey_action->setShortcutContext(Qt::ApplicationShortcut);
+    addAction(snapshot_hotkey_action);
+    connect(snapshot_hotkey_action, &QAction::triggered, this, &MainWindow::SnapshotCapture);
 
     connect(ui->showLogAct, &QAction::triggered, this, [this](bool state) {
         if (state) {
@@ -1247,9 +1505,13 @@ void MainWindow::SetUiIcons(bool isWhite) {
     ui->playButton->setIcon(RecolorIcon(ui->playButton->icon(), isWhite));
     ui->pauseButton->setIcon(RecolorIcon(ui->pauseButton->icon(), isWhite));
     ui->stopButton->setIcon(RecolorIcon(ui->stopButton->icon(), isWhite));
+    ui->exitButton->setIcon(RecolorIcon(ui->exitButton->icon(), isWhite));
     ui->refreshButton->setIcon(RecolorIcon(ui->refreshButton->icon(), isWhite));
     ui->restartButton->setIcon(RecolorIcon(ui->restartButton->icon(), isWhite));
     ui->settingsButton->setIcon(RecolorIcon(ui->settingsButton->icon(), isWhite));
+    ui->systemInfoButton->setIcon(RecolorIcon(ui->systemInfoButton->icon(), isWhite));
+    ui->snapshotButton->setIcon(
+        RecolorIcon(QIcon(":images/screenshot_icon.png"), isWhite));
     ui->fullscreenButton->setIcon(RecolorIcon(ui->fullscreenButton->icon(), isWhite));
     ui->controllerButton->setIcon(RecolorIcon(ui->controllerButton->icon(), isWhite));
     ui->keyboardButton->setIcon(RecolorIcon(ui->keyboardButton->icon(), isWhite));
@@ -1428,6 +1690,7 @@ tr("No emulator version was selected.\nThe Version Manager menu will then open.\
     QString workDir = QDir::currentPath();
     m_ipc_client->startEmulator(fileInfo, final_args, workDir);
     m_ipc_client->setActiveController(GamepadSelect::GetSelectedGamepad());
+    UpdateToolbarButtons();
 }
 
 void MainWindow::StartEmulatorExecutable(std::filesystem::path emuPath, QString gameArg,
@@ -1504,6 +1767,7 @@ void MainWindow::StartEmulatorExecutable(std::filesystem::path emuPath, QString 
     EmulatorState::GetInstance()->SetGameRunning(true);
     QString workDir = QDir::currentPath();
     m_ipc_client->startEmulator(fileInfo, args, workDir, disable_ipc);
+    UpdateToolbarButtons();
 }
 
 void MainWindow::RunGame() {
@@ -1538,6 +1802,7 @@ void MainWindow::RestartEmulator() {
     QString workDir = fileInfo.absolutePath();
 
     m_ipc_client->startEmulator(fileInfo, args, workDir);
+    UpdateToolbarButtons();
 }
 
 void MainWindow::LoadVersionComboBox() {

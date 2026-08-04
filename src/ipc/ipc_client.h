@@ -25,8 +25,11 @@ public:
     void pauseGame();
     void resumeGame();
     void stopEmulator();
+    void killEmulator();
     void restartEmulator();
     void toggleFullscreen();
+    qint64 processId() const;
+    bool isProcessRunning() const;
     void adjustVol(int volume, bool game_specific);
     void setFsr(bool enable);
     void setRcas(bool enable);

@@ -7,6 +7,7 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QProcess>
+#include <QSpinBox>
 #include <QTranslator>
 
 #include "background_music_player.h"
@@ -63,6 +64,15 @@ private:
     QWidget* createButtonWithLabel(QPushButton* button, const QString& labelText, bool showLabel);
     void CreateActions();
     void toggleFullscreen();
+    void ExitApplication();
+    void ScheduleForcedProcessShutdown();
+    void SnapshotCapture();
+    void ShowSystemInfo();
+    QString BuildCaptureTimestamp() const;
+    QString BuildCaptureGameFolderName() const;
+    std::filesystem::path EnsureCaptureOutputDirectory() const;
+    quintptr GetRunningGameWindowId() const;
+    QString BuildSystemInfoText() const;
     void CreateRecentGameActions();
     void CreateDockWindows(bool newDock);
     void LoadGameLists();
@@ -88,7 +98,9 @@ private:
     bool isTableList = true;
     bool isWhite = false;
     bool is_paused = false;
+    bool exit_after_game_closes = false;
     std::string runningGameSerial = "";
+    QSpinBox* m_snapshot_burst_spinbox = nullptr;
 
     QActionGroup* m_icon_size_act_group = nullptr;
     QActionGroup* m_list_mode_act_group = nullptr;

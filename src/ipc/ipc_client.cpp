@@ -60,6 +60,12 @@ void IpcClient::stopEmulator() {
     writeLine("STOP");
 }
 
+void IpcClient::killEmulator() {
+    if (process && process->state() != QProcess::NotRunning) {
+        process->kill();
+    }
+}
+
 void IpcClient::restartEmulator() {
     stopEmulator();
     pendingRestart = true;
@@ -67,6 +73,14 @@ void IpcClient::restartEmulator() {
 
 void IpcClient::toggleFullscreen() {
     writeLine("TOGGLE_FULLSCREEN");
+}
+
+qint64 IpcClient::processId() const {
+    return process ? process->processId() : 0;
+}
+
+bool IpcClient::isProcessRunning() const {
+    return process && process->state() != QProcess::NotRunning;
 }
 
 void IpcClient::adjustVol(int volume, bool is_game_specific) {

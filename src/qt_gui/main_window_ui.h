@@ -56,8 +56,11 @@ public:
     QPushButton* playButton;
     QPushButton* pauseButton;
     QPushButton* stopButton;
+    QPushButton* exitButton;
     QPushButton* refreshButton;
     QPushButton* settingsButton;
+    QPushButton* systemInfoButton;
+    QPushButton* snapshotButton;
     QPushButton* controllerButton;
     QPushButton* keyboardButton;
     QPushButton* fullscreenButton;
@@ -242,6 +245,10 @@ public:
         stopButton->setFlat(true);
         stopButton->setIcon(QIcon(":images/stop_icon.png"));
         stopButton->setIconSize(QSize(40, 40));
+        exitButton = new QPushButton(centralWidget);
+        exitButton->setFlat(true);
+        exitButton->setIcon(QIcon(":images/exit_icon.png"));
+        exitButton->setIconSize(QSize(40, 40));
         refreshButton = new QPushButton(centralWidget);
         refreshButton->setFlat(true);
         refreshButton->setIcon(QIcon(":images/refreshlist_icon.png"));
@@ -254,6 +261,14 @@ public:
         settingsButton->setFlat(true);
         settingsButton->setIcon(QIcon(":images/settings_icon.png"));
         settingsButton->setIconSize(QSize(40, 40));
+        systemInfoButton = new QPushButton(centralWidget);
+        systemInfoButton->setFlat(true);
+        systemInfoButton->setIcon(QIcon(":images/about_icon.png"));
+        systemInfoButton->setIconSize(QSize(40, 40));
+        snapshotButton = new QPushButton(centralWidget);
+        snapshotButton->setFlat(true);
+        snapshotButton->setIcon(QIcon(":images/screenshot_icon.png"));
+        snapshotButton->setIconSize(QSize(40, 40));
         controllerButton = new QPushButton(centralWidget);
         controllerButton->setFlat(true);
         controllerButton->setIcon(QIcon(":images/controller_icon.png"));
