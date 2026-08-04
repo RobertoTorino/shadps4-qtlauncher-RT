@@ -68,7 +68,7 @@ bool MainWindow::Init() {
     setMinimumSize(900, 405);
     const std::string_view revision(Common::g_scm_rev);
     const std::string window_title =
-        fmt::format("shadPS4QtLauncher - build{} - {}", revision.substr(0, 7),
+        fmt::format("shadPS4QtLauncher - build {} - {}", revision.substr(0, 7),
                     Common::g_scm_date);
     setWindowTitle(QString::fromStdString(window_title));
     this->show();
