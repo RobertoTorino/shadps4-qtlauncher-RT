@@ -461,7 +461,7 @@ void MainWindow::AddUiWidgets() {
     addToolbarAction(ui->toolbarSnapshotAction, ui->snapshotButton->icon(), 52);
     QWidget* burstContainer = new QWidget(this);
     QVBoxLayout* burstLayout = new QVBoxLayout(burstContainer);
-    burstLayout->setContentsMargins(0, 10, 0, 0);
+    burstLayout->setContentsMargins(0, 13, 0, 0);
     burstLayout->setSpacing(2);
     burstLayout->addWidget(ui->snapshotBurstSpinBox, 0, Qt::AlignHCenter);
     QLabel* burstLabel = new QLabel(tr("Burst"), burstContainer);
@@ -473,7 +473,7 @@ void MainWindow::AddUiWidgets() {
     ui->sizeSliderContainer->setToolTip(tr("Icon size"));
     QWidget* iconSizeContainer = new QWidget(this);
     QVBoxLayout* iconSizeLayout = new QVBoxLayout(iconSizeContainer);
-    iconSizeLayout->setContentsMargins(0, 10, 0, 0);
+    iconSizeLayout->setContentsMargins(0, 13, 0, 0);
     iconSizeLayout->setSpacing(2);
     iconSizeLayout->addWidget(ui->sizeSliderContainer);
     QLabel* iconSizeLabel = new QLabel(tr("Icon Size"), iconSizeContainer);
