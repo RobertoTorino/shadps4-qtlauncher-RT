@@ -462,7 +462,7 @@ public:
         setThemeDark->setText(QCoreApplication::translate("MainWindow", "Dark", nullptr));
         setThemeLight->setText(QCoreApplication::translate("MainWindow", "Light", nullptr));
         setThemeGreen->setText(QCoreApplication::translate("MainWindow", "Green", nullptr));
-        setThemeBlue->setText(QCoreApplication::translate("MainWindow", "Blue", nullptr));
+        setThemeBlue->setText(QCoreApplication::translate("MainWindow", "Blue RT", nullptr));
         setThemeViolet->setText(QCoreApplication::translate("MainWindow", "Violet", nullptr));
         setThemeGruvbox->setText("Gruvbox");
         setThemeTokyoNight->setText("Tokyo Night");
