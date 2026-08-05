@@ -6,6 +6,7 @@
 #include <QPlainTextEdit>
 #include <QProgressDialog>
 #include <QStatusBar>
+#include <QToolButton>
 
 #include "about_dialog.h"
 #include "cheats_patches.h"
@@ -42,6 +43,8 @@ MainWindow::MainWindow(QWidget* parent, bool log_to_terminal)
     m_gui_settings = std::make_shared<gui_settings>();
     ui->toggleLabelsAct->setChecked(
         m_gui_settings->GetValue(gui::mw_showLabelsUnderIcons).toBool());
+    ui->snapshotBurstSpinBox->setValue(
+        std::clamp(m_gui_settings->GetValue(gui::mw_snapshotBurstCount).toInt(), 1, 99));
 
     m_ipc_client->gameClosedFunc = [this]() { onGameClosed(); };
     m_ipc_client->restartEmulatorFunc = [this]() { RestartEmulator(); };
@@ -142,19 +145,7 @@ void MainWindow::StopGame() {
 void MainWindow::onGameClosed() {
     EmulatorState::GetInstance()->SetGameRunning(false);
     is_paused = false;
-
-    // swap the pause button back to the play button on close
-    ui->playButton->setVisible(true);
-    ui->pauseButton->setVisible(false);
-    if (ui->toggleLabelsAct->isChecked()) {
-        QLabel* playButtonLabel = ui->playButton->parentWidget()->findChild<QLabel*>();
-        if (playButtonLabel)
-            playButtonLabel->setVisible(true);
-
-        QLabel* pauseButtonLabel = ui->pauseButton->parentWidget()->findChild<QLabel*>();
-        if (pauseButtonLabel)
-            pauseButtonLabel->setVisible(false);
-    }
+    UpdateToolbarButtons();
 
     // clear dialogs when game closed
     skylander_dialog* sky_diag = skylander_dialog::get_dlg(this, m_ipc_client);
@@ -182,77 +173,37 @@ void MainWindow::toggleFullscreen() {
     m_ipc_client->toggleFullscreen();
 }
 
-QWidget* MainWindow::createButtonWithLabel(QPushButton* button, const QString& labelText,
-                                           bool showLabel) {
-    QWidget* container = new QWidget(this);
-    QVBoxLayout* layout = new QVBoxLayout(container);
-    layout->setAlignment(Qt::AlignCenter | Qt::AlignBottom);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(button);
-
-    QLabel* label = nullptr;
-    if (showLabel && ui->toggleLabelsAct->isChecked()) {
-        label = new QLabel(labelText, this);
-        label->setAlignment(Qt::AlignCenter | Qt::AlignBottom);
-        layout->addWidget(label);
-        button->setToolTip("");
-    } else {
-        button->setToolTip(labelText);
-    }
-
-    container->setLayout(layout);
-    container->setProperty("buttonLabel", QVariant::fromValue(label));
-    return container;
-}
-
-QWidget* createSpacer(QWidget* parent) {
-    QWidget* spacer = new QWidget(parent);
-    spacer->setFixedWidth(15);
-    spacer->setFixedHeight(15);
-    return spacer;
-}
-
 void MainWindow::AddUiWidgets() {
-    // add toolbar widgets
     QApplication::setStyle("Fusion");
-
-    bool showLabels = ui->toggleLabelsAct->isChecked();
     ui->toolBar->clear();
+    ui->toolBar->setIconSize(QSize(40, 40));
+    ui->toolBar->setStyleSheet("QToolBar { spacing: 10px; }");
 
-    ui->toolBar->addWidget(createSpacer(this));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->playButton, tr("Play"), showLabels));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->pauseButton, tr("Pause"), showLabels));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->stopButton, tr("Stop"), showLabels));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->restartButton, tr("Restart"), showLabels));
-    ui->toolBar->addWidget(createSpacer(this));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->settingsButton, tr("Settings"), showLabels));
-    ui->toolBar->addWidget(
-        createButtonWithLabel(ui->fullscreenButton, tr("Full Screen"), showLabels));
-    ui->toolBar->addWidget(createSpacer(this));
-    ui->toolBar->addWidget(
-        createButtonWithLabel(ui->controllerButton, tr("Controllers"), showLabels));
-    ui->toolBar->addWidget(createButtonWithLabel(ui->keyboardButton, tr("Keyboard"), showLabels));
-    ui->toolBar->addWidget(createSpacer(this));
-    QFrame* line = new QFrame(this);
-    line->setFrameShape(QFrame::VLine);
-    line->setFrameShadow(QFrame::Sunken);
-    line->setMinimumWidth(2);
-    ui->toolBar->addWidget(line);
-    ui->toolBar->addWidget(createSpacer(this));
-    if (showLabels) {
-        QLabel* pauseButtonLabel = ui->pauseButton->parentWidget()->findChild<QLabel*>();
-        if (pauseButtonLabel) {
-            pauseButtonLabel->setVisible(false);
+    const auto addToolbarAction = [this](QAction* action, const QIcon& icon, int minimumWidth,
+                                         QSize iconSize = QSize(40, 40)) {
+        action->setIcon(icon);
+        ui->toolBar->addAction(action);
+        if (QWidget* actionWidget = ui->toolBar->widgetForAction(action)) {
+            actionWidget->setMinimumWidth(minimumWidth);
+            if (QToolButton* toolButton = qobject_cast<QToolButton*>(actionWidget)) {
+                toolButton->setIconSize(iconSize);
+            }
         }
-    }
-    ui->toolBar->addWidget(
-        createButtonWithLabel(ui->refreshButton, tr("Refresh List"), showLabels));
-    ui->toolBar->addWidget(createSpacer(this));
+    };
+    addToolbarAction(ui->toolbarPlayAction, ui->playButton->icon(), 52);
+    addToolbarAction(ui->toolbarPauseAction, ui->pauseButton->icon(), 52);
+    addToolbarAction(ui->toolbarStopAction, ui->stopButton->icon(), 52);
+    addToolbarAction(ui->toolbarRestartAction, ui->restartButton->icon(), 52);
+    addToolbarAction(ui->toolbarExitAction, ui->exitButton->icon(), 70);
+    addToolbarAction(ui->toolbarFullscreenAction, ui->fullscreenButton->icon(), 52);
+    addToolbarAction(ui->toolbarControllerAction, ui->controllerButton->icon(), 52, QSize(60, 50));
+    addToolbarAction(ui->toolbarSettingsAction, ui->settingsButton->icon(), 52);
+    addToolbarAction(ui->toolbarInfoAction, ui->systemInfoButton->icon(), 52);
+    addToolbarAction(ui->toolbarSnapshotAction, ui->snapshotButton->icon(), 52);
+    ui->toolBar->addWidget(ui->snapshotBurstSpinBox);
 
-    QBoxLayout* toolbarLayout = new QBoxLayout(QBoxLayout::TopToBottom);
-    toolbarLayout->setSpacing(2);
-    toolbarLayout->setContentsMargins(2, 2, 2, 2);
-    ui->sizeSliderContainer->setFixedWidth(150);
+    ui->sizeSliderContainer->setFixedSize(181, 31);
+    ui->sizeSliderContainer->setToolTip(tr("Icon size"));
 
     QWidget* searchSliderContainer = new QWidget(this);
     QBoxLayout* searchSliderLayout = new QBoxLayout(QBoxLayout::TopToBottom);
@@ -267,65 +218,64 @@ void MainWindow::AddUiWidgets() {
 
     ui->toolBar->addWidget(searchSliderContainer);
 
-    if (!showLabels) {
-        toolbarLayout->addWidget(searchSliderContainer);
-    }
-
-    ui->playButton->setVisible(true);
-    ui->pauseButton->setVisible(false);
-
-    // Expandable spacer to push elements to the right (Version Manager)
-    QWidget* expandingSpacer = new QWidget(this);
-    expandingSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    ui->toolBar->addWidget(expandingSpacer);
     QWidget* versionContainer = new QWidget(this);
-    QVBoxLayout* versionLayout = new QVBoxLayout(versionContainer);
+    versionContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    QHBoxLayout* versionContainerLayout = new QHBoxLayout(versionContainer);
+    versionContainerLayout->setContentsMargins(0, 0, 0, 0);
+    versionContainerLayout->addStretch();
+    QWidget* versionControls = new QWidget(versionContainer);
+    QVBoxLayout* versionLayout = new QVBoxLayout(versionControls);
     versionLayout->setContentsMargins(0, 0, 0, 0);
     versionLayout->addWidget(ui->versionComboBox);
     versionLayout->addWidget(ui->versionManagerButton);
+    versionContainerLayout->addWidget(versionControls);
     ui->versionManagerButton->setText(tr("Version Manager"));
 #ifdef HIDE_VERSION_MANAGER
     versionContainer->setHidden(true);
 #endif
     ui->toolBar->addWidget(versionContainer);
+    UpdateToolbarLabels();
+    UpdateToolbarButtons();
 }
 
 void MainWindow::UpdateToolbarButtons() {
-    // add toolbar widgets when game is running
-    bool showLabels = ui->toggleLabelsAct->isChecked();
+    const bool isGameRunning = EmulatorState::GetInstance()->IsGameRunning();
+    ui->toolbarPlayAction->setEnabled(!isGameRunning);
+    ui->toolbarPauseAction->setEnabled(isGameRunning);
+    ui->toolbarStopAction->setEnabled(isGameRunning);
+    ui->toolbarRestartAction->setEnabled(isGameRunning);
+    ui->toolbarFullscreenAction->setEnabled(isGameRunning);
+    ui->toolbarExitAction->setEnabled(false);
+    ui->toolbarSnapshotAction->setEnabled(false);
 
-    ui->playButton->setVisible(false);
-    ui->pauseButton->setVisible(true);
-
-    if (showLabels) {
-        QLabel* playButtonLabel = ui->playButton->parentWidget()->findChild<QLabel*>();
-        if (playButtonLabel)
-            playButtonLabel->setVisible(false);
-    }
-
-    if (is_paused) {
-        ui->pauseButton->setIcon(ui->playButton->icon());
-        ui->pauseButton->setToolTip(tr("Resume"));
+    if (isGameRunning && is_paused) {
+        ui->toolbarPauseAction->setIcon(ui->toolbarPlayAction->icon());
+        ui->toolbarPauseAction->setText(tr("Resume"));
     } else {
         if (isIconBlack) {
-            ui->pauseButton->setIcon(QIcon(":images/pause_icon.png"));
+            ui->toolbarPauseAction->setIcon(QIcon(":images/pause_icon.png"));
         } else {
-            ui->pauseButton->setIcon(RecolorIcon(QIcon(":images/pause_icon.png"), isWhite));
+            ui->toolbarPauseAction->setIcon(
+                RecolorIcon(QIcon(":images/pause_icon.png"), isWhite));
         }
-        ui->pauseButton->setToolTip(tr("Pause"));
-    }
-
-    if (showLabels) {
-        QLabel* pauseButtonLabel = ui->pauseButton->parentWidget()->findChild<QLabel*>();
-        if (pauseButtonLabel) {
-            pauseButtonLabel->setText(is_paused ? tr("Resume") : tr("Pause"));
-            pauseButtonLabel->setVisible(true);
-        }
+        ui->toolbarPauseAction->setText(tr("Pause"));
     }
 }
 
 void MainWindow::UpdateToolbarLabels() {
-    AddUiWidgets();
+    ui->toolBar->setToolButtonStyle(ui->toggleLabelsAct->isChecked()
+                                        ? Qt::ToolButtonTextUnderIcon
+                                        : Qt::ToolButtonIconOnly);
+    ui->toolbarPlayAction->setText(tr("Play"));
+    ui->toolbarPauseAction->setText(is_paused ? tr("Resume") : tr("Pause"));
+    ui->toolbarStopAction->setText(tr("Stop"));
+    ui->toolbarRestartAction->setText(tr("Restart"));
+    ui->toolbarExitAction->setText(tr("Terminate"));
+    ui->toolbarFullscreenAction->setText(tr("Full Screen"));
+    ui->toolbarControllerAction->setText(tr("Controllers"));
+    ui->toolbarSettingsAction->setText(tr("Settings"));
+    ui->toolbarInfoAction->setText(tr("Info"));
+    ui->toolbarSnapshotAction->setText(tr("Screenshot"));
 }
 
 void MainWindow::CreateDockWindows(bool newDock) {
@@ -495,6 +445,23 @@ void MainWindow::CreateConnects() {
     connect(ui->pauseButton, &QPushButton::clicked, this, &MainWindow::PauseGame);
     connect(ui->stopButton, &QPushButton::clicked, this, &MainWindow::StopGame);
     connect(ui->restartButton, &QPushButton::clicked, this, &MainWindow::RestartGame);
+    connect(ui->systemInfoButton, &QPushButton::clicked, ui->aboutAct, &QAction::trigger);
+    connect(ui->toolbarPlayAction, &QAction::triggered, ui->playButton, &QPushButton::click);
+    connect(ui->toolbarPauseAction, &QAction::triggered, ui->pauseButton, &QPushButton::click);
+    connect(ui->toolbarStopAction, &QAction::triggered, ui->stopButton, &QPushButton::click);
+    connect(ui->toolbarRestartAction, &QAction::triggered, ui->restartButton,
+            &QPushButton::click);
+    connect(ui->toolbarFullscreenAction, &QAction::triggered, ui->fullscreenButton,
+            &QPushButton::click);
+    connect(ui->toolbarControllerAction, &QAction::triggered, ui->controllerButton,
+            &QPushButton::click);
+    connect(ui->toolbarSettingsAction, &QAction::triggered, ui->settingsButton,
+            &QPushButton::click);
+    connect(ui->toolbarInfoAction, &QAction::triggered, ui->systemInfoButton,
+            &QPushButton::click);
+    connect(ui->snapshotBurstSpinBox, &QSpinBox::valueChanged, this, [this](int value) {
+        m_gui_settings->SetValue(gui::mw_snapshotBurstCount, value);
+    });
     connect(m_game_grid_frame.get(), &QTableWidget::cellDoubleClicked, this,
             &MainWindow::StartGame);
     connect(m_game_list_frame.get(), &QTableWidget::cellDoubleClicked, this,
@@ -1249,7 +1216,10 @@ void MainWindow::SetUiIcons(bool isWhite) {
     ui->stopButton->setIcon(RecolorIcon(ui->stopButton->icon(), isWhite));
     ui->refreshButton->setIcon(RecolorIcon(ui->refreshButton->icon(), isWhite));
     ui->restartButton->setIcon(RecolorIcon(ui->restartButton->icon(), isWhite));
+    ui->exitButton->setIcon(RecolorIcon(ui->exitButton->icon(), isWhite));
     ui->settingsButton->setIcon(RecolorIcon(ui->settingsButton->icon(), isWhite));
+    ui->systemInfoButton->setIcon(RecolorIcon(ui->systemInfoButton->icon(), isWhite));
+    ui->snapshotButton->setIcon(RecolorIcon(ui->snapshotButton->icon(), isWhite));
     ui->fullscreenButton->setIcon(RecolorIcon(ui->fullscreenButton->icon(), isWhite));
     ui->controllerButton->setIcon(RecolorIcon(ui->controllerButton->icon(), isWhite));
     ui->keyboardButton->setIcon(RecolorIcon(ui->keyboardButton->icon(), isWhite));
@@ -1263,6 +1233,16 @@ void MainWindow::SetUiIcons(bool isWhite) {
     ui->keyManager->setIcon(RecolorIcon(ui->keyManager->icon(), isWhite));
     ui->userManager->setIcon(RecolorIcon(ui->userManager->icon(), isWhite));
     ui->addElfFolderAct->setIcon(RecolorIcon(ui->addElfFolderAct->icon(), isWhite));
+    ui->toolbarPlayAction->setIcon(ui->playButton->icon());
+    ui->toolbarPauseAction->setIcon(ui->pauseButton->icon());
+    ui->toolbarStopAction->setIcon(ui->stopButton->icon());
+    ui->toolbarRestartAction->setIcon(ui->restartButton->icon());
+    ui->toolbarExitAction->setIcon(ui->exitButton->icon());
+    ui->toolbarFullscreenAction->setIcon(ui->fullscreenButton->icon());
+    ui->toolbarControllerAction->setIcon(ui->controllerButton->icon());
+    ui->toolbarSettingsAction->setIcon(ui->settingsButton->icon());
+    ui->toolbarInfoAction->setIcon(ui->systemInfoButton->icon());
+    ui->toolbarSnapshotAction->setIcon(ui->snapshotButton->icon());
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event) {

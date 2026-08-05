@@ -5,6 +5,7 @@
 
 #include <QMenuBar>
 #include <QPushButton>
+#include <QSpinBox>
 #include <QSplitter>
 #include <QTextEdit>
 #include <QToolBar>
@@ -51,6 +52,16 @@ public:
     QAction* setThemeGruvbox;
     QAction* setThemeTokyoNight;
     QAction* setThemeOled;
+    QAction* toolbarPlayAction;
+    QAction* toolbarPauseAction;
+    QAction* toolbarStopAction;
+    QAction* toolbarRestartAction;
+    QAction* toolbarExitAction;
+    QAction* toolbarFullscreenAction;
+    QAction* toolbarControllerAction;
+    QAction* toolbarSettingsAction;
+    QAction* toolbarInfoAction;
+    QAction* toolbarSnapshotAction;
     QWidget* centralWidget;
     QLineEdit* mw_searchbar;
     QPushButton* playButton;
@@ -62,6 +73,10 @@ public:
     QPushButton* keyboardButton;
     QPushButton* fullscreenButton;
     QPushButton* restartButton;
+    QPushButton* exitButton;
+    QPushButton* systemInfoButton;
+    QPushButton* snapshotButton;
+    QSpinBox* snapshotBurstSpinBox;
     QPushButton* versionManagerButton;
     QComboBox* versionComboBox;
 
@@ -230,42 +245,79 @@ public:
         mw_searchbar->setFrame(false);
         mw_searchbar->setClearButtonEnabled(false);
 
-        playButton = new QPushButton(centralWidget);
+        playButton = new QPushButton(MainWindow);
         playButton->setFlat(true);
         playButton->setIcon(QIcon(":images/play_icon.png"));
         playButton->setIconSize(QSize(40, 40));
-        pauseButton = new QPushButton(centralWidget);
+        pauseButton = new QPushButton(MainWindow);
         pauseButton->setFlat(true);
         pauseButton->setIcon(QIcon(":images/pause_icon.png"));
         pauseButton->setIconSize(QSize(40, 40));
-        stopButton = new QPushButton(centralWidget);
+        stopButton = new QPushButton(MainWindow);
         stopButton->setFlat(true);
         stopButton->setIcon(QIcon(":images/stop_icon.png"));
         stopButton->setIconSize(QSize(40, 40));
-        refreshButton = new QPushButton(centralWidget);
+        refreshButton = new QPushButton(MainWindow);
         refreshButton->setFlat(true);
         refreshButton->setIcon(QIcon(":images/refreshlist_icon.png"));
         refreshButton->setIconSize(QSize(40, 40));
-        fullscreenButton = new QPushButton(centralWidget);
+        fullscreenButton = new QPushButton(MainWindow);
         fullscreenButton->setFlat(true);
         fullscreenButton->setIcon(QIcon(":images/fullscreen_icon.png"));
         fullscreenButton->setIconSize(QSize(38, 38));
-        settingsButton = new QPushButton(centralWidget);
+        settingsButton = new QPushButton(MainWindow);
         settingsButton->setFlat(true);
         settingsButton->setIcon(QIcon(":images/settings_icon.png"));
         settingsButton->setIconSize(QSize(40, 40));
-        controllerButton = new QPushButton(centralWidget);
+        controllerButton = new QPushButton(MainWindow);
         controllerButton->setFlat(true);
         controllerButton->setIcon(QIcon(":images/controller_icon.png"));
         controllerButton->setIconSize(QSize(55, 48));
-        keyboardButton = new QPushButton(centralWidget);
+        keyboardButton = new QPushButton(MainWindow);
         keyboardButton->setFlat(true);
         keyboardButton->setIcon(QIcon(":images/keyboard_icon.png"));
         keyboardButton->setIconSize(QSize(50, 50));
-        restartButton = new QPushButton(centralWidget);
+        restartButton = new QPushButton(MainWindow);
         restartButton->setFlat(true);
         restartButton->setIcon(QIcon(":images/restart_game_icon.png"));
         restartButton->setIconSize(QSize(40, 40));
+        exitButton = new QPushButton(MainWindow);
+        exitButton->setObjectName("exitButton");
+        exitButton->setFlat(true);
+        exitButton->setIcon(QIcon(":images/exit_icon.png"));
+        exitButton->setIconSize(QSize(40, 40));
+        systemInfoButton = new QPushButton(MainWindow);
+        systemInfoButton->setObjectName("systemInfoButton");
+        systemInfoButton->setFlat(true);
+        systemInfoButton->setIcon(QIcon(":images/about_icon.png"));
+        systemInfoButton->setIconSize(QSize(40, 40));
+        snapshotButton = new QPushButton(MainWindow);
+        snapshotButton->setObjectName("snapshotButton");
+        snapshotButton->setFlat(true);
+        snapshotButton->setIcon(QIcon(":images/screenshot_icon.png"));
+        snapshotButton->setIconSize(QSize(40, 40));
+        snapshotBurstSpinBox = new QSpinBox(centralWidget);
+        snapshotBurstSpinBox->setObjectName("snapshotBurstSpinBox");
+        snapshotBurstSpinBox->setRange(1, 99);
+        snapshotBurstSpinBox->setAccelerated(true);
+        snapshotBurstSpinBox->setAlignment(Qt::AlignCenter);
+        snapshotBurstSpinBox->setFixedSize(68, 40);
+        snapshotBurstSpinBox->setToolTip(QCoreApplication::translate(
+            "MainWindow", "Screenshots per click (1-99)", nullptr));
+        QFont snapshotBurstFont = snapshotBurstSpinBox->font();
+        snapshotBurstFont.setPointSize(16);
+        snapshotBurstSpinBox->setFont(snapshotBurstFont);
+
+        toolbarPlayAction = new QAction(MainWindow);
+        toolbarPauseAction = new QAction(MainWindow);
+        toolbarStopAction = new QAction(MainWindow);
+        toolbarRestartAction = new QAction(MainWindow);
+        toolbarExitAction = new QAction(MainWindow);
+        toolbarFullscreenAction = new QAction(MainWindow);
+        toolbarControllerAction = new QAction(MainWindow);
+        toolbarSettingsAction = new QAction(MainWindow);
+        toolbarInfoAction = new QAction(MainWindow);
+        toolbarSnapshotAction = new QAction(MainWindow);
 
         sizeSliderContainer = new QWidget(centralWidget);
         sizeSliderContainer->setObjectName("sizeSliderContainer");
@@ -326,6 +378,9 @@ public:
         MainWindow->setMenuBar(menuBar);
         toolBar = new QToolBar(MainWindow);
         toolBar->setObjectName("toolBar");
+        toolBar->setMovable(false);
+        toolBar->setMinimumWidth(0);
+        toolBar->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
         MainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
 
         menuBar->addAction(menuFile->menuAction());

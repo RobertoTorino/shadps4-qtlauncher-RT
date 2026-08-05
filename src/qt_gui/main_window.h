@@ -60,7 +60,6 @@ private:
     void AddUiWidgets();
     void UpdateToolbarLabels();
     void UpdateToolbarButtons();
-    QWidget* createButtonWithLabel(QPushButton* button, const QString& labelText, bool showLabel);
     void CreateActions();
     void toggleFullscreen();
     void CreateRecentGameActions();
