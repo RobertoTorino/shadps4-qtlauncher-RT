@@ -204,19 +204,7 @@ void MainWindow::AddUiWidgets() {
 
     ui->sizeSliderContainer->setFixedSize(181, 31);
     ui->sizeSliderContainer->setToolTip(tr("Icon size"));
-
-    QWidget* searchSliderContainer = new QWidget(this);
-    QBoxLayout* searchSliderLayout = new QBoxLayout(QBoxLayout::TopToBottom);
-    searchSliderLayout->setContentsMargins(0, 0, 6, 6);
-    searchSliderLayout->setSpacing(2);
-    ui->mw_searchbar->setFixedWidth(150);
-
-    searchSliderLayout->addWidget(ui->sizeSliderContainer);
-    searchSliderLayout->addWidget(ui->mw_searchbar);
-
-    searchSliderContainer->setLayout(searchSliderLayout);
-
-    ui->toolBar->addWidget(searchSliderContainer);
+    ui->toolBar->addWidget(ui->sizeSliderContainer);
 
     QWidget* versionContainer = new QWidget(this);
     versionContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -402,7 +390,6 @@ void MainWindow::CheckUpdateMain(bool checkSave) {
 
 void MainWindow::CreateConnects() {
     connect(this, &MainWindow::WindowResized, this, &MainWindow::HandleResize);
-    connect(ui->mw_searchbar, &QLineEdit::textChanged, this, &MainWindow::SearchGameTable);
     connect(ui->exitAct, &QAction::triggered, this, &QWidget::close);
     connect(ui->refreshGameListAct, &QAction::triggered, this, &MainWindow::RefreshGameTable);
     connect(ui->refreshButton, &QPushButton::clicked, this, &MainWindow::RefreshGameTable);
@@ -659,7 +646,6 @@ void MainWindow::CreateConnects() {
         m_gui_settings->SetValue(gui::mw_dockWidgetSizes, QVariant::fromValue(sizes));
         m_gui_settings->SetValue(gui::gl_mode, 0);
         CreateDockWindows(false);
-        ui->mw_searchbar->setText("");
         SetLastIconSizeBullet();
     });
     // Grid
@@ -670,7 +656,6 @@ void MainWindow::CreateConnects() {
         m_gui_settings->SetValue(gui::mw_dockWidgetSizes, QVariant::fromValue(sizes));
         m_gui_settings->SetValue(gui::gl_mode, 1);
         CreateDockWindows(false);
-        ui->mw_searchbar->setText("");
         SetLastIconSizeBullet();
     });
     // Elf Viewer
@@ -871,7 +856,7 @@ void MainWindow::CreateConnects() {
 
     // Themes
     connect(ui->setThemeDark, &QAction::triggered, &m_window_themes, [this]() {
-        m_window_themes.SetWindowTheme(Theme::Dark, ui->mw_searchbar);
+        m_window_themes.SetWindowTheme(Theme::Dark);
         m_gui_settings->SetValue(gui::gen_theme, static_cast<int>(Theme::Dark));
         if (isIconBlack) {
             SetUiIcons(false);
@@ -879,7 +864,7 @@ void MainWindow::CreateConnects() {
         }
     });
     connect(ui->setThemeLight, &QAction::triggered, &m_window_themes, [this]() {
-        m_window_themes.SetWindowTheme(Theme::Light, ui->mw_searchbar);
+        m_window_themes.SetWindowTheme(Theme::Light);
         m_gui_settings->SetValue(gui::gen_theme, static_cast<int>(Theme::Light));
         if (!isIconBlack) {
             SetUiIcons(true);
@@ -887,7 +872,7 @@ void MainWindow::CreateConnects() {
         }
     });
     connect(ui->setThemeGreen, &QAction::triggered, &m_window_themes, [this]() {
-        m_window_themes.SetWindowTheme(Theme::Green, ui->mw_searchbar);
+        m_window_themes.SetWindowTheme(Theme::Green);
         m_gui_settings->SetValue(gui::gen_theme, static_cast<int>(Theme::Green));
         if (isIconBlack) {
             SetUiIcons(false);
@@ -895,7 +880,7 @@ void MainWindow::CreateConnects() {
         }
     });
     connect(ui->setThemeBlue, &QAction::triggered, &m_window_themes, [this]() {
-        m_window_themes.SetWindowTheme(Theme::Blue, ui->mw_searchbar);
+        m_window_themes.SetWindowTheme(Theme::Blue);
         m_gui_settings->SetValue(gui::gen_theme, static_cast<int>(Theme::Blue));
         if (isIconBlack) {
             SetUiIcons(false);
@@ -903,7 +888,7 @@ void MainWindow::CreateConnects() {
         }
     });
     connect(ui->setThemeViolet, &QAction::triggered, &m_window_themes, [this]() {
-        m_window_themes.SetWindowTheme(Theme::Violet, ui->mw_searchbar);
+        m_window_themes.SetWindowTheme(Theme::Violet);
         m_gui_settings->SetValue(gui::gen_theme, static_cast<int>(Theme::Violet));
         if (isIconBlack) {
             SetUiIcons(false);
@@ -911,7 +896,7 @@ void MainWindow::CreateConnects() {
         }
     });
     connect(ui->setThemeGruvbox, &QAction::triggered, &m_window_themes, [this]() {
-        m_window_themes.SetWindowTheme(Theme::Gruvbox, ui->mw_searchbar);
+        m_window_themes.SetWindowTheme(Theme::Gruvbox);
         m_gui_settings->SetValue(gui::gen_theme, static_cast<int>(Theme::Gruvbox));
         if (isIconBlack) {
             SetUiIcons(false);
@@ -919,7 +904,7 @@ void MainWindow::CreateConnects() {
         }
     });
     connect(ui->setThemeTokyoNight, &QAction::triggered, &m_window_themes, [this]() {
-        m_window_themes.SetWindowTheme(Theme::TokyoNight, ui->mw_searchbar);
+        m_window_themes.SetWindowTheme(Theme::TokyoNight);
         m_gui_settings->SetValue(gui::gen_theme, static_cast<int>(Theme::TokyoNight));
         if (isIconBlack) {
             SetUiIcons(false);
@@ -927,7 +912,7 @@ void MainWindow::CreateConnects() {
         }
     });
     connect(ui->setThemeOled, &QAction::triggered, &m_window_themes, [this]() {
-        m_window_themes.SetWindowTheme(Theme::Oled, ui->mw_searchbar);
+        m_window_themes.SetWindowTheme(Theme::Oled);
         m_gui_settings->SetValue(gui::gen_theme, static_cast<int>(Theme::Oled));
         if (isIconBlack) {
             SetUiIcons(false);
@@ -988,37 +973,6 @@ void MainWindow::StartGameWithArgs(QStringList args) {
 
 void MainWindow::StartGame() {
     StartGameWithArgs({});
-}
-
-bool isTable;
-void MainWindow::SearchGameTable(const QString& text) {
-    if (isTableList) {
-        if (isTable != true) {
-            m_game_info->m_games = m_game_info->m_games_backup;
-            m_game_list_frame->PopulateGameList();
-            isTable = true;
-        }
-        for (int row = 0; row < m_game_list_frame->rowCount(); row++) {
-            QString game_name = QString::fromStdString(m_game_info->m_games[row].name);
-            bool match = (game_name.contains(text, Qt::CaseInsensitive)); // Check only in column 1
-            m_game_list_frame->setRowHidden(row, !match);
-        }
-    } else {
-        isTable = false;
-        m_game_info->m_games = m_game_info->m_games_backup;
-        m_game_grid_frame->PopulateGameGrid(m_game_info->m_games, false);
-
-        QVector<GameInfo> filteredGames;
-        for (const auto& gameInfo : m_game_info->m_games) {
-            QString game_name = QString::fromStdString(gameInfo.name);
-            if (game_name.contains(text, Qt::CaseInsensitive)) {
-                filteredGames.push_back(gameInfo);
-            }
-        }
-        std::sort(filteredGames.begin(), filteredGames.end(), m_game_info->CompareStrings);
-        m_game_info->m_games = filteredGames;
-        m_game_grid_frame->PopulateGameGrid(filteredGames, true);
-    }
 }
 
 void MainWindow::ShowGameList() {
@@ -1103,7 +1057,7 @@ void MainWindow::InstallDirectory() {
 
 void MainWindow::SetLastUsedTheme() {
     Theme lastTheme = static_cast<Theme>(m_gui_settings->GetValue(gui::gen_theme).toInt());
-    m_window_themes.SetWindowTheme(lastTheme, ui->mw_searchbar);
+    m_window_themes.SetWindowTheme(lastTheme);
 
     switch (lastTheme) {
     case Theme::Light:

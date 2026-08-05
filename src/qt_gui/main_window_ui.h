@@ -63,7 +63,6 @@ public:
     QAction* toolbarInfoAction;
     QAction* toolbarSnapshotAction;
     QWidget* centralWidget;
-    QLineEdit* mw_searchbar;
     QPushButton* playButton;
     QPushButton* pauseButton;
     QPushButton* stopButton;
@@ -233,17 +232,6 @@ public:
         centralWidget->setObjectName("centralWidget");
         sizePolicy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
         centralWidget->setSizePolicy(sizePolicy);
-        mw_searchbar = new QLineEdit(centralWidget);
-        mw_searchbar->setObjectName("mw_searchbar");
-        mw_searchbar->setGeometry(QRect(250, 10, 130, 31));
-        mw_searchbar->setMaximumWidth(250);
-        QFont font;
-        font.setPointSize(10);
-        font.setBold(false);
-        mw_searchbar->setFont(font);
-        mw_searchbar->setFocusPolicy(Qt::ClickFocus);
-        mw_searchbar->setFrame(false);
-        mw_searchbar->setClearButtonEnabled(false);
 
         playButton = new QPushButton(MainWindow);
         playButton->setFlat(true);
@@ -272,7 +260,7 @@ public:
         controllerButton = new QPushButton(MainWindow);
         controllerButton->setFlat(true);
         controllerButton->setIcon(QIcon(":images/controller_icon.png"));
-        controllerButton->setIconSize(QSize(55, 48));
+        controllerButton->setIconSize(QSize(60, 50));
         keyboardButton = new QPushButton(MainWindow);
         keyboardButton->setFlat(true);
         keyboardButton->setIcon(QIcon(":images/keyboard_icon.png"));
@@ -502,8 +490,6 @@ public:
             QCoreApplication::translate("MainWindow", "Manage Infinity Figures", nullptr));
         dimensionsToypadAction->setText(
             QCoreApplication::translate("MainWindow", "Manage Dimensions Toypad", nullptr));
-        mw_searchbar->setPlaceholderText(
-            QCoreApplication::translate("MainWindow", "Search...", nullptr));
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
         menuView->setTitle(QCoreApplication::translate("MainWindow", "View", nullptr));
         menuGame_List_Icons->setTitle(

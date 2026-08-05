@@ -4,7 +4,6 @@
 #pragma once
 
 #include <QApplication>
-#include <QLineEdit>
 #include <QWidget>
 
 enum class Theme : int { Dark, Light, Green, Blue, Violet, Gruvbox, TokyoNight, Oled };
@@ -12,5 +11,5 @@ enum class Theme : int { Dark, Light, Green, Blue, Violet, Gruvbox, TokyoNight, 
 class WindowThemes : public QObject {
     Q_OBJECT
 public Q_SLOTS:
-    void SetWindowTheme(Theme theme, QLineEdit* mw_searchbar);
+    void SetWindowTheme(Theme theme);
 };
