@@ -405,7 +405,7 @@ void MainWindow::AddUiWidgets() {
     QApplication::setStyle("Fusion");
     ui->toolBar->clear();
     ui->toolBar->setIconSize(QSize(40, 40));
-    ui->toolBar->setStyleSheet("QToolBar { spacing: 10px; }");
+    ui->toolBar->setStyleSheet("QToolBar { spacing: 10px; padding-top: 5px; }");
 
     const auto addToolbarAction = [this](QAction* action, const QIcon& icon, int minimumWidth,
                                          QSize iconSize = QSize(40, 40)) {
