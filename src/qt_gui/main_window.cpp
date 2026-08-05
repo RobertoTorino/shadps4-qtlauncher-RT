@@ -3,8 +3,10 @@
 
 #include <QDateTime>
 #include <QDockWidget>
+#include <QImage>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QPainter>
 #include <QPlainTextEdit>
 #include <QProgressDialog>
 #include <QSettings>
@@ -129,6 +131,33 @@ QImage CaptureWindowImage(HWND window) {
 }
 } // namespace
 #endif
+
+namespace {
+QIcon CreateControllerToolbarIcon(const QIcon& icon) {
+    const QImage source = icon.pixmap(QSize(100, 100)).toImage();
+    QRect visibleBounds;
+    for (int y = 0; y < source.height(); ++y) {
+        for (int x = 0; x < source.width(); ++x) {
+            if (qAlpha(source.pixel(x, y)) != 0) {
+                visibleBounds |= QRect(x, y, 1, 1);
+            }
+        }
+    }
+    if (visibleBounds.isEmpty()) {
+        return icon;
+    }
+
+    const QPixmap artwork = QPixmap::fromImage(source.copy(visibleBounds))
+                                .scaled(QSize(60, 50), Qt::KeepAspectRatio,
+                                        Qt::SmoothTransformation);
+    QPixmap canvas(60, 50);
+    canvas.fill(Qt::transparent);
+    QPainter painter(&canvas);
+    painter.drawPixmap((canvas.width() - artwork.width()) / 2,
+                       (canvas.height() - artwork.height()) / 2, artwork);
+    return QIcon(canvas);
+}
+} // namespace
 
 MainWindow::MainWindow(QWidget* parent, bool log_to_terminal)
     : QMainWindow(parent), ui(new Ui::MainWindow),
@@ -404,8 +433,9 @@ void MainWindow::toggleFullscreen() {
 void MainWindow::AddUiWidgets() {
     QApplication::setStyle("Fusion");
     ui->toolBar->clear();
-    ui->toolBar->setIconSize(QSize(40, 40));
-    ui->toolBar->setStyleSheet("QToolBar { spacing: 10px; padding-top: 10px; }");
+    ui->toolBar->setIconSize(QSize(60, 50));
+    ui->toolBar->setStyleSheet(
+        "QToolBar { spacing: 10px; } QToolBar QToolButton { margin-top: 10px; }");
 
     const auto addToolbarAction = [this](QAction* action, const QIcon& icon, int minimumWidth,
                                          QSize iconSize = QSize(40, 40)) {
@@ -424,13 +454,14 @@ void MainWindow::AddUiWidgets() {
     addToolbarAction(ui->toolbarRestartAction, ui->restartButton->icon(), 52);
     addToolbarAction(ui->toolbarExitAction, ui->exitButton->icon(), 70);
     addToolbarAction(ui->toolbarFullscreenAction, ui->fullscreenButton->icon(), 52);
-    addToolbarAction(ui->toolbarControllerAction, ui->controllerButton->icon(), 70, QSize(60, 50));
+    addToolbarAction(ui->toolbarControllerAction,
+                     CreateControllerToolbarIcon(ui->controllerButton->icon()), 70, QSize(60, 50));
     addToolbarAction(ui->toolbarSettingsAction, ui->settingsButton->icon(), 52);
     addToolbarAction(ui->toolbarInfoAction, ui->systemInfoButton->icon(), 52);
     addToolbarAction(ui->toolbarSnapshotAction, ui->snapshotButton->icon(), 52);
     QWidget* burstContainer = new QWidget(this);
     QVBoxLayout* burstLayout = new QVBoxLayout(burstContainer);
-    burstLayout->setContentsMargins(0, 0, 0, 0);
+    burstLayout->setContentsMargins(0, 10, 0, 0);
     burstLayout->setSpacing(2);
     burstLayout->addWidget(ui->snapshotBurstSpinBox, 0, Qt::AlignHCenter);
     QLabel* burstLabel = new QLabel(tr("Burst"), burstContainer);
@@ -438,11 +469,11 @@ void MainWindow::AddUiWidgets() {
     burstLayout->addWidget(burstLabel);
     ui->toolBar->addWidget(burstContainer);
 
-    ui->sizeSliderContainer->setFixedSize(181, 31);
+    ui->sizeSliderContainer->setFixedSize(181, 40);
     ui->sizeSliderContainer->setToolTip(tr("Icon size"));
     QWidget* iconSizeContainer = new QWidget(this);
     QVBoxLayout* iconSizeLayout = new QVBoxLayout(iconSizeContainer);
-    iconSizeLayout->setContentsMargins(0, 0, 0, 0);
+    iconSizeLayout->setContentsMargins(0, 10, 0, 0);
     iconSizeLayout->setSpacing(2);
     iconSizeLayout->addWidget(ui->sizeSliderContainer);
     QLabel* iconSizeLabel = new QLabel(tr("Icon Size"), iconSizeContainer);
@@ -457,7 +488,7 @@ void MainWindow::AddUiWidgets() {
     versionContainerLayout->addStretch();
     QWidget* versionControls = new QWidget(versionContainer);
     QVBoxLayout* versionLayout = new QVBoxLayout(versionControls);
-    versionLayout->setContentsMargins(0, 0, 0, 0);
+    versionLayout->setContentsMargins(0, 10, 0, 0);
     versionLayout->addWidget(ui->versionComboBox);
     versionLayout->addWidget(ui->versionManagerButton);
     versionContainerLayout->addWidget(versionControls);
@@ -1451,7 +1482,8 @@ void MainWindow::SetUiIcons(bool isWhite) {
     ui->toolbarRestartAction->setIcon(ui->restartButton->icon());
     ui->toolbarExitAction->setIcon(ui->exitButton->icon());
     ui->toolbarFullscreenAction->setIcon(ui->fullscreenButton->icon());
-    ui->toolbarControllerAction->setIcon(ui->controllerButton->icon());
+    ui->toolbarControllerAction->setIcon(
+        CreateControllerToolbarIcon(ui->controllerButton->icon()));
     ui->toolbarSettingsAction->setIcon(ui->settingsButton->icon());
     ui->toolbarInfoAction->setIcon(ui->systemInfoButton->icon());
     ui->toolbarSnapshotAction->setIcon(ui->snapshotButton->icon());
