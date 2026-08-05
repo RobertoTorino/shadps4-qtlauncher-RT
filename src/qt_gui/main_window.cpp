@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <QDockWidget>
+#include <QImage>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPlainTextEdit>
@@ -129,6 +130,21 @@ QImage CaptureWindowImage(HWND window) {
 }
 } // namespace
 #endif
+
+namespace {
+QIcon CreateControllerToolbarIcon(const QIcon& icon) {
+    QImage image = icon.pixmap(QSize(100, 100)).toImage();
+    QRect visible_bounds;
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            if (qAlpha(image.pixel(x, y)) != 0) {
+                visible_bounds |= QRect(x, y, 1, 1);
+            }
+        }
+    }
+    return visible_bounds.isEmpty() ? icon : QIcon(QPixmap::fromImage(image.copy(visible_bounds)));
+}
+} // namespace
 
 MainWindow::MainWindow(QWidget* parent, bool log_to_terminal)
     : QMainWindow(parent), ui(new Ui::MainWindow),
@@ -405,7 +421,10 @@ void MainWindow::AddUiWidgets() {
     QApplication::setStyle("Fusion");
     ui->toolBar->clear();
     ui->toolBar->setIconSize(QSize(40, 40));
-    ui->toolBar->setStyleSheet("QToolBar { spacing: 10px; padding-top: 5px; }");
+    ui->toolBar->setStyleSheet("QToolBar { spacing: 10px; }");
+    const QMargins toolbarMargins = ui->toolBar->layout()->contentsMargins();
+    ui->toolBar->layout()->setContentsMargins(toolbarMargins.left(), 5, toolbarMargins.right(),
+                                              toolbarMargins.bottom());
 
     const auto addToolbarAction = [this](QAction* action, const QIcon& icon, int minimumWidth,
                                          QSize iconSize = QSize(40, 40)) {
@@ -424,7 +443,8 @@ void MainWindow::AddUiWidgets() {
     addToolbarAction(ui->toolbarRestartAction, ui->restartButton->icon(), 52);
     addToolbarAction(ui->toolbarExitAction, ui->exitButton->icon(), 70);
     addToolbarAction(ui->toolbarFullscreenAction, ui->fullscreenButton->icon(), 52);
-    addToolbarAction(ui->toolbarControllerAction, ui->controllerButton->icon(), 70, QSize(60, 50));
+    addToolbarAction(ui->toolbarControllerAction,
+                     CreateControllerToolbarIcon(ui->controllerButton->icon()), 70, QSize(60, 50));
     addToolbarAction(ui->toolbarSettingsAction, ui->settingsButton->icon(), 52);
     addToolbarAction(ui->toolbarInfoAction, ui->systemInfoButton->icon(), 52);
     addToolbarAction(ui->toolbarSnapshotAction, ui->snapshotButton->icon(), 52);
@@ -516,12 +536,9 @@ void MainWindow::CreateDockWindows(bool newDock) {
     setCentralWidget(phCentralWidget);
 
     QWidget* dockContents = new QWidget(this);
-    QVBoxLayout* dockLayout = new QVBoxLayout(this);
+    QVBoxLayout* dockLayout = new QVBoxLayout(dockContents);
 
     ui->splitter = new QSplitter(Qt::Vertical);
-    ui->logDisplay = new QTextEdit(ui->splitter);
-    ui->logDisplay->setText(tr("Game Log"));
-    ui->logDisplay->setReadOnly(true);
 
     if (newDock) {
         m_dock_widget.reset(new QDockWidget(tr("Game List"), this));
@@ -533,6 +550,16 @@ void MainWindow::CreateDockWindows(bool newDock) {
         m_game_grid_frame->setObjectName("gamegridlist");
         m_elf_viewer.reset(new ElfViewer(m_gui_settings, this));
         m_elf_viewer->setObjectName("elflist");
+
+        m_log_dock_widget.reset(new QDockWidget(tr("Game Log"), this));
+        ui->logDisplay = new QTextEdit(m_log_dock_widget.data());
+        ui->logDisplay->setReadOnly(true);
+        m_log_dock_widget->setAllowedAreas(Qt::AllDockWidgetAreas);
+        m_log_dock_widget->setFeatures(QDockWidget::DockWidgetClosable |
+                                       QDockWidget::DockWidgetMovable |
+                                       QDockWidget::DockWidgetFloatable);
+        m_log_dock_widget->setWidget(ui->logDisplay);
+        addDockWidget(Qt::BottomDockWidgetArea, m_log_dock_widget.data());
     }
 
     int table_mode = m_gui_settings->GetValue(gui::gl_mode).toInt();
@@ -574,25 +601,9 @@ void MainWindow::CreateDockWindows(bool newDock) {
     QPalette logPalette = ui->logDisplay->palette();
     logPalette.setColor(QPalette::Base, Qt::black);
     ui->logDisplay->setPalette(logPalette);
-    ui->splitter->addWidget(ui->logDisplay);
-
-    QList<int> defaultSizes = {800, 200}; // these are proportionally adjusted by qt
-    QList<int> sizes = gui_settings::Var2IntList(m_gui_settings->GetValue(
-        gui::main_window, "dockWidgetSizes", QVariant::fromValue(defaultSizes)));
-    if (sizes.size() > 0 &&
-        sizes[1] == 0) { // This happens if log is hidden when settings are saved
-        sizes = defaultSizes;
-    }
-
-    ui->splitter->setSizes({sizes});
     ui->splitter->setCollapsible(0, false);
-    ui->splitter->setCollapsible(1, false);
-
-    bool showLog = ui->showLogAct->isChecked();
-    showLog ? ui->logDisplay->show() : ui->logDisplay->hide();
 
     dockLayout->addWidget(ui->splitter);
-    dockContents->setLayout(dockLayout);
     m_dock_widget->setWidget(dockContents);
 
     m_dock_widget->setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -601,6 +612,17 @@ void MainWindow::CreateDockWindows(bool newDock) {
 
     addDockWidget(Qt::LeftDockWidgetArea, m_dock_widget.data());
     this->setDockNestingEnabled(true);
+
+    if (newDock) {
+        m_log_dock_widget->setVisible(ui->showLogAct->isChecked());
+        const QList<int> defaultSizes = {800, 200};
+        const QList<int> sizes = gui_settings::Var2IntList(m_gui_settings->GetValue(
+            gui::main_window, "dockWidgetSizes", QVariant::fromValue(defaultSizes)));
+        if (m_log_dock_widget->isVisible() && sizes.size() >= 2) {
+            resizeDocks({m_dock_widget.data(), m_log_dock_widget.data()},
+                        {std::max(1, sizes[0]), std::max(1, sizes[1])}, Qt::Vertical);
+        }
+    }
 }
 
 void MainWindow::LoadGameLists() {
@@ -642,14 +664,16 @@ void MainWindow::CreateConnects() {
     connect(ui->fullscreenButton, &QPushButton::clicked, this, &MainWindow::toggleFullscreen);
 
     connect(ui->showLogAct, &QAction::triggered, this, [this](bool state) {
-        if (state) {
-            ui->logDisplay->show();
-            m_gui_settings->SetValue(gui::mw_showLog, true);
-        } else {
-            ui->logDisplay->hide();
-            m_gui_settings->SetValue(gui::mw_showLog, false);
+        if (m_log_dock_widget) {
+            m_log_dock_widget->setVisible(state);
         }
+        m_gui_settings->SetValue(gui::mw_showLog, state);
     });
+    connect(m_log_dock_widget.data(), &QDockWidget::visibilityChanged, this,
+            [this](bool visible) {
+                ui->showLogAct->setChecked(visible);
+                m_gui_settings->SetValue(gui::mw_showLog, visible);
+            });
 
     connect(ui->sizeSlider, &QSlider::valueChanged, this, [this](int value) {
         if (isTableList) {
@@ -892,7 +916,7 @@ void MainWindow::CreateConnects() {
     connect(ui->setlistModeListAct, &QAction::triggered, m_dock_widget.data(), [this]() {
         ui->sizeSlider->setEnabled(true);
         BackgroundMusicPlayer::getInstance().stopMusic();
-        QList<int> sizes = {ui->splitter->sizes()};
+        QList<int> sizes = {m_dock_widget->height(), m_log_dock_widget->height()};
         m_gui_settings->SetValue(gui::mw_dockWidgetSizes, QVariant::fromValue(sizes));
         m_gui_settings->SetValue(gui::gl_mode, 0);
         CreateDockWindows(false);
@@ -902,7 +926,7 @@ void MainWindow::CreateConnects() {
     connect(ui->setlistModeGridAct, &QAction::triggered, m_dock_widget.data(), [this]() {
         ui->sizeSlider->setEnabled(true);
         BackgroundMusicPlayer::getInstance().stopMusic();
-        QList<int> sizes = {ui->splitter->sizes()};
+        QList<int> sizes = {m_dock_widget->height(), m_log_dock_widget->height()};
         m_gui_settings->SetValue(gui::mw_dockWidgetSizes, QVariant::fromValue(sizes));
         m_gui_settings->SetValue(gui::gl_mode, 1);
         CreateDockWindows(false);
@@ -912,7 +936,7 @@ void MainWindow::CreateConnects() {
     connect(ui->setlistElfAct, &QAction::triggered, m_dock_widget.data(), [this]() {
         ui->sizeSlider->setEnabled(false);
         BackgroundMusicPlayer::getInstance().stopMusic();
-        QList<int> sizes = {ui->splitter->sizes()};
+        QList<int> sizes = {m_dock_widget->height(), m_log_dock_widget->height()};
         m_gui_settings->SetValue(gui::mw_dockWidgetSizes, QVariant::fromValue(sizes));
         m_gui_settings->SetValue(gui::gl_mode, 2);
         CreateDockWindows(false);
@@ -1272,7 +1296,7 @@ void MainWindow::ConfigureGuiFromSettings() {
 
 void MainWindow::SaveWindowState() {
     m_gui_settings->SetValue(gui::mw_geometry, saveGeometry(), false);
-    QList<int> sizes = {ui->splitter->sizes()};
+    QList<int> sizes = {m_dock_widget->height(), m_log_dock_widget->height()};
     m_gui_settings->SetValue(gui::mw_dockWidgetSizes, QVariant::fromValue(sizes));
 }
 
@@ -1443,7 +1467,8 @@ void MainWindow::SetUiIcons(bool isWhite) {
     ui->toolbarRestartAction->setIcon(ui->restartButton->icon());
     ui->toolbarExitAction->setIcon(ui->exitButton->icon());
     ui->toolbarFullscreenAction->setIcon(ui->fullscreenButton->icon());
-    ui->toolbarControllerAction->setIcon(ui->controllerButton->icon());
+    ui->toolbarControllerAction->setIcon(
+        CreateControllerToolbarIcon(ui->controllerButton->icon()));
     ui->toolbarSettingsAction->setIcon(ui->settingsButton->icon());
     ui->toolbarInfoAction->setIcon(ui->systemInfoButton->icon());
     ui->toolbarSnapshotAction->setIcon(ui->snapshotButton->icon());
