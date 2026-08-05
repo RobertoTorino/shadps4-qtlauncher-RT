@@ -40,6 +40,7 @@ public:
                                  QStringList args = {}, bool disable_ipc = false);
     void PauseGame();
     void StopGame();
+    void TerminateApplication();
     void RestartGame();
     void LoadVersionComboBox();
     bool showLabels;
@@ -82,6 +83,7 @@ private:
     void SnapshotCapture();
     void ShowSystemInfo();
     QString BuildSystemInfoText() const;
+    void UpdateSystemUsageStatus();
     QIcon RecolorIcon(const QIcon& icon, bool isWhite);
     void RestartEmulator();
 
@@ -106,6 +108,7 @@ private:
     QScopedPointer<ElfViewer> m_elf_viewer;
     // Status Bar.
     QScopedPointer<QStatusBar> statusBar;
+    QLabel* m_system_usage_label = nullptr;
 
     PSF psf;
 

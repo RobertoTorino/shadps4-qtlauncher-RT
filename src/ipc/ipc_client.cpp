@@ -60,6 +60,19 @@ void IpcClient::stopEmulator() {
     writeLine("STOP");
 }
 
+void IpcClient::terminateEmulator() {
+    pendingRestart = false;
+    if (process == nullptr || process->state() == QProcess::NotRunning) {
+        return;
+    }
+
+    stopEmulator();
+    if (process != nullptr && !process->waitForFinished(3000)) {
+        process->kill();
+        process->waitForFinished(1000);
+    }
+}
+
 void IpcClient::restartEmulator() {
     stopEmulator();
     pendingRestart = true;

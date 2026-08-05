@@ -12,6 +12,7 @@
 #include <QSettings>
 #include <QStatusBar>
 #include <QSysInfo>
+#include <QTimer>
 #include <QToolButton>
 
 #ifdef Q_OS_WIN
@@ -19,6 +20,7 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#include <psapi.h>
 #endif
 
 #include "about_dialog.h"
@@ -218,6 +220,12 @@ bool MainWindow::Init() {
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     statusBar.reset(new QStatusBar);
     this->setStatusBar(statusBar.data());
+    m_system_usage_label = new QLabel(statusBar.data());
+    statusBar->addPermanentWidget(m_system_usage_label);
+    auto* system_usage_timer = new QTimer(this);
+    connect(system_usage_timer, &QTimer::timeout, this, &MainWindow::UpdateSystemUsageStatus);
+    system_usage_timer->start(1000);
+    UpdateSystemUsageStatus();
     // Update status bar
     int numGames = m_game_info->m_games.size();
     QString statusMessage = tr("Games: ") + QString::number(numGames) + " (" +
@@ -225,6 +233,68 @@ bool MainWindow::Init() {
     statusBar->showMessage(statusMessage);
 
     return true;
+}
+
+void MainWindow::UpdateSystemUsageStatus() {
+    if (!m_system_usage_label) {
+        return;
+    }
+
+#ifdef Q_OS_WIN
+    MEMORYSTATUSEX memory_status{};
+    memory_status.dwLength = sizeof(memory_status);
+    if (GlobalMemoryStatusEx(&memory_status) == 0) {
+        m_system_usage_label->setText(tr("SYSTEM: unavailable | APP: unavailable"));
+        return;
+    }
+
+    const double total_mb =
+        static_cast<double>(memory_status.ullTotalPhys) / (1024.0 * 1024.0);
+    const double used_mb = static_cast<double>(memory_status.ullTotalPhys -
+                                               memory_status.ullAvailPhys) /
+                           (1024.0 * 1024.0);
+
+    double app_mb = 0.0;
+    using GetProcessMemoryInfoFn = BOOL(WINAPI*)(HANDLE, PPROCESS_MEMORY_COUNTERS, DWORD);
+    static const GetProcessMemoryInfoFn get_process_memory_info = []() -> GetProcessMemoryInfoFn {
+        if (HMODULE kernel32_module = GetModuleHandleW(L"kernel32.dll");
+            kernel32_module != nullptr) {
+            auto* k32_function = reinterpret_cast<GetProcessMemoryInfoFn>(
+                GetProcAddress(kernel32_module, "K32GetProcessMemoryInfo"));
+            if (k32_function != nullptr) {
+                return k32_function;
+            }
+        }
+
+        const HMODULE psapi_module = LoadLibraryW(L"psapi.dll");
+        if (psapi_module == nullptr) {
+            return nullptr;
+        }
+        return reinterpret_cast<GetProcessMemoryInfoFn>(
+            GetProcAddress(psapi_module, "GetProcessMemoryInfo"));
+    }();
+
+    if (get_process_memory_info != nullptr) {
+        PROCESS_MEMORY_COUNTERS_EX counters{};
+        if (get_process_memory_info(GetCurrentProcess(),
+                                    reinterpret_cast<PPROCESS_MEMORY_COUNTERS>(&counters),
+                                    sizeof(counters)) != 0) {
+            app_mb = static_cast<double>(counters.WorkingSetSize) / (1024.0 * 1024.0);
+        }
+    }
+
+    const double system_percent = total_mb > 0.0 ? (used_mb / total_mb) * 100.0 : 0.0;
+    const double app_percent = total_mb > 0.0 ? (app_mb / total_mb) * 100.0 : 0.0;
+    m_system_usage_label->setText(
+        tr("SYSTEM: %1/%2MB (%3%) | APP: %4MB (%5%)")
+            .arg(QString::number(static_cast<qulonglong>(used_mb + 0.5)))
+            .arg(QString::number(static_cast<qulonglong>(total_mb + 0.5)))
+            .arg(QString::number(system_percent, 'f', 1))
+            .arg(QString::number(static_cast<qulonglong>(app_mb + 0.5)))
+            .arg(QString::number(app_percent, 'f', 2)));
+#else
+    m_system_usage_label->setText(tr("SYSTEM: unavailable | APP: unavailable"));
+#endif
 }
 
 void MainWindow::CreateActions() {
@@ -265,6 +335,11 @@ void MainWindow::PauseGame() {
 
 void MainWindow::StopGame() {
     m_ipc_client->stopEmulator();
+}
+
+void MainWindow::TerminateApplication() {
+    m_ipc_client->terminateEmulator();
+    close();
 }
 
 void MainWindow::SnapshotCapture() {
@@ -508,7 +583,7 @@ void MainWindow::UpdateToolbarButtons() {
     ui->toolbarStopAction->setEnabled(isGameRunning);
     ui->toolbarRestartAction->setEnabled(isGameRunning);
     ui->toolbarFullscreenAction->setEnabled(isGameRunning);
-    ui->toolbarExitAction->setEnabled(false);
+    ui->toolbarExitAction->setEnabled(true);
     ui->toolbarSnapshotAction->setEnabled(isGameRunning);
 
     if (isGameRunning && is_paused) {
@@ -720,6 +795,8 @@ void MainWindow::CreateConnects() {
     connect(ui->toolbarStopAction, &QAction::triggered, ui->stopButton, &QPushButton::click);
     connect(ui->toolbarRestartAction, &QAction::triggered, ui->restartButton,
             &QPushButton::click);
+    connect(ui->toolbarExitAction, &QAction::triggered, this,
+            &MainWindow::TerminateApplication);
     connect(ui->toolbarFullscreenAction, &QAction::triggered, ui->fullscreenButton,
             &QPushButton::click);
     connect(ui->toolbarControllerAction, &QAction::triggered, ui->controllerButton,

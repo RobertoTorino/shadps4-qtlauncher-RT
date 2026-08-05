@@ -25,6 +25,7 @@ public:
     void pauseGame();
     void resumeGame();
     void stopEmulator();
+    void terminateEmulator();
     void restartEmulator();
     void toggleFullscreen();
     void adjustVol(int volume, bool game_specific);
