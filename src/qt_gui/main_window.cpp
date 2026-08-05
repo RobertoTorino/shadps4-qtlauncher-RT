@@ -461,7 +461,7 @@ void MainWindow::AddUiWidgets() {
     addToolbarAction(ui->toolbarSnapshotAction, ui->snapshotButton->icon(), 52);
     QWidget* burstContainer = new QWidget(this);
     QVBoxLayout* burstLayout = new QVBoxLayout(burstContainer);
-    burstLayout->setContentsMargins(0, 15, 0, 0);
+    burstLayout->setContentsMargins(0, 16, 0, 0);
     burstLayout->setSpacing(2);
     burstLayout->addWidget(ui->snapshotBurstSpinBox, 0, Qt::AlignHCenter);
     QLabel* burstLabel = new QLabel(tr("Burst"), burstContainer);
@@ -473,7 +473,7 @@ void MainWindow::AddUiWidgets() {
     ui->sizeSliderContainer->setToolTip(tr("Icon size"));
     QWidget* iconSizeContainer = new QWidget(this);
     QVBoxLayout* iconSizeLayout = new QVBoxLayout(iconSizeContainer);
-    iconSizeLayout->setContentsMargins(0, 15, 0, 0);
+    iconSizeLayout->setContentsMargins(0, 16, 0, 0);
     iconSizeLayout->setSpacing(2);
     iconSizeLayout->addWidget(ui->sizeSliderContainer);
     QLabel* iconSizeLabel = new QLabel(tr("Icon Size"), iconSizeContainer);
@@ -553,10 +553,9 @@ void MainWindow::CreateDockWindows(bool newDock) {
 
     if (newDock) {
         m_dock_widget.reset(new QDockWidget(tr("Game List"), this));
-        QWidget* gameListTitleBar = new QWidget(m_dock_widget.data());
-        gameListTitleBar->setFixedHeight(0);
-        m_dock_widget->setTitleBarWidget(gameListTitleBar);
-        m_dock_widget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+        m_dock_widget->setFeatures(QDockWidget::DockWidgetClosable |
+                                   QDockWidget::DockWidgetMovable |
+                                   QDockWidget::DockWidgetFloatable);
         m_game_list_frame.reset(
             new GameListFrame(m_gui_settings, m_game_info, m_compat_info, m_ipc_client, this));
         m_game_list_frame->setObjectName("gamelist");

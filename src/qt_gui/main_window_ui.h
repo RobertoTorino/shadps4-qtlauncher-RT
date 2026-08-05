@@ -366,7 +366,9 @@ public:
         MainWindow->setMenuBar(menuBar);
         toolBar = new QToolBar(MainWindow);
         toolBar->setObjectName("toolBar");
+        toolBar->setWindowTitle(QCoreApplication::translate("MainWindow", "Toolbar", nullptr));
         toolBar->setMovable(true);
+        toolBar->setFloatable(true);
         toolBar->setMinimumWidth(0);
         toolBar->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
         MainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
