@@ -3,7 +3,6 @@
 
 #include <QDateTime>
 #include <QDockWidget>
-#include <QImage>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPlainTextEdit>
@@ -130,21 +129,6 @@ QImage CaptureWindowImage(HWND window) {
 }
 } // namespace
 #endif
-
-namespace {
-QIcon CreateControllerToolbarIcon(const QIcon& icon) {
-    QImage image = icon.pixmap(QSize(100, 100)).toImage();
-    QRect visible_bounds;
-    for (int y = 0; y < image.height(); ++y) {
-        for (int x = 0; x < image.width(); ++x) {
-            if (qAlpha(image.pixel(x, y)) != 0) {
-                visible_bounds |= QRect(x, y, 1, 1);
-            }
-        }
-    }
-    return visible_bounds.isEmpty() ? icon : QIcon(QPixmap::fromImage(image.copy(visible_bounds)));
-}
-} // namespace
 
 MainWindow::MainWindow(QWidget* parent, bool log_to_terminal)
     : QMainWindow(parent), ui(new Ui::MainWindow),
@@ -421,10 +405,7 @@ void MainWindow::AddUiWidgets() {
     QApplication::setStyle("Fusion");
     ui->toolBar->clear();
     ui->toolBar->setIconSize(QSize(40, 40));
-    ui->toolBar->setStyleSheet("QToolBar { spacing: 10px; }");
-    const QMargins toolbarMargins = ui->toolBar->layout()->contentsMargins();
-    ui->toolBar->layout()->setContentsMargins(toolbarMargins.left(), 5, toolbarMargins.right(),
-                                              toolbarMargins.bottom());
+    ui->toolBar->setStyleSheet("QToolBar { spacing: 10px; padding-top: 10px; }");
 
     const auto addToolbarAction = [this](QAction* action, const QIcon& icon, int minimumWidth,
                                          QSize iconSize = QSize(40, 40)) {
@@ -443,8 +424,7 @@ void MainWindow::AddUiWidgets() {
     addToolbarAction(ui->toolbarRestartAction, ui->restartButton->icon(), 52);
     addToolbarAction(ui->toolbarExitAction, ui->exitButton->icon(), 70);
     addToolbarAction(ui->toolbarFullscreenAction, ui->fullscreenButton->icon(), 52);
-    addToolbarAction(ui->toolbarControllerAction,
-                     CreateControllerToolbarIcon(ui->controllerButton->icon()), 70, QSize(60, 50));
+    addToolbarAction(ui->toolbarControllerAction, ui->controllerButton->icon(), 70, QSize(60, 50));
     addToolbarAction(ui->toolbarSettingsAction, ui->settingsButton->icon(), 52);
     addToolbarAction(ui->toolbarInfoAction, ui->systemInfoButton->icon(), 52);
     addToolbarAction(ui->toolbarSnapshotAction, ui->snapshotButton->icon(), 52);
@@ -542,6 +522,10 @@ void MainWindow::CreateDockWindows(bool newDock) {
 
     if (newDock) {
         m_dock_widget.reset(new QDockWidget(tr("Game List"), this));
+        QWidget* gameListTitleBar = new QWidget(m_dock_widget.data());
+        gameListTitleBar->setFixedHeight(0);
+        m_dock_widget->setTitleBarWidget(gameListTitleBar);
+        m_dock_widget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         m_game_list_frame.reset(
             new GameListFrame(m_gui_settings, m_game_info, m_compat_info, m_ipc_client, this));
         m_game_list_frame->setObjectName("gamelist");
@@ -1467,8 +1451,7 @@ void MainWindow::SetUiIcons(bool isWhite) {
     ui->toolbarRestartAction->setIcon(ui->restartButton->icon());
     ui->toolbarExitAction->setIcon(ui->exitButton->icon());
     ui->toolbarFullscreenAction->setIcon(ui->fullscreenButton->icon());
-    ui->toolbarControllerAction->setIcon(
-        CreateControllerToolbarIcon(ui->controllerButton->icon()));
+    ui->toolbarControllerAction->setIcon(ui->controllerButton->icon());
     ui->toolbarSettingsAction->setIcon(ui->settingsButton->icon());
     ui->toolbarInfoAction->setIcon(ui->systemInfoButton->icon());
     ui->toolbarSnapshotAction->setIcon(ui->snapshotButton->icon());
