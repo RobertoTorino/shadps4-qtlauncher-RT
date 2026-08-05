@@ -79,6 +79,9 @@ private:
     void AddRecentFiles(QString filePath);
     void LoadTranslation();
     void PlayBackgroundMusic();
+    void SnapshotCapture();
+    void ShowSystemInfo();
+    QString BuildSystemInfoText() const;
     QIcon RecolorIcon(const QIcon& icon, bool isWhite);
     void RestartEmulator();
 

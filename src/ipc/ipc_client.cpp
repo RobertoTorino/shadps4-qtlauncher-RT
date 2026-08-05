@@ -177,6 +177,10 @@ void IpcClient::cancelRemoveDimensionFigure(uint8_t index) {
     writeLine(QString::number(index));
 }
 
+qint64 IpcClient::processId() const {
+    return process ? process->processId() : 0;
+}
+
 void IpcClient::onStderr() {
     buffer.append(process->readAllStandardError());
     int idx;

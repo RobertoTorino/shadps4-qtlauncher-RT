@@ -48,6 +48,7 @@ public:
                              uint8_t old_index);
     void tempRemoveDimensionFigure(uint8_t index);
     void cancelRemoveDimensionFigure(uint8_t index);
+    qint64 processId() const;
     std::function<void()> gameClosedFunc;
     std::function<void()> startGameFunc;
     std::function<void()> restartEmulatorFunc;
