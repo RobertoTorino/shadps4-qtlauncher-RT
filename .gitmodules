@@ -37,3 +37,12 @@
 [submodule "externals/zarchive"]
 	path = externals/zarchive
 	url = https://github.com/shadexternals/ZArchive.git
+[submodule "externals/cryptopp"]
+	path = externals/cryptopp
+	url = https://github.com/shadps4-emu/ext-cryptopp.git
+[submodule "externals/cryptopp-cmake"]
+	path = externals/cryptopp-cmake
+	url = https://github.com/shadps4-emu/ext-cryptopp-cmake.git
+[submodule "externals/zlib-ng"]
+	path = externals/zlib-ng
+	url = https://github.com/shadps4-emu/ext-zlib-ng.git
