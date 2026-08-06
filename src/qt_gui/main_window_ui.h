@@ -15,6 +15,7 @@ public:
     QSplitter* splitter;
     QTextEdit* logDisplay;
     QAction* bootGameAct;
+    QAction* installPkgAct;
     QAction* addElfFolderAct;
     QAction* shadFolderAct;
     QAction* exitAct;
@@ -115,6 +116,9 @@ public:
         bootGameAct = new QAction(MainWindow);
         bootGameAct->setObjectName("bootGameAct");
         bootGameAct->setIcon(QIcon(":images/play_icon.png"));
+        installPkgAct = new QAction(MainWindow);
+        installPkgAct->setObjectName("installPkgAct");
+        installPkgAct->setIcon(QIcon(":images/folder_icon.png"));
         addElfFolderAct = new QAction(MainWindow);
         addElfFolderAct->setObjectName("addElfFolderAct");
         addElfFolderAct->setIcon(QIcon(":images/folder_icon.png"));
@@ -378,6 +382,7 @@ public:
         menuBar->addAction(menuSettings->menuAction());
         menuBar->addAction(menuHelp->menuAction());
         menuFile->addAction(bootGameAct);
+        menuFile->addAction(installPkgAct);
         menuFile->addSeparator();
         menuFile->addAction(addElfFolderAct);
         menuFile->addAction(shadFolderAct);
@@ -439,6 +444,7 @@ public:
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "shadPS4", nullptr));
         addElfFolderAct->setText(
             QCoreApplication::translate("MainWindow", "Open/Add Elf Folder", nullptr));
+        installPkgAct->setText(QCoreApplication::translate("MainWindow", "Install Packages...", nullptr));
         bootGameAct->setText(QCoreApplication::translate("MainWindow", "Boot Game", nullptr));
 #ifdef ENABLE_UPDATER
         updaterAct->setText(

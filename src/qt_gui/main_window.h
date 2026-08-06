@@ -77,6 +77,8 @@ private:
     void SetLastIconSizeBullet();
     void SetUiIcons(bool isWhite);
     void BootGame();
+    void InstallPackages();
+    void InstallPackage(const std::filesystem::path& pkg_path, int pkg_num, int total_pkgs);
     void AddRecentFiles(QString filePath);
     void LoadTranslation();
     void PlayBackgroundMusic();

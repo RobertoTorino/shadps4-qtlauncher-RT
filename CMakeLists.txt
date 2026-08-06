@@ -284,6 +284,14 @@ set(CORE src/core/file_format/elf.cpp
          src/core/user_manager.h
          src/core/user_settings.cpp
          src/core/user_settings.h
+         src/t7/pkg/pkg.cpp
+         src/t7/pkg/pkg.h
+         src/t7/pkg/pkg_crypto.cpp
+         src/t7/pkg/pkg_crypto.h
+         src/t7/pkg/pkg_types.cpp
+         src/t7/pkg/pkg_types.h
+         src/t7/pkg/pkg_zlib.cpp
+         src/t7/pkg/pkg_zlib.h
 )
 
 set(INPUT src/input/input.cpp
@@ -406,7 +414,7 @@ endif()
 
 create_target_directory_groups(shadPS4QtLauncher)
 
-target_link_libraries(shadPS4QtLauncher PRIVATE fmt::fmt toml11::toml11 SDL3::SDL3 spdlog::spdlog ZArchive::zarchive)
+target_link_libraries(shadPS4QtLauncher PRIVATE fmt::fmt toml11::toml11 SDL3::SDL3 spdlog::spdlog ZArchive::zarchive ZLIB::ZLIB $<LINK_ONLY:cryptopp::cryptopp>)
 if (NOT APPLE)
     target_link_libraries(shadPS4QtLauncher PRIVATE Vulkan::Headers volk_headers)
 endif()

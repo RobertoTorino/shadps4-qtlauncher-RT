@@ -34,6 +34,7 @@
 #include "common/scm_rev.h"
 #include "common/versions.h"
 #include "control_settings.h"
+#include "core/emulator_settings.h"
 #include "core/emulator_state.h"
 #include "core/file_sys/game_backend.h"
 #include "crypto_key_dialog.h"
@@ -47,6 +48,7 @@
 #include "main_window.h"
 #include "settings_dialog.h"
 #include "skylander_dialog.h"
+#include "t7/pkg/pkg.h"
 #include "user_manager_dialog.h"
 
 #ifdef Q_OS_WIN
@@ -1141,6 +1143,7 @@ void MainWindow::CreateConnects() {
 
     // Package install.
     connect(ui->bootGameAct, &QAction::triggered, this, &MainWindow::BootGame);
+    connect(ui->installPkgAct, &QAction::triggered, this, &MainWindow::InstallPackages);
     connect(ui->gameInstallPathAct, &QAction::triggered, this, &MainWindow::InstallDirectory);
 
     // elf viewer
@@ -1414,6 +1417,230 @@ void MainWindow::BootGame() {
     }
 }
 
+void MainWindow::InstallPackages() {
+    QFileDialog dialog;
+    dialog.setFileMode(QFileDialog::ExistingFiles);
+    dialog.setNameFilter(tr("PKG File (*.PKG *.pkg)"));
+    if (dialog.exec()) {
+        QStringList fileNames = dialog.selectedFiles();
+        const int total_pkgs = fileNames.size();
+        int pkg_num = 0;
+
+        for (const QString& file : fileNames) {
+            ++pkg_num;
+            std::filesystem::path path = Common::FS::PathFromQString(file);
+            InstallPackage(path, pkg_num, total_pkgs);
+        }
+
+        RefreshGameTable();
+    }
+}
+
+void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_num, int total_pkgs) {
+    using namespace T7::Pkg;
+
+    PKGInstaller installer;
+
+    const auto validation = installer.ValidatePackage(pkg_path);
+    if (!validation.success) {
+        QMessageBox::critical(this, tr("PKG Installation Error"),
+                             QString::fromStdString("Failed to validate PKG: " + validation.error));
+        return;
+    }
+
+    const QString title_id = QString::fromStdString(validation.title_id);
+    const QString category = QString::fromStdString(validation.category);
+    const QString app_ver = QString::fromStdString(validation.app_ver);
+
+    const bool is_patch = category.compare("gp", Qt::CaseInsensitive) == 0;
+    const bool is_dlc = category.compare("ac", Qt::CaseInsensitive) == 0;
+    const bool is_base = category.compare("gd", Qt::CaseInsensitive) == 0 ||
+                         category.compare("gm", Qt::CaseInsensitive) == 0;
+    if (!is_patch && !is_dlc && !is_base) {
+        QMessageBox::critical(this, tr("PKG Installation Error"),
+                              tr("Unsupported package category: %1").arg(category));
+        return;
+    }
+
+    std::filesystem::path install_base_dir;
+    const auto install_dirs = EmulatorSettings.GetGameInstallDirs();
+    const auto install_dirs_enabled = EmulatorSettings.GetGameInstallDirsEnabled();
+    std::optional<std::filesystem::path> installed_game;
+    for (size_t i = 0; i < install_dirs.size() && i < install_dirs_enabled.size(); ++i) {
+        if (install_dirs_enabled[i]) {
+            if (install_base_dir.empty()) {
+                install_base_dir = install_dirs[i];
+            }
+            if (!installed_game) {
+                if (const auto found =
+                        Common::FS::FindGameByID(install_dirs[i], validation.title_id, 5)) {
+                    installed_game = found->parent_path();
+                }
+            }
+        }
+    }
+
+    if (install_base_dir.empty()) {
+        QMessageBox::critical(this, tr("PKG Installation Error"),
+                             tr("No game installation directory configured.\nPlease configure game directories in Settings > Game Install Directory."));
+        return;
+    }
+
+    std::filesystem::path final_install_path;
+
+    if (is_patch) {
+        if (!installed_game) {
+            QMessageBox::critical(this, tr("PKG Installation Error"),
+                                 tr("Patch requires base game to be installed.\nTitle ID: %1").arg(title_id));
+            return;
+        }
+
+        final_install_path = *installed_game;
+        QString installed_version = tr("Unknown");
+        PSF installed_psf;
+        if (installed_psf.Open(final_install_path / "sce_sys" / "param.sfo")) {
+            if (const auto version = installed_psf.GetString("APP_VER")) {
+                installed_version = QString::fromStdString(std::string{*version});
+            }
+        }
+        QMessageBox message(this);
+        message.setWindowTitle(tr("PKG Installation"));
+        message.setText(tr("Patch detected.\n\nTitle ID: %1\nInstalled Version: %2\n"
+                           "PKG Version: %3\n\nInstall this patch over the existing game?")
+                            .arg(title_id, installed_version,
+                                 app_ver.isEmpty() ? tr("Unknown") : app_ver));
+        message.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        message.setDefaultButton(QMessageBox::No);
+        if (message.exec() != QMessageBox::Yes) {
+            return;
+        }
+    } else if (is_dlc) {
+        if (!installed_game) {
+            QMessageBox::critical(this, tr("PKG Installation Error"),
+                                 tr("DLC requires base game to be installed.\nTitle ID: %1").arg(title_id));
+            return;
+        }
+
+        const size_t last_dash = validation.content_id.rfind('-');
+        std::string entitlement_label;
+        if (last_dash != std::string::npos && last_dash + 1 < validation.content_id.size()) {
+            entitlement_label = validation.content_id.substr(last_dash + 1);
+        } else {
+            QMessageBox::critical(this, tr("PKG Installation Error"),
+                                 tr("Invalid DLC content ID format"));
+            return;
+        }
+        if (!std::all_of(entitlement_label.begin(), entitlement_label.end(),
+                         [](unsigned char character) {
+                             return std::isalnum(character) != 0 || character == '_';
+                         })) {
+            QMessageBox::critical(this, tr("PKG Installation Error"),
+                                  tr("Invalid DLC entitlement label"));
+            return;
+        }
+
+        if (EmulatorSettings.GetAddonInstallDir().empty()) {
+            QMessageBox::critical(this, tr("PKG Installation Error"),
+                                  tr("No add-on installation directory configured."));
+            return;
+        }
+
+        final_install_path = EmulatorSettings.GetAddonInstallDir() / validation.title_id / entitlement_label;
+
+        if (std::filesystem::exists(final_install_path / "sce_sys" / "param.sfo")) {
+            QMessageBox msgBox(this);
+            msgBox.setWindowTitle(tr("PKG Installation"));
+            msgBox.setText(tr("This DLC is already installed.\n\nTitle ID: %1\nContent ID: %2\n\nDo you want to reinstall it?")
+                          .arg(title_id)
+                          .arg(QString::fromStdString(validation.content_id)));
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::No);
+
+            if (msgBox.exec() != QMessageBox::Yes) {
+                return;
+            }
+        }
+    } else if (is_base) {
+        final_install_path = installed_game.value_or(install_base_dir / validation.title_id);
+
+        if (std::filesystem::exists(final_install_path / "eboot.bin")) {
+            QMessageBox msgBox(this);
+            msgBox.setWindowTitle(tr("PKG Installation"));
+            msgBox.setText(tr("A game with this title ID is already installed.\n\nTitle ID: %1\nInstalled Version: Unknown\nPKG Version: %2\n\nDo you want to overwrite it?")
+                          .arg(title_id)
+                          .arg(app_ver.isEmpty() ? tr("Unknown") : app_ver));
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::No);
+            if (msgBox.exec() != QMessageBox::Yes) {
+                return;
+            }
+        }
+    }
+
+    const auto staging_path = final_install_path.parent_path() /
+                              (final_install_path.filename().string() + ".installing");
+    try {
+        std::filesystem::remove_all(staging_path);
+        std::filesystem::create_directories(staging_path);
+    } catch (const std::exception& e) {
+        QMessageBox::critical(this, tr("PKG Installation Error"),
+                             tr("Failed to prepare installation directory:\n%1")
+                             .arg(QString::fromStdString(e.what())));
+        return;
+    }
+
+    QProgressDialog progress(this);
+    progress.setWindowTitle(tr("Installing PKG"));
+    progress.setLabelText(tr("Installing package %1 of %2...\n\nTitle ID: %3\nCategory: %4")
+                         .arg(pkg_num).arg(total_pkgs).arg(title_id).arg(category));
+    progress.setRange(0, 100);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.show();
+
+    QApplication::processEvents();
+
+    std::string error;
+    const bool success = installer.Extract(pkg_path, staging_path,
+        [&progress](int current, int total, const std::string& message) {
+            if (total > 0) {
+                progress.setValue((current * 100) / total);
+            }
+            progress.setLabelText(QString::fromStdString(message));
+            QApplication::processEvents();
+            return !progress.wasCanceled();
+        }, error);
+
+    if (!success) {
+        std::error_code cleanup_error;
+        std::filesystem::remove_all(staging_path, cleanup_error);
+        QMessageBox::critical(this, tr("PKG Installation Error"),
+                             tr("Failed to extract package:\n%1").arg(QString::fromStdString(error)));
+        return;
+    }
+
+    try {
+        std::filesystem::create_directories(final_install_path);
+        std::filesystem::copy(staging_path, final_install_path,
+                              std::filesystem::copy_options::recursive |
+                                  std::filesystem::copy_options::overwrite_existing);
+        std::filesystem::remove_all(staging_path);
+    } catch (const std::exception& e) {
+        std::error_code cleanup_error;
+        std::filesystem::remove_all(staging_path, cleanup_error);
+        QMessageBox::critical(this, tr("PKG Installation Error"),
+                              tr("Failed to finalize package installation:\n%1")
+                                  .arg(QString::fromStdString(e.what())));
+        return;
+    }
+
+    progress.setValue(100);
+
+    QMessageBox::information(this, tr("PKG Installation Complete"),
+                            tr("Successfully installed package %1 of %2\n\nTitle ID: %3\nCategory: %4\nInstall Path: %5")
+                            .arg(pkg_num).arg(total_pkgs).arg(title_id).arg(category)
+                            .arg(QString::fromStdString(final_install_path.string())));
+}
+
 void MainWindow::InstallDirectory() {
     GameInstallDialog dlg;
     dlg.exec();
@@ -1515,6 +1742,7 @@ QIcon MainWindow::RecolorIcon(const QIcon& icon, bool isWhite) {
 
 void MainWindow::SetUiIcons(bool isWhite) {
     ui->bootGameAct->setIcon(RecolorIcon(ui->bootGameAct->icon(), isWhite));
+    ui->installPkgAct->setIcon(RecolorIcon(ui->installPkgAct->icon(), isWhite));
     ui->shadFolderAct->setIcon(RecolorIcon(ui->shadFolderAct->icon(), isWhite));
     ui->exitAct->setIcon(RecolorIcon(ui->exitAct->icon(), isWhite));
 #ifdef ENABLE_UPDATER
