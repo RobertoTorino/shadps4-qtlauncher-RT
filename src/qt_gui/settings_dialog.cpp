@@ -458,6 +458,8 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
                                       Common::FS::GetUserPath(Common::FS::PathType::LogDir));
             QDesktopServices::openUrl(QUrl::fromLocalFile(userPath));
         });
+        ui->clearLogsButton->setEnabled(!is_game_running);
+        connect(ui->clearLogsButton, &QPushButton::clicked, this, &SettingsDialog::ClearLogs);
 
         // Log presets popup button
         connect(ui->logPresetsButton, &QPushButton::clicked, this, [this]() {
@@ -475,6 +477,8 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
 
     // DEBUG TAB
     {
+        connect(ui->openConfigTomlButton, &QPushButton::clicked, this,
+                &SettingsDialog::OpenConfigToml);
         connect(ui->vkValidationCheckBox, &QCheckBox::checkStateChanged, this,
                 [this](Qt::CheckState state) {
                     state ? ui->vkLayersGroupBox->setVisible(true)
@@ -524,6 +528,7 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         ui->emulatorLanguageGroupBox->installEventFilter(this);
         ui->showSplashCheckBox->installEventFilter(this);
         ui->discordRPCCheckbox->installEventFilter(this);
+        ui->gameSizeCheckBox->installEventFilter(this);
         ui->volumeSliderElement->installEventFilter(this);
 #ifdef ENABLE_UPDATER
         ui->updaterGroupBox->installEventFilter(this);
@@ -577,6 +582,7 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         ui->logFilter->installEventFilter(this);
         ui->logMaxSkipDurationLineEdit->installEventFilter(this);
         ui->logOpenLocationButton->installEventFilter(this);
+        ui->clearLogsButton->installEventFilter(this);
         ui->logSeparateCheckBox->installEventFilter(this);
         ui->logSizeLimitLineEdit->installEventFilter(this);
         ui->logSkipDuplicateCheckBox->installEventFilter(this);
@@ -593,6 +599,7 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         ui->crashDiagnosticsCheckBox->installEventFilter(this);
         ui->guestMarkersCheckBox->installEventFilter(this);
         ui->hostMarkersCheckBox->installEventFilter(this);
+        ui->openConfigTomlButton->installEventFilter(this);
         ui->collectShaderCheckBox->installEventFilter(this);
         ui->copyGPUBuffersCheckBox->installEventFilter(this);
 
@@ -678,6 +685,8 @@ void SettingsDialog::LoadValuesFromConfig() {
         ui->BGMVolumeSlider->setValue(
             m_gui_settings->GetValue(gui::gl_backgroundMusicVolume).toInt());
         ui->discordRPCCheckbox->setChecked(EmulatorSettings.IsDiscordRPCEnabled());
+        ui->gameSizeCheckBox->setChecked(
+            m_gui_settings->GetValue(gui::glc_showLoadGameSizeEnabled).toBool());
 
         ui->enableCompatibilityCheckBox->setChecked(
             m_gui_settings->GetValue(gui::glc_showCompatibility).toBool());
@@ -901,6 +910,77 @@ void SettingsDialog::VolumeSliderChange(int value) {
     ui->volumeText->setText(QString::number(ui->horizontalVolumeSlider->sliderPosition()) + "%");
 }
 
+void SettingsDialog::ClearLogs() {
+    if (EmulatorState::GetInstance()->IsGameRunning()) {
+        QMessageBox::warning(this, tr("Clear Logs"),
+                             tr("Stop the running game before clearing log files."));
+        return;
+    }
+
+    const auto log_dir = Common::FS::GetUserPath(Common::FS::PathType::LogDir);
+    QString log_dir_text;
+    Common::FS::PathToQString(log_dir_text, log_dir);
+    log_dir_text = QDir::toNativeSeparators(log_dir_text);
+    if (QMessageBox::question(this, tr("Clear Logs"),
+                              tr("Delete all log files from:\n%1").arg(log_dir_text),
+                              QMessageBox::Yes | QMessageBox::No,
+                              QMessageBox::No) != QMessageBox::Yes) {
+        return;
+    }
+
+    std::size_t removed_count = 0;
+    QStringList failures;
+    std::error_code iterator_error;
+    for (std::filesystem::recursive_directory_iterator iterator(
+             log_dir, std::filesystem::directory_options::skip_permission_denied,
+             iterator_error),
+         end;
+         iterator != end; iterator.increment(iterator_error)) {
+        if (iterator_error) {
+            failures.append(QString::fromStdString(iterator_error.message()));
+            iterator_error.clear();
+            continue;
+        }
+        std::error_code type_error;
+        if (!iterator->is_regular_file(type_error)) {
+            continue;
+        }
+        std::error_code remove_error;
+        if (std::filesystem::remove(iterator->path(), remove_error)) {
+            ++removed_count;
+        } else {
+            QString path_text;
+            Common::FS::PathToQString(path_text, iterator->path());
+            failures.append(tr("%1: %2")
+                                .arg(QDir::toNativeSeparators(path_text),
+                                     QString::fromStdString(remove_error.message())));
+        }
+    }
+
+    if (!failures.isEmpty()) {
+        QMessageBox::warning(this, tr("Clear Logs"),
+                             tr("Cleared %1 log file(s).\n\nFailed:\n%2")
+                                 .arg(QString::number(removed_count), failures.join("\n")));
+    } else {
+        QMessageBox::information(this, tr("Clear Logs"),
+                                 tr("Cleared %1 log file(s).")
+                                     .arg(QString::number(removed_count)));
+    }
+}
+
+void SettingsDialog::OpenConfigToml() {
+    const auto config_path =
+        Common::FS::GetUserPath(Common::FS::PathType::UserDir) / "config.toml";
+    QString config_path_text;
+    Common::FS::PathToQString(config_path_text, config_path);
+    config_path_text = QDir::toNativeSeparators(config_path_text);
+    if (!std::filesystem::exists(config_path) ||
+        !QDesktopServices::openUrl(QUrl::fromLocalFile(config_path_text))) {
+        QMessageBox::warning(this, tr("Open config.toml"),
+                             tr("Could not open:\n%1").arg(config_path_text));
+    }
+}
+
 int SettingsDialog::exec() {
     return QDialog::exec();
 }
@@ -922,6 +1002,8 @@ void SettingsDialog::updateNoteTextEdit(const QString& elementName) {
         text = tr("Show Splash Screen:\\nShows the game's splash screen (a special image) while the game is starting.");
     } else if (elementName == "discordRPCCheckbox") {
         text = tr("Enable Discord Rich Presence:\\nDisplays the emulator icon and relevant information on your Discord profile.");
+    } else if (elementName == "gameSizeCheckBox") {
+        text = tr("Show Game Size In List:\\nDisplays each game's installed size in the game list.");
     #ifdef ENABLE_UPDATER
     } else if (elementName == "updaterGroupBox") {
         text = tr("GUI Updates:\\nRelease: Official versions released every month that may be very outdated, but are more reliable and tested.\\nNightly: Development versions that have all the latest features and fixes, but may contain bugs and are less stable.\\n\\n*This update applies only to the Qt user interface. To update the emulator core, please use the 'Version Manager' menu.");
@@ -953,6 +1035,8 @@ void SettingsDialog::updateNoteTextEdit(const QString& elementName) {
         text = tr("Log Max Skip Duration:\\nInterval without writing same lines (ms) - only if 'Log Skip Duplicate' enabled."); //TODO grey out if disabled
     } else if (elementName == "logOpenLocationButton") {
         text = tr("Open Log Location:\\nOpen the folder where the log file is saved.");
+    } else if (elementName == "clearLogsButton") {
+        text = tr("Clear Logs:\\nDeletes log files while no game is running.");
     } else if (elementName == "logSeparateCheckBox") {
         text = tr("Separate Log Files:\\nWrites a separate logfile for each game.");
     } else if (elementName == "logSizeLimitLineEdit") {
@@ -1045,6 +1129,8 @@ void SettingsDialog::updateNoteTextEdit(const QString& elementName) {
         text = tr("Guest Debug Markers:\\nInserts any debug markers the game itself has added to the command buffer.\\nIf you have this enabled, you should enable Crash Diagnostics.\\nUseful for programs like RenderDoc.");
     } else if (elementName == "hostMarkersCheckBox") {
         text = tr("Host Debug Markers:\\nInserts emulator-side information like markers for specific AMDGPU commands around Vulkan commands, as well as giving resources debug names.\\nIf you have this enabled, you should enable Crash Diagnostics.\\nUseful for programs like RenderDoc.");
+    } else if (elementName == "openConfigTomlButton") {
+        text = tr("Open config.toml:\\nOpens the main configuration file in your default editor.");
     } else if (elementName == "copyGPUBuffersCheckBox") {
         text = tr("Copy GPU Buffers:\\nGets around race conditions involving GPU submits.\\nMay or may not help with PM4 type 0 crashes.");
     } else if (elementName == "collectShaderCheckBox") {
@@ -1227,6 +1313,8 @@ void SettingsDialog::UpdateSettings(bool is_specific) {
         BackgroundMusicPlayer::getInstance().setVolume(ui->BGMVolumeSlider->value());
 
         EmulatorSettings.SetDiscordRPCEnabled(ui->discordRPCCheckbox->isChecked());
+        m_gui_settings->SetValue(gui::glc_showLoadGameSizeEnabled,
+                                 ui->gameSizeCheckBox->isChecked());
         m_gui_settings->SetValue(gui::glc_showCompatibility,
                                  ui->enableCompatibilityCheckBox->isChecked());
         m_gui_settings->SetValue(gui::gen_checkCompatibilityAtStartup,

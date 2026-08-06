@@ -422,6 +422,13 @@
                  </property>
                 </widget>
                </item>
+                                    <item>
+                                        <widget class="QCheckBox" name="gameSizeCheckBox">
+                                         <property name="text">
+                                             <string>Show Game Size In List</string>
+                                         </property>
+                                        </widget>
+                                    </item>
                <item>
                 <widget class="QGroupBox" name="emulatorLanguageGroupBox">
                  <property name="title">
@@ -1993,6 +2000,13 @@
                  </property>
                 </widget>
                </item>
+                             <item>
+                                <widget class="QPushButton" name="clearLogsButton">
+                                 <property name="text">
+                                    <string>Clear Logs</string>
+                                 </property>
+                                </widget>
+                             </item>
                <item>
                 <widget class="QCheckBox" name="logSeparateCheckBox">
                  <property name="text">
@@ -2272,6 +2286,13 @@
                  </property>
                 </widget>
                </item>
+                             <item>
+                                <widget class="QPushButton" name="openConfigTomlButton">
+                                 <property name="text">
+                                    <string>Open config.toml</string>
+                                 </property>
+                                </widget>
+                             </item>
               </layout>
              </widget>
             </item>

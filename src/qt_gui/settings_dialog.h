@@ -52,6 +52,8 @@ private:
     void GetPhysicalDevices();
     void SaveSettings();
     void RefreshAudioDevices();
+    void ClearLogs();
+    void OpenConfigToml();
 
     void closeEvent(QCloseEvent* event) override;
 
