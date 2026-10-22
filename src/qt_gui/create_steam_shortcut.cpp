@@ -13,6 +13,7 @@
 
 #include "common/path_util.h"
 #include "common/versions.h"
+#include "core/file_sys/game_backend.h"
 #include "create_steam_shortcut.h"
 
 SteamShortcut::SteamShortcut(std::shared_ptr<gui_settings> settings, QObject* parent)
@@ -301,10 +302,17 @@ void SteamShortcut::requestAddToSteam(const GameInfo& selectedInfo, QString emuP
     QString targetPath;
     Common::FS::PathToQString(targetPath, selectedInfo.path);
     QString ebootPath = targetPath + "/eboot.bin";
+    if (Core::FileSys::IsZArchiveFile(selectedInfo.path)) {
+        ebootPath = targetPath;
+    }
 
     QString exePath = QCoreApplication::applicationFilePath();
 #ifdef Q_OS_WIN
     exePath = exePath.replace("/", "\\");
+#elif defined(Q_OS_LINUX)
+    // Inside an AppImage the binary runs from a temporary mount that is gone once it exits
+    if (const QString appImage = qEnvironmentVariable("APPIMAGE"); !appImage.isEmpty())
+        exePath = appImage;
 #endif
     QString startDir = QFileInfo(exePath).absolutePath();
 

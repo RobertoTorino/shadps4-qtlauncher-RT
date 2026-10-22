@@ -407,7 +407,7 @@
     </message>
     <message>
       <source>D-Pad</source>
-      <translation>Navigasjonsknapper</translation>
+      <translation>Styrekors</translation>
     </message>
     <message>
       <source>Up</source>
@@ -427,7 +427,7 @@
     </message>
     <message>
       <source>Left Stick</source>
-      <translation>Venstre analog</translation>
+      <translation>Venstre tommelspak</translation>
     </message>
     <message>
       <source>Config Selection</source>
@@ -447,7 +447,7 @@
     </message>
     <message>
       <source>Right Stick</source>
-      <translation>Høyre analog</translation>
+      <translation>Høyre tommelspak</translation>
     </message>
     <message>
       <source>Color Adjustment</source>
@@ -491,7 +491,7 @@
     </message>
     <message>
       <source>Options</source>
-      <translation>Options</translation>
+      <translation>Valg</translation>
     </message>
     <message>
       <source>Touchpad Left</source>
@@ -507,7 +507,7 @@
     </message>
     <message>
       <source>Triangle</source>
-      <translation>Triangel</translation>
+      <translation>Trekant</translation>
     </message>
     <message>
       <source>Square</source>
@@ -535,11 +535,11 @@
     </message>
     <message>
       <source>Move analog stick</source>
-      <translation>Flytt på analog stikke</translation>
+      <translation>Flytt på tommelspak</translation>
     </message>
     <message>
       <source>L1 and L2</source>
-      <translation>L1 og L2</translation>
+      <translation>Venstre skulder- og avtrekkerknapp</translation>
     </message>
     <message>
       <source>Active Gamepad</source>
@@ -571,7 +571,7 @@
     </message>
     <message>
       <source>R1 and R2</source>
-      <translation>R1 og R2</translation>
+      <translation>Høyre skulder- og avtrekkerknapp</translation>
     </message>
     <message>
       <source>ID: </source>
@@ -607,7 +607,7 @@
     </message>
     <message>
       <source>Left Stick Deadzone</source>
-      <translation>Venstre analog dødsone</translation>
+      <translation>Venstre tommelspak dødsone</translation>
     </message>
     <message>
       <source>Min Deadzone (def:2 max:127)</source>
@@ -619,7 +619,7 @@
     </message>
     <message>
       <source>Right Stick Deadzone</source>
-      <translation>Høyre analog dødsone</translation>
+      <translation>Høyre tommelspak dødsone</translation>
     </message>
     <message>
       <source>Tip: Unmap inputs with right-click</source>
@@ -1315,6 +1315,92 @@ Skriv inn nøklene og lagre dem.</translation>
       <source>Add to Steam</source>
       <translation>Legg til i Steam</translation>
     </message>
+    <message>
+      <source>Zar Compression</source>
+      <translation>Zar-komprimering</translation>
+    </message>
+    <message>
+      <source>Compress game to zar</source>
+      <translation>Komprimer spill til zar</translation>
+    </message>
+    <message>
+      <source>Compress update to zar</source>
+      <translation>Komprimer oppdatering til zar</translation>
+    </message>
+    <message>
+      <source>This is already packed as a ZArchive.</source>
+      <translation>Dette er allerede pakket som en ZArchive.</translation>
+    </message>
+    <message>
+      <source>This folder could not be found on disk.</source>
+      <translation>Klarte ikke finne mappa på disk.</translation>
+    </message>
+    <message>
+      <source>Convert %1 to ZArchive</source>
+      <translation>Konverter %1 til ZArchive</translation>
+    </message>
+    <message>
+      <source>ZArchive Files (*.zar)</source>
+      <translation>ZAarchive-filer (*.zar)</translation>
+    </message>
+    <message>
+      <source>%1 already exists. Overwrite it?</source>
+      <translation>%1 finnes allerede. Overskriv den?</translation>
+    </message>
+    <message>
+      <source>This will pack &quot;%1&quot; into a single read-only .zar archive. Depending on the size this can take a while, and the archive will temporarily need as much free disk space as the original.
+
+The original folder is left untouched until conversion succeeds, you&apos;ll be asked afterward whether to delete it.</source>
+      <translation>Dette vil pakke «%1» til en enkel skrivebeskyttet .zar-arkiv. Avhengig av størrelsen kan dette ta en stund, og arkivet vil midlertidig kreve like mye ledig diskplass som originalen.
+
+Opphavsmappa vil være urørt fremtil fullførelse, du blir spurt etterpå om du vil slette mappa.</translation>
+    </message>
+    <message>
+      <source>
+
+Continue?</source>
+      <translation>
+
+Fortsett?</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Avbryt</translation>
+    </message>
+    <message>
+      <source>Failed to convert to ZArchive:
+%1</source>
+      <translation>Klarte ikke konvertere til ZArchive:
+%1</translation>
+    </message>
+    <message>
+      <source>Conversion finished. Delete the original folder now to free up disk space?
+
+%1</source>
+      <translation>Konvertering fullført. Slett opphavsmappa nå for å frigjøre diskplass?
+
+%1</translation>
+    </message>
+    <message>
+      <source>The archive was created, but the original folder could not be fully deleted. You can remove it manually.</source>
+      <translation>Arkivet ble opprettet, men opphavsmappa kunne ikke slettes. Du kan fjerne den manuelt.</translation>
+    </message>
+    <message>
+      <source>Packing: %1</source>
+      <translation>Pakker: %1</translation>
+    </message>
+    <message>
+      <source>
+
+This game has a separate update/patch folder. Only the base game will be archived; the update/patch folder will not be included and will be left as-is. Use &quot;Convert Update to ZArchive&quot; separately if you&apos;d like to archive it too.</source>
+      <translation>
+
+Dette spillet har en separat oppdatering/rettelse-mappe. Kun spillet kan arkiveres; oppdatering/ rettelse-mappe inkluderes ikke og blir værende. Bruk «Komprimer oppdatering til zar» for seg, hvis du ønsker å arkivere den også.</translation>
+    </message>
+    <message>
+      <source>Convert to ZArchive</source>
+      <translation>Konverter til ZArchive</translation>
+    </message>
   </context>
   <context>
     <name>HelpDialog</name>
@@ -1469,7 +1555,7 @@ Skriv inn nøklene og lagre dem.</translation>
     </message>
     <message>
       <source>Left Analog Halfmode</source>
-      <translation>Venstre analog halvmodus</translation>
+      <translation>Venstre tommelspak halvmodus</translation>
     </message>
     <message>
       <source>Config Selection</source>
@@ -1501,7 +1587,7 @@ Skriv inn nøklene og lagre dem.</translation>
     </message>
     <message>
       <source>Options</source>
-      <translation>Options</translation>
+      <translation>Valg</translation>
     </message>
     <message>
       <source>Mouse Movement Parameters</source>
@@ -1513,7 +1599,7 @@ Skriv inn nøklene og lagre dem.</translation>
     </message>
     <message>
       <source>Triangle</source>
-      <translation>Triangel</translation>
+      <translation>Trekant</translation>
     </message>
     <message>
       <source>Square</source>
@@ -1529,7 +1615,7 @@ Skriv inn nøklene og lagre dem.</translation>
     </message>
     <message>
       <source>Right Analog Halfmode</source>
-      <translation>Høyre analog halvmodus</translation>
+      <translation>Høyre tommelspak halvmodus</translation>
     </message>
     <message>
       <source>Speed Offset (def 0.125):</source>
@@ -1569,7 +1655,7 @@ Skriv inn nøklene og lagre dem.</translation>
     </message>
     <message>
       <source>Mousewheel cannot be mapped to stick outputs</source>
-      <translation>Musehjulet kan ikke tildeles analogstikkene</translation>
+      <translation>Musehjulet kan ikke tildeles tommelspakene</translation>
     </message>
     <message>
       <source>Save</source>
@@ -1629,51 +1715,51 @@ Skriv inn nøklene og lagre dem.</translation>
     </message>
     <message>
       <source>Dpad Up</source>
-      <translation>Navigasjonsknapp opp</translation>
+      <translation>Styrekors opp</translation>
     </message>
     <message>
       <source>Dpad Down</source>
-      <translation>Navigasjonsknapp ned</translation>
+      <translation>Styrekors ned</translation>
     </message>
     <message>
       <source>Dpad Left</source>
-      <translation>Navigasjonsknapp venstre</translation>
+      <translation>Styrekors venstre</translation>
     </message>
     <message>
       <source>Dpad Right</source>
-      <translation>Navigasjonsknapp høyre</translation>
+      <translation>Styrekors høyre</translation>
     </message>
     <message>
       <source>Left Stick Up</source>
-      <translation>Venstre analog opp</translation>
+      <translation>Venstre tommelspak opp</translation>
     </message>
     <message>
       <source>Left Stick Down</source>
-      <translation>Venstre analog ned</translation>
+      <translation>Venstre tommelspak ned</translation>
     </message>
     <message>
       <source>Left Stick Left</source>
-      <translation>Venstre analog venstre</translation>
+      <translation>Venstre tommelspak venstre</translation>
     </message>
     <message>
       <source>Left Stick Right</source>
-      <translation>Venstre analog høyre</translation>
+      <translation>Venstre tommelspak høyre</translation>
     </message>
     <message>
       <source>Right Stick Up</source>
-      <translation>Høyre analog opp</translation>
+      <translation>Høyre tommelspak opp</translation>
     </message>
     <message>
       <source>Right Stick Down</source>
-      <translation>Høyre analog ned</translation>
+      <translation>Høyre tommelspak ned</translation>
     </message>
     <message>
       <source>Right Stick Left</source>
-      <translation>Høyre analog venstre</translation>
+      <translation>Høyre tommelspak venstre</translation>
     </message>
     <message>
       <source>Right Stick Right</source>
-      <translation>Høyre analog høyre</translation>
+      <translation>Høyre tommelspak høyre</translation>
     </message>
     <message>
       <source>L1</source>
@@ -1926,10 +2012,6 @@ Skriv inn nøklene og lagre dem.</translation>
       <translation>Spill: </translation>
     </message>
     <message>
-      <source>ELF files (*.bin *.elf *.oelf)</source>
-      <translation>ELF-filer (*.bin *.elf *.oelf)</translation>
-    </message>
-    <message>
       <source>Game Boot</source>
       <translation>Spilloppstart</translation>
     </message>
@@ -2060,6 +2142,10 @@ Velg en emulatorversjon fra høyre panel.</translation>
     <message>
       <source>Manage Users</source>
       <translation>Håndter brukere</translation>
+    </message>
+    <message>
+      <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
+      <translation>oppstartsfiler (*.bin *.elf *.oelf *.zar)</translation>
     </message>
   </context>
   <context>
@@ -2994,6 +3080,14 @@ Velg en emulatorversjon fra høyre panel.</translation>
     <message>
       <source>shadNet:\nCompatibility is very limited at the moment.\nYou can register at https://www.shadps4.net/shadnet/register/.</source>
       <translation>ShadNet:\nKompatibilitet er veldig begrenset for øyeblikket.\nDu kan registrere deg på https://www.shadps4.net/shadnet/register/.</translation>
+    </message>
+    <message>
+      <source>Red Zone Protection</source>
+      <translation>Rød sone beskyttelse</translation>
+    </message>
+    <message>
+      <source>Static Patching</source>
+      <translation>Statisk retting</translation>
     </message>
   </context>
   <context>

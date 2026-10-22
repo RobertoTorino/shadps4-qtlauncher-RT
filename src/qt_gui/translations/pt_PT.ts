@@ -1314,6 +1314,92 @@ Por favor, introduza as suas chaves e guarde-as.</translation>
       <source>Add to Steam</source>
       <translation>Adicionar à Steam</translation>
     </message>
+    <message>
+      <source>Zar Compression</source>
+      <translation>Compressão Zar</translation>
+    </message>
+    <message>
+      <source>Compress game to zar</source>
+      <translation>Comprimir jogo para zar</translation>
+    </message>
+    <message>
+      <source>Compress update to zar</source>
+      <translation>Comprimir atualização para zar</translation>
+    </message>
+    <message>
+      <source>This is already packed as a ZArchive.</source>
+      <translation>Isto já está comprimido como ZArchive.</translation>
+    </message>
+    <message>
+      <source>This folder could not be found on disk.</source>
+      <translation>Esta pasta não pôde ser encontrada no disco.</translation>
+    </message>
+    <message>
+      <source>Convert %1 to ZArchive</source>
+      <translation>Converter %1 para ZArchive</translation>
+    </message>
+    <message>
+      <source>ZArchive Files (*.zar)</source>
+      <translation>Ficheiros ZArchive (*.zar)</translation>
+    </message>
+    <message>
+      <source>%1 already exists. Overwrite it?</source>
+      <translation>%1 já existe. Deseja sobrescrevê-lo?</translation>
+    </message>
+    <message>
+      <source>This will pack &quot;%1&quot; into a single read-only .zar archive. Depending on the size this can take a while, and the archive will temporarily need as much free disk space as the original.
+
+The original folder is left untouched until conversion succeeds, you&apos;ll be asked afterward whether to delete it.</source>
+      <translation>Isto comprimirá &quot;%1&quot; num único ficheiro .zar de apenas leitura. Dependendo do tamanho, esta operação poderá ser demorada e o ficheiro precisará temporariamente de tanto espaço livre no disco quanto o original.
+
+A pasta original será mantida intacta até que a conversão seja concluída, e ser‑lhe‑á perguntado se deseja apagá‑la.</translation>
+    </message>
+    <message>
+      <source>
+
+Continue?</source>
+      <translation>
+
+Deseja continuar?</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Cancelar</translation>
+    </message>
+    <message>
+      <source>Failed to convert to ZArchive:
+%1</source>
+      <translation>Falha ao converter para ZArchive:
+%1</translation>
+    </message>
+    <message>
+      <source>Conversion finished. Delete the original folder now to free up disk space?
+
+%1</source>
+      <translation>Conversão concluída. Deseja eliminar a pasta original agora para recuperar espaço de armazenamento do disco?
+
+%1</translation>
+    </message>
+    <message>
+      <source>The archive was created, but the original folder could not be fully deleted. You can remove it manually.</source>
+      <translation>O ficheiro foi criado, porém, a pasta original não pôde ser totalmente eliminada. Pode removê-la manualmente.</translation>
+    </message>
+    <message>
+      <source>Packing: %1</source>
+      <translation>A comprimir: %1</translation>
+    </message>
+    <message>
+      <source>
+
+This game has a separate update/patch folder. Only the base game will be archived; the update/patch folder will not be included and will be left as-is. Use &quot;Convert Update to ZArchive&quot; separately if you&apos;d like to archive it too.</source>
+      <translation>
+
+Este jogo tem uma atualização/pasta de correções separada. Apenas o jogo base será comprimido. A pasta de atualização/correções não será incluída permanecerá intacta. Utilize &quot;Converter Atualização para ZArchive&quot; separadamente caso deseja comprimí-la também.</translation>
+    </message>
+    <message>
+      <source>Convert to ZArchive</source>
+      <translation>Converter para ZArchive</translation>
+    </message>
   </context>
   <context>
     <name>HelpDialog</name>
@@ -1925,10 +2011,6 @@ Por favor, introduza as suas chaves e guarde-as.</translation>
       <translation>Jogos: </translation>
     </message>
     <message>
-      <source>ELF files (*.bin *.elf *.oelf)</source>
-      <translation>Ficheiros ELF (*.bin *.elf *.oelf)</translation>
-    </message>
-    <message>
       <source>Game Boot</source>
       <translation>Arranque do Jogo</translation>
     </message>
@@ -1998,7 +2080,7 @@ Por favor, introduza as suas chaves e guarde-as.</translation>
     </message>
     <message>
       <source>Version Manager</source>
-      <translation>Gerenciador de Versões</translation>
+      <translation>Gestor de Versões</translation>
     </message>
     <message>
       <source>No Version Selected</source>
@@ -2009,7 +2091,7 @@ Por favor, introduza as suas chaves e guarde-as.</translation>
 The Version Manager menu will then open.
 Select an emulator version from the right panel.</source>
       <translation>Nenhuma versão do emulador foi selecionada.
-O menu do Gerenciador de Versões irá abrir.
+O menu do Gestor de Versões abrirá.
 Selecione uma versão do emulador no painel direito.</translation>
     </message>
     <message>
@@ -2059,6 +2141,10 @@ Selecione uma versão do emulador no painel direito.</translation>
     <message>
       <source>Manage Users</source>
       <translation>Gerir Utilizadores</translation>
+    </message>
+    <message>
+      <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
+      <translation>ficheiros executáveis (*.bin *.elf *.oelf *.zar)</translation>
     </message>
   </context>
   <context>
@@ -2996,6 +3082,14 @@ Atualmente provoca instabilidade numa abundância de jogos testados.</translatio
       <source>shadNet:\nCompatibility is very limited at the moment.\nYou can register at https://www.shadps4.net/shadnet/register/.</source>
       <translation>shadNet:\nA compatibilidade é reduzida no momento.\nPode registar-se em https://www.shadps4.net/shadnet/register/.</translation>
     </message>
+    <message>
+      <source>Red Zone Protection</source>
+      <translation>Proteção da Zona Vermelha</translation>
+    </message>
+    <message>
+      <source>Static Patching</source>
+      <translation>Correção Estática</translation>
+    </message>
   </context>
   <context>
     <name>ShortcutDialog</name>
@@ -3454,7 +3548,7 @@ Atualmente provoca instabilidade numa abundância de jogos testados.</translatio
     </message>
     <message>
       <source>Complete installation</source>
-      <translation>Concluir a instalação</translation>
+      <translation>Instalação concluída</translation>
     </message>
     <message>
       <source>Pre-release updated successfully</source>

@@ -1,7 +1,9 @@
-// SPDX-FileCopyrightText: Copyright 2025 shadPS4 Emulator Project
+// SPDX-FileCopyrightText: Copyright 2025-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <QHeaderView>
 #include "common/path_util.h"
+#include "core/emulator_state.h"
 #include "game_grid_frame.h"
 #include "main_window.h"
 #include "qt_gui/compatibility_info.h"
@@ -44,6 +46,9 @@ GameGridFrame::GameGridFrame(std::shared_ptr<gui_settings> gui_settings,
             });
         PopulateGameGrid(m_game_info->m_games, false);
     });
+
+    connect(&m_gui_context_menus, &GuiContextMenus::RequestGameListRefresh, this,
+            &GameGridFrame::RequestRefreshGrid);
 }
 
 void GameGridFrame::onCurrentCellChanged(int currentRow, int currentColumn, int previousRow,

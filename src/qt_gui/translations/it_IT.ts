@@ -1315,6 +1315,92 @@ Inserisci le chiavi e salvale.</translation>
       <source>Add to Steam</source>
       <translation>Aggiungi a Steam</translation>
     </message>
+    <message>
+      <source>Zar Compression</source>
+      <translation>Compressione Zar</translation>
+    </message>
+    <message>
+      <source>Compress game to zar</source>
+      <translation>Comprimi il gioco in zar</translation>
+    </message>
+    <message>
+      <source>Compress update to zar</source>
+      <translation>Comprimi l'aggiornamento in zar</translation>
+    </message>
+    <message>
+      <source>This is already packed as a ZArchive.</source>
+      <translation>Questo è già compattato come ZArchive.</translation>
+    </message>
+    <message>
+      <source>This folder could not be found on disk.</source>
+      <translation>Impossibile trovare questa cartella sul disco.</translation>
+    </message>
+    <message>
+      <source>Convert %1 to ZArchive</source>
+      <translation>Converti %1 in ZArchive</translation>
+    </message>
+    <message>
+      <source>ZArchive Files (*.zar)</source>
+      <translation>File ZArchive (*.zar)</translation>
+    </message>
+    <message>
+      <source>%1 already exists. Overwrite it?</source>
+      <translation>%1 esiste già. Sovrascriverlo?</translation>
+    </message>
+    <message>
+      <source>This will pack &quot;%1&quot; into a single read-only .zar archive. Depending on the size this can take a while, and the archive will temporarily need as much free disk space as the original.
+
+The original folder is left untouched until conversion succeeds, you&apos;ll be asked afterward whether to delete it.</source>
+      <translation>Questo compatterà &quot;%1&quot; in un archivio singolo .zar di sola lettura. Impiegherà del tempo a seconda della dimensione del file, e l'archivio richiederà temporaneamente tanto spazio libero su disco quanto è la dimensione del file originale. 
+
+La cartella originale non verrà cancellata finché la conversione avrà successo, successivamente verrà chiesto se si vuole cancellarla o meno.</translation>
+    </message>
+    <message>
+      <source>
+
+Continue?</source>
+      <translation>
+
+Continuare?</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Annulla</translation>
+    </message>
+    <message>
+      <source>Failed to convert to ZArchive:
+%1</source>
+      <translation>Conversione in ZArchive:
+%1 fallita</translation>
+    </message>
+    <message>
+      <source>Conversion finished. Delete the original folder now to free up disk space?
+
+%1</source>
+      <translation>Conversione terminata. Eliminare ora la cartella originale per liberare spazio su disco?
+
+%1</translation>
+    </message>
+    <message>
+      <source>The archive was created, but the original folder could not be fully deleted. You can remove it manually.</source>
+      <translation>L'archivio è stato creato, ma la cartella originale non può essere completamente eliminata. È possibile rimuoverla manualmente.</translation>
+    </message>
+    <message>
+      <source>Packing: %1</source>
+      <translation>Compattando: %1</translation>
+    </message>
+    <message>
+      <source>
+
+This game has a separate update/patch folder. Only the base game will be archived; the update/patch folder will not be included and will be left as-is. Use &quot;Convert Update to ZArchive&quot; separately if you&apos;d like to archive it too.</source>
+      <translation>
+
+Questo gioco ha una cartella di aggiornamento/patch separata. Solo il gioco di base sarà archiviato; la cartella di aggiornamento/patch non sarà inclusa e sarà lasciata così come é. Usa &quot;Converti l'aggiornamento in ZArchive&quot; separatamente se vuoi archiviarla.</translation>
+    </message>
+    <message>
+      <source>Convert to ZArchive</source>
+      <translation>Converti in ZArchive</translation>
+    </message>
   </context>
   <context>
     <name>HelpDialog</name>
@@ -1926,10 +2012,6 @@ Inserisci le chiavi e salvale.</translation>
       <translation>Giochi: </translation>
     </message>
     <message>
-      <source>ELF files (*.bin *.elf *.oelf)</source>
-      <translation>File ELF (*.bin *.elf *.oelf)</translation>
-    </message>
-    <message>
       <source>Game Boot</source>
       <translation>Avvia Gioco</translation>
     </message>
@@ -2060,6 +2142,10 @@ Seleziona una versione di emulatore dal pannello a destra.</translation>
     <message>
       <source>Manage Users</source>
       <translation>Gestione utenti</translation>
+    </message>
+    <message>
+      <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
+      <translation>file avviabili (*.bin *.elf *.oelf *.zar)</translation>
     </message>
   </context>
   <context>
@@ -2994,6 +3080,14 @@ Seleziona una versione di emulatore dal pannello a destra.</translation>
     <message>
       <source>shadNet:\nCompatibility is very limited at the moment.\nYou can register at https://www.shadps4.net/shadnet/register/.</source>
       <translation>shadNet:.\nLa compatibilità è molto limitata al momento.\nPuoi registrarti su https://www.shadps4.net/shadnet/register/.</translation>
+    </message>
+    <message>
+      <source>Red Zone Protection</source>
+      <translation>Protezione Zona Rossa</translation>
+    </message>
+    <message>
+      <source>Static Patching</source>
+      <translation>Patch Statica</translation>
     </message>
   </context>
   <context>

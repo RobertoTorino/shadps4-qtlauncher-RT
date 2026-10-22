@@ -103,70 +103,82 @@ VersionDialog::VersionDialog(std::shared_ptr<gui_settings> gui_settings, QWidget
     });
 
     connect(ui->deleteVersionButton, &QPushButton::clicked, this, [this]() {
-        QTreeWidgetItem* selectedItem = ui->installedTreeWidget->currentItem();
-        if (!selectedItem) {
+        QList<QTreeWidgetItem*> selectedItems = ui->installedTreeWidget->selectedItems();
+        if (selectedItems.isEmpty()) {
             QMessageBox::warning(
                 this, tr("Error"),
                 tr("No version selected. Please choose one from the list to delete."));
             return;
         }
 
-        QString versionName = selectedItem->text(1);
-        QString fullPath = selectedItem->text(4);
-
-        if (fullPath.isEmpty()) {
-            QMessageBox::critical(this, tr("Error"), tr("Failed to determine the folder path."));
-            return;
+        // If multiple versions are selected, show all of them in the confirmation
+        QStringList versionNames;
+        for (QTreeWidgetItem* item : selectedItems) {
+            versionNames << item->text(1);
         }
         auto reply = QMessageBox::question(this, tr("Delete version"),
                                            tr("Do you want to delete the version") +
-                                               QString(" \"%1\" ?").arg(versionName),
+                                               QString(":\n\n%1\n").arg(versionNames.join("\n")),
                                            QMessageBox::Yes | QMessageBox::No);
         if (reply == QMessageBox::No)
             return;
 
-        // Check if it is of type Local (type == 2)
-        auto versions = VersionManager::GetVersionList({});
-        int versionType = 2;
-        for (const auto& v : versions) {
-            if (v.name == versionName.toStdString()) {
-                versionType = static_cast<int>(v.type);
-                break;
-            }
-        }
+        for (QTreeWidgetItem* selectedItem : selectedItems) {
+            QString versionName = selectedItem->text(1);
+            QString fullPath = selectedItem->text(4);
 
-        if (versionType == 2) {
-            VersionManager::RemoveVersion(versionName.toStdString());
-            LoadInstalledList();
-            return;
-        }
-
-        QFileInfo info(fullPath);
-        QString folderPath;
-        if (info.exists() && info.isDir()) {
-            folderPath = info.absoluteFilePath();
-        } else {
-            folderPath = info.absolutePath();
-        }
-
-        if (folderPath.isEmpty()) {
-            QMessageBox::critical(this, tr("Error"),
-                                  tr("Failed to determine the folder to remove.") +
-                                      QString("\n \"%1\"").arg(fullPath));
-            return;
-        }
-
-        QDir dirToRemove(folderPath);
-        if (dirToRemove.exists()) {
-            if (!dirToRemove.removeRecursively()) {
+            if (fullPath.isEmpty()) {
                 QMessageBox::critical(this, tr("Error"),
-                                      tr("Failed to delete folder.") +
-                                          QString("\n \"%1\"").arg(folderPath));
+                                      tr("Failed to determine the folder path."));
                 return;
             }
+
+            // Check if it is of type Local (type == 2)
+            auto versions = VersionManager::GetVersionList({});
+            int versionType = 2;
+
+            for (const auto& v : versions) {
+                if (v.name == versionName.toStdString()) {
+                    versionType = static_cast<int>(v.type);
+                    break;
+                }
+            }
+
+            if (versionType == 2) {
+                VersionManager::RemoveVersion(versionName.toStdString());
+                continue;
+            }
+
+            QFileInfo info(fullPath);
+            QString folderPath;
+
+            if (info.exists() && info.isDir()) {
+                folderPath = info.absoluteFilePath();
+            } else {
+                folderPath = info.absolutePath();
+            }
+
+            if (folderPath.isEmpty()) {
+                QMessageBox::critical(this, tr("Error"),
+                                      tr("Failed to determine the folder to remove.") +
+                                          QString("\n \"%1\"").arg(fullPath));
+                return;
+            }
+
+            QDir dirToRemove(folderPath);
+
+            if (dirToRemove.exists()) {
+                if (!dirToRemove.removeRecursively()) {
+                    QMessageBox::critical(this, tr("Error"),
+                                          tr("Failed to delete folder.") +
+                                              QString("\n \"%1\"").arg(folderPath));
+                    return;
+                }
+            }
+
+            VersionManager::RemoveVersion(versionName.toStdString());
         }
 
-        VersionManager::RemoveVersion(versionName.toStdString());
         LoadInstalledList();
     });
 
@@ -559,7 +571,13 @@ tr("First you need to choose a location to save the versions in\n'Path to save v
                             folderName = QString("%1 - %2").arg(releaseName, datePart);
                         }
 
-                        QString destFolder = QDir(userPath).filePath(folderName);
+                        QString folderNameSanitized = folderName;
+                        folderNameSanitized.replace(QRegularExpression(R"([<>:"/\\|?*])"), "-");
+                        while (folderNameSanitized.endsWith(' ') ||
+                               folderNameSanitized.endsWith('.')) {
+                            folderNameSanitized.chop(1);
+                        }
+                        QString destFolder = QDir(userPath).filePath(folderNameSanitized);
 
                         // extract ZIP
                         QString scriptFilePath;
@@ -613,14 +631,16 @@ tr("First you need to choose a location to save the versions in\n'Path to save v
 
                             QTimer::singleShot(
                                 4000, this,
-                                [this, folderName, progressDialog, versionName, release]() {
+                                [this, folderName, folderNameSanitized, progressDialog, versionName,
+                                 release]() {
                                     progressDialog->close();
                                     progressDialog->deleteLater();
 
                                     QString userPath =
                                         m_gui_settings->GetValue(gui::vm_versionPath).toString();
                                     QString executablePath =
-                                        m_gui_settings->GetVersionExecutablePath(folderName);
+                                        m_gui_settings->GetVersionExecutablePath(
+                                            folderNameSanitized);
 
                                     QMessageBox::information(
                                         this, tr("Confirm Download"),

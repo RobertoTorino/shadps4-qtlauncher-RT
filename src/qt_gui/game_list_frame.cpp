@@ -1,9 +1,11 @@
-// SPDX-FileCopyrightText: Copyright 2025 shadPS4 Emulator Project
+// SPDX-FileCopyrightText: Copyright 2025-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <QHeaderView>
 #include <QToolTip>
 #include "common/logging/log.h"
 #include "common/path_util.h"
+#include "core/emulator_state.h"
 #include "game_list_frame.h"
 #include "game_list_utils.h"
 #include "main_window.h"
@@ -118,6 +120,9 @@ GameListFrame::GameListFrame(std::shared_ptr<gui_settings> gui_settings,
     connect(this->horizontalHeader(), &QHeaderView::customContextMenuRequested, this,
             &GameListFrame::ShowHeaderContextMenu);
 
+    connect(&m_gui_context_menus, &GuiContextMenus::RequestGameListRefresh, this,
+            &GameListFrame::RequestRefreshList);
+
     ToggleColumnVisibility();
 }
 
@@ -162,7 +167,8 @@ void GameListFrame::PopulateGameList(bool isInitialPopulation) {
         SetTableItem(i, 3, QString::fromStdString(m_game_info->m_games[i].serial));
         SetRegionFlag(i, 4, QString::fromStdString(m_game_info->m_games[i].region));
         SetTableItem(i, 5, QString::fromStdString(m_game_info->m_games[i].fw));
-        SetTableItem(i, 6, QString::fromStdString(m_game_info->m_games[i].size));
+        SetTableItem(i, 6, QString::fromStdString(m_game_info->m_games[i].size),
+                     m_game_info->m_games[i].storage_tooltip);
         SetTableItem(i, 7, QString::fromStdString(m_game_info->m_games[i].version));
         SetFavoriteIcon(i, 10);
 
@@ -340,23 +346,23 @@ void GameListFrame::SetCompatibilityItem(int row, int column, CompatibilityEntry
         status_explanation = tr("Compatibility is untested");
         break;
     case CompatibilityStatus::Nothing:
-        color = QStringLiteral("#212121");
+        color = QStringLiteral("#FB2C36");
         status_explanation = tr("Game does not initialize properly / crashes the emulator");
         break;
     case CompatibilityStatus::Boots:
-        color = QStringLiteral("#828282");
+        color = QStringLiteral("#F0B100");
         status_explanation = tr("Game boots, but only displays a blank screen");
         break;
     case CompatibilityStatus::Menus:
-        color = QStringLiteral("#FF0000");
+        color = QStringLiteral("#8E51FF");
         status_explanation = tr("Game displays an image but does not go past the menu");
         break;
     case CompatibilityStatus::Ingame:
-        color = QStringLiteral("#F2D624");
+        color = QStringLiteral("#2B7FFF");
         status_explanation = tr("Game has game-breaking glitches or unplayable performance");
         break;
     case CompatibilityStatus::Playable:
-        color = QStringLiteral("#47D35C");
+        color = QStringLiteral("#00C950");
         status_explanation =
             tr("Game can be completed with playable performance and no major glitches");
         break;
@@ -409,7 +415,7 @@ void GameListFrame::SetCompatibilityItem(int row, int column, CompatibilityEntry
     return;
 }
 
-void GameListFrame::SetTableItem(int row, int column, QString itemStr) {
+void GameListFrame::SetTableItem(int row, int column, QString itemStr, QString tooltip) {
     QTableWidgetItem* item = new QTableWidgetItem();
     QWidget* widget = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(widget);
@@ -426,6 +432,9 @@ void GameListFrame::SetTableItem(int row, int column, QString itemStr) {
     label->setGraphicsEffect(shadowEffect); // Apply shadow effect to the QLabel
 
     layout->addWidget(label);
+    if (column == 6) {
+        widget->setToolTip(tooltip.isEmpty() ? itemStr : tooltip);
+    }
     if (column != 8 && column != 1 && column != 9)
         layout->setAlignment(Qt::AlignCenter);
     widget->setLayout(layout);

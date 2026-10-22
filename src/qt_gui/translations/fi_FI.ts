@@ -1315,6 +1315,92 @@ Syötä avaimet ja tallenna ne.</translation>
       <source>Add to Steam</source>
       <translation>Lisää Steamiin</translation>
     </message>
+    <message>
+      <source>Zar Compression</source>
+      <translation>ZAR-pakkaus</translation>
+    </message>
+    <message>
+      <source>Compress game to zar</source>
+      <translation>Pakkaa peli ZAR-tiedostoon</translation>
+    </message>
+    <message>
+      <source>Compress update to zar</source>
+      <translation>Pakkaa päivitys ZAR-tiedostoon</translation>
+    </message>
+    <message>
+      <source>This is already packed as a ZArchive.</source>
+      <translation>Tämä on jo pakattu ZArchiveksi.</translation>
+    </message>
+    <message>
+      <source>This folder could not be found on disk.</source>
+      <translation>Kansiota ei löytynyt levyltä.</translation>
+    </message>
+    <message>
+      <source>Convert %1 to ZArchive</source>
+      <translation>Muunna %1 ZArchiveksi</translation>
+    </message>
+    <message>
+      <source>ZArchive Files (*.zar)</source>
+      <translation>ZArchive-tiedostot (*.zar)</translation>
+    </message>
+    <message>
+      <source>%1 already exists. Overwrite it?</source>
+      <translation>%1 on jo olemassa. Korvataanko se?</translation>
+    </message>
+    <message>
+      <source>This will pack &quot;%1&quot; into a single read-only .zar archive. Depending on the size this can take a while, and the archive will temporarily need as much free disk space as the original.
+
+The original folder is left untouched until conversion succeeds, you&apos;ll be asked afterward whether to delete it.</source>
+      <translation>Tämä pakkaa pelin &quot;%1&quot; yksittäiseksi vain luettavaksi ZAR-arkistoksi. Koosta riippuen toimenpide voi kestää jonkin aikaa, ja arkisto tarvitsee tilapäisesti yhtä paljon vapaata levytilaa kuin alkuperäinen kansio.
+
+Alkuperäinen kansio jätetään koskemattomaksi, kunnes muuntaminen on valmis. Sen jälkeen voit valita, poistetaanko se.</translation>
+    </message>
+    <message>
+      <source>
+
+Continue?</source>
+      <translation>
+
+Jatka?</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Peruuta</translation>
+    </message>
+    <message>
+      <source>Failed to convert to ZArchive:
+%1</source>
+      <translation>ZArchiveksi muuntaminen epäonnistui:
+%1</translation>
+    </message>
+    <message>
+      <source>Conversion finished. Delete the original folder now to free up disk space?
+
+%1</source>
+      <translation>Muuntaminen valmis. Poistetaanko alkuperäinen kansio levytilan vapauttamiseksi?
+
+%1</translation>
+    </message>
+    <message>
+      <source>The archive was created, but the original folder could not be fully deleted. You can remove it manually.</source>
+      <translation>Arkisto luotiin, mutta alkuperäistä kansiota ei voitu täysin poistaa. Voit poistaa sen manuaalisesti.</translation>
+    </message>
+    <message>
+      <source>Packing: %1</source>
+      <translation>Pakataan: %1</translation>
+    </message>
+    <message>
+      <source>
+
+This game has a separate update/patch folder. Only the base game will be archived; the update/patch folder will not be included and will be left as-is. Use &quot;Convert Update to ZArchive&quot; separately if you&apos;d like to archive it too.</source>
+      <translation>
+
+Tällä pelillä on erillinen päivitys-/paikkauskansio. Vain pohjapeli arkistoidaan; päivitys-/paikkauskansiota ei oteta mukaan ja se jätetään sikseen. Suorita &quot;Muunna päivitys ZArchiveksi&quot; erikseen, jos haluat arkistoida myös sen.</translation>
+    </message>
+    <message>
+      <source>Convert to ZArchive</source>
+      <translation>Muunna ZArchiveksi</translation>
+    </message>
   </context>
   <context>
     <name>HelpDialog</name>
@@ -1926,10 +2012,6 @@ Syötä avaimet ja tallenna ne.</translation>
       <translation>Pelit: </translation>
     </message>
     <message>
-      <source>ELF files (*.bin *.elf *.oelf)</source>
-      <translation>ELF-tiedostot (*.bin *.elf *.oelf)</translation>
-    </message>
-    <message>
       <source>Game Boot</source>
       <translation>Pelin käynnistys</translation>
     </message>
@@ -2060,6 +2142,10 @@ Valitse emulaattorin versio oikeanpuoleisesta paneelista.</translation>
     <message>
       <source>Manage Users</source>
       <translation>Hallinnoi käyttäjiä</translation>
+    </message>
+    <message>
+      <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
+      <translation>Käynnistettävät tiedostot (*.bin *.elf *.oelf *.zar)</translation>
     </message>
   </context>
   <context>
@@ -2994,6 +3080,14 @@ Valitse emulaattorin versio oikeanpuoleisesta paneelista.</translation>
     <message>
       <source>shadNet:\nCompatibility is very limited at the moment.\nYou can register at https://www.shadps4.net/shadnet/register/.</source>
       <translation>shadNet:\nYhteensopivuus on tällä hetkellä hyvin rajallinen.\nVoit rekisteröityä osoitteessa https://www.shadps4.net/shadnet/register/.</translation>
+    </message>
+    <message>
+      <source>Red Zone Protection</source>
+      <translation>Punaisen alueen suojaus</translation>
+    </message>
+    <message>
+      <source>Static Patching</source>
+      <translation>Staattinen paikkaus</translation>
     </message>
   </context>
   <context>

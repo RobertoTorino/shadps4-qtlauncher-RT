@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
+#include <core/emulator_settings.h>
 
 #include <QFutureWatcher>
 #include <QtConcurrent>
@@ -16,7 +17,8 @@ class GameInfoClass : public QObject {
 public:
     GameInfoClass();
     ~GameInfoClass();
-    void GetGameInfo(QWidget* parent = nullptr);
+    void GetGameInfo(QWidget* parent = nullptr, bool force_size_refresh = false,
+                     const std::string& force_size_serial = {});
     QVector<GameInfo> m_games;
     QVector<GameInfo> m_games_backup;
     std::shared_ptr<gui_settings> m_gui_settings;
@@ -52,9 +54,26 @@ public:
         const std::filesystem::path stem_path = Core::FileSys::StripZArchiveExtension(filePath);
         std::filesystem::path game_update_path = stem_path;
         game_update_path += "-UPDATE";
+        std::filesystem::path zar_update_path = game_update_path;
+        zar_update_path += ".zar";
+
         std::filesystem::path game_patch_path = stem_path;
         game_patch_path += "-patch";
+        std::filesystem::path zar_patch_path = game_patch_path;
+        zar_patch_path += ".zar";
         SceUpdateChecker("param.sfo", param_sfo_path, game_update_path, game_patch_path, game.path);
+
+        if (std::filesystem::exists(game_update_path)) {
+            game.update_path = game_update_path;
+        } else if (std::filesystem::exists(game_patch_path)) {
+            game.update_path = game_patch_path;
+        } else if (std::filesystem::exists(zar_update_path)) {
+            game.update_path = zar_update_path;
+        } else if (std::filesystem::exists(zar_patch_path)) {
+            game.update_path = zar_patch_path;
+        } else {
+            game.update_path = "";
+        }
 
         PSF psf;
         if (psf.Open(param_sfo_path)) {
@@ -68,7 +87,11 @@ public:
             SceUpdateChecker("snd0.at9", game.snd0_path, game_update_path, game_patch_path,
                              game.path);
 
-            if (const auto title = psf.GetString("TITLE"); title.has_value()) {
+            if (const auto localized_title = psf.GetString(
+                    fmt::format("TITLE_{:02}", EmulatorSettings.GetConsoleLanguage()));
+                localized_title.has_value()) {
+                game.name = *localized_title;
+            } else if (const auto title = psf.GetString("TITLE"); title.has_value()) {
                 game.name = *title;
             }
             if (const auto title_id = psf.GetString("TITLE_ID"); title_id.has_value()) {

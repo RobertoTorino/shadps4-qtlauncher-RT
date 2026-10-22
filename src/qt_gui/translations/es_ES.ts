@@ -1315,6 +1315,92 @@ Debes introducir tus claves y guardarlas.</translation>
       <source>Add to Steam</source>
       <translation>Añadir a Steam</translation>
     </message>
+    <message>
+      <source>Zar Compression</source>
+      <translation>Compresión zar</translation>
+    </message>
+    <message>
+      <source>Compress game to zar</source>
+      <translation>Comprimir juego a zar</translation>
+    </message>
+    <message>
+      <source>Compress update to zar</source>
+      <translation>Comprimir actualización a zar</translation>
+    </message>
+    <message>
+      <source>This is already packed as a ZArchive.</source>
+      <translation>Ya está convertido a ZArchive.</translation>
+    </message>
+    <message>
+      <source>This folder could not be found on disk.</source>
+      <translation>No se ha podido encontrar esta carpeta en el disco.</translation>
+    </message>
+    <message>
+      <source>Convert %1 to ZArchive</source>
+      <translation>Convertir %1 a ZArchive</translation>
+    </message>
+    <message>
+      <source>ZArchive Files (*.zar)</source>
+      <translation>Archivos ZArchive (*.zar)</translation>
+    </message>
+    <message>
+      <source>%1 already exists. Overwrite it?</source>
+      <translation>%1 ya existe. ¿Deseas sobrescribirlo?</translation>
+    </message>
+    <message>
+      <source>This will pack &quot;%1&quot; into a single read-only .zar archive. Depending on the size this can take a while, and the archive will temporarily need as much free disk space as the original.
+
+The original folder is left untouched until conversion succeeds, you&apos;ll be asked afterward whether to delete it.</source>
+      <translation>Se va a empaquetar &quot;%1&quot; en un archivo .zar de solo lectura. Este proceso puede tardar un tiempo en función del tamaño y el archivo necesitará el mismo espacio libre en disco que el original.
+
+La carpeta original no se alterará hasta que la conversión haya terminado correctamente, entonces se te preguntará si deseas eliminarla.</translation>
+    </message>
+    <message>
+      <source>
+
+Continue?</source>
+      <translation>
+
+¿Deseas continuar?</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Cancelar</translation>
+    </message>
+    <message>
+      <source>Failed to convert to ZArchive:
+%1</source>
+      <translation>Error al convertir a ZArchive:
+%1</translation>
+    </message>
+    <message>
+      <source>Conversion finished. Delete the original folder now to free up disk space?
+
+%1</source>
+      <translation>Conversión terminada. ¿Deseas eliminar la carpeta original para liberar espacio?
+
+%1</translation>
+    </message>
+    <message>
+      <source>The archive was created, but the original folder could not be fully deleted. You can remove it manually.</source>
+      <translation>Se ha creado el archivo pero no se ha podido borrar la carpeta original en su totalidad. Puedes eliminarla a mano.</translation>
+    </message>
+    <message>
+      <source>Packing: %1</source>
+      <translation>Comprimiendo: %1</translation>
+    </message>
+    <message>
+      <source>
+
+This game has a separate update/patch folder. Only the base game will be archived; the update/patch folder will not be included and will be left as-is. Use &quot;Convert Update to ZArchive&quot; separately if you&apos;d like to archive it too.</source>
+      <translation>
+
+Este juego tiene una carpeta de actualizaciones/parches aparte. Solo se archivará el juego base, no se incluirá la carpeta de actualizaciones/parches y se dejará como está. Si deseas archivar esta última carpeta también, selecciona &quot;Convertir actualización a ZArchive&quot; más adelante.-</translation>
+    </message>
+    <message>
+      <source>Convert to ZArchive</source>
+      <translation>Convertir a ZArchive</translation>
+    </message>
   </context>
   <context>
     <name>HelpDialog</name>
@@ -1926,10 +2012,6 @@ Debes introducir tus claves y guardarlas.</translation>
       <translation>Juegos: </translation>
     </message>
     <message>
-      <source>ELF files (*.bin *.elf *.oelf)</source>
-      <translation>Archivos ELF (*.bin *.elf *.oelf)</translation>
-    </message>
-    <message>
       <source>Game Boot</source>
       <translation>Inicio del juego</translation>
     </message>
@@ -2060,6 +2142,10 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     <message>
       <source>Manage Users</source>
       <translation>Gestor de usuarios</translation>
+    </message>
+    <message>
+      <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
+      <translation>Archivos ejecutables (*.bin *.elf *.oelf *.zar)</translation>
     </message>
   </context>
   <context>
@@ -2361,7 +2447,7 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     </message>
     <message>
       <source>Display Compatibility Data:\nDisplays game compatibility information in table view. Enable &quot;Update Compatibility On Startup&quot; to get up-to-date information.</source>
-      <translation>Mostrar datos de compatibilidad:\nMuestra información sobre la compatibilidad de los juegos en la vista de tabla. Habilita la opción «Actualizar base de datos de compatibilidad al iniciar» para tener esta información al día.</translation>
+      <translation>Mostrar datos de compatibilidad:\nMuestra información sobre la compatibilidad de los juegos en la vista de tabla. Habilita la opción &quot;Actualizar base de datos de compatibilidad al iniciar&quot; para tener esta información al día.</translation>
     </message>
     <message>
       <source>Update Compatibility On Startup:\nAutomatically update the compatibility database when shadPS4 starts.</source>
@@ -2385,7 +2471,7 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     </message>
     <message>
       <source>Graphics Device:\nOn multiple GPU systems, select the GPU the emulator will use from the drop down list,\nor select &quot;Auto Select&quot; to automatically determine it.</source>
-      <translation>Dispositivo de gráficos:\nSi tienes un equipo con varias GPU, selecciona en la lista desplegable la GPU que uitilizará el emulador o «Selección automática» para elegirla automáticamente.</translation>
+      <translation>Dispositivo de gráficos:\nSi tienes un equipo con varias GPU, selecciona en la lista desplegable la GPU que uitilizará el emulador o &quot;Selección automática&quot; para elegirla automáticamente.</translation>
     </message>
     <message>
       <source>Width/Height:\nSets the size of the emulator window at launch, which can be resized during gameplay.\nThis is different from the in-game resolution.</source>
@@ -2521,15 +2607,15 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     </message>
     <message>
       <source>Portable User Folder</source>
-      <translation>Carpeta de usuario «portable»</translation>
+      <translation>Carpeta de usuario &quot;portable&quot;</translation>
     </message>
     <message>
       <source>Create Portable User Folder from Common User Folder</source>
-      <translation>Crear carpeta de usuario «portable» a partir de la estándar</translation>
+      <translation>Crear carpeta de usuario &quot;portable&quot; a partir de la estándar</translation>
     </message>
     <message>
       <source>Portable user folder:\nStores shadPS4 settings and data that will be applied only to the shadPS4 build located in the current folder. Restart the app after creating the portable user folder to begin using it.</source>
-      <translation>Carpeta de usuario «portable»:\nAlmacena en la carpeta actual la configuración de shadPS4 y los datos que se aplicarán solo a la versión de shadPS4 que se encuentre en dicha carpeta. Reinicia la aplicación una vez hayas creado la carpeta de usuario «portable» para empezar a usarla.</translation>
+      <translation>Carpeta de usuario &quot;portable&quot;:\nAlmacena en la carpeta actual la configuración de shadPS4 y los datos que se aplicarán solo a la versión de shadPS4 que se encuentre en dicha carpeta. Reinicia la aplicación una vez hayas creado la carpeta de usuario &quot;portable&quot; para empezar a usarla.</translation>
     </message>
     <message>
       <source>%1 already exists</source>
@@ -2561,7 +2647,7 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     </message>
     <message>
       <source>Crash Diagnostics:\nCreates a .yaml file with info about the Vulkan state at the time of crashing.\nUseful for debugging &apos;Device lost&apos; errors. If you have this enabled, you should enable Host AND Guest Debug Markers.\nYou need Vulkan Validation Layers enabled and the Vulkan SDK for this to work.</source>
-      <translation>Diagnóstico de fallos:\nCrea un archivo .yaml con información sobre el estado de Vulkan en el momento del cuelgue.\nÚtil para depurar errores de tipo «Dispositivo perdido». Si activas esta opción, deberías habilitar los marcadores de depuración de host Y TAMBIÉN de invitado.\nNecesitas activar las capas de validación de Vulkan y el SDK de Vulkan para que funcione.</translation>
+      <translation>Diagnóstico de fallos:\nCrea un archivo .yaml con información sobre el estado de Vulkan en el momento del cuelgue.\nÚtil para depurar errores de tipo &quot;Dispositivo perdido&quot;. Si activas esta opción, deberías habilitar los marcadores de depuración de host Y TAMBIÉN de invitado.\nNecesitas activar las capas de validación de Vulkan y el SDK de Vulkan para que funcione.</translation>
     </message>
     <message>
       <source>Enable Logging</source>
@@ -2577,7 +2663,7 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     </message>
     <message>
       <source>Mailbox (Vsync)</source>
-      <translation>«Mailbox» (con sincronía vertical)</translation>
+      <translation>Tipo mailbox (con sincronía vertical)</translation>
     </message>
     <message>
       <source>Fifo (Vsync)</source>
@@ -2593,7 +2679,7 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     </message>
     <message>
       <source>Present Mode:\nConfigures how video output will be presented to your screen.\n\nMailbox: Frames synchronize with your screen&apos;s refresh rate. New frames will replace any pending frames. Reduces latency but may skip frames if running behind.\nFifo: Frames synchronize with your screen&apos;s refresh rate. New frames will be queued behind pending frames. Ensures all frames are presented but may increase latency.\nImmediate: Frames immediately present to your screen when ready. May result in tearing.</source>
-      <translation>Modo de presentación:\nConfigura la presentación de la salida de vídeo en tu pantalla.\n\n«Mailbox»: los fotogramas se sincronizarán con la frecuencia de actualización de tu pantalla. Los fotogramas nuevos sustituirán a cualquier fotograma que esté pendiente de mostrar. Reducirá la latencia, pero podría omitir fotogramas si el renderizado se retrasa.\nFIFO: los fotogramas se sincronizarán con la frecuencia de actualización de tu pantalla. Los fotogramas nuevos se mostrarán después de los fotogramas que queden pendientes. Garantizará que se muestren todos los fotogramas, pero podría aumentar la latencia.\nInmediata: los fotogramas se mostrarán en pantalla en cuanto estén listos. Podría provocar fragmentación en la imagen.</translation>
+      <translation>Modo de presentación:\nConfigura la presentación de la salida de vídeo en tu pantalla.\n\nTipo mailbox: los fotogramas se sincronizarán con la frecuencia de actualización de tu pantalla. Los fotogramas nuevos sustituirán a cualquier fotograma que esté pendiente de mostrar. Reducirá la latencia, pero podría omitir fotogramas si el renderizado se retrasa.\nFIFO: los fotogramas se sincronizarán con la frecuencia de actualización de tu pantalla. Los fotogramas nuevos se mostrarán después de los fotogramas que queden pendientes. Garantizará que se muestren todos los fotogramas, pero podría aumentar la latencia.\nInmediata: los fotogramas se mostrarán en pantalla en cuanto estén listos. Podría provocar fragmentación en la imagen.</translation>
     </message>
     <message>
       <source>Browse:\nBrowse for a folder to set as the DLC path.</source>
@@ -2661,7 +2747,7 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     </message>
     <message>
       <source>Set &quot;Network Connected&quot; to True</source>
-      <translation>Cambia la opción «Conexión a red» a verdadero</translation>
+      <translation>Cambia la opción &quot;Conexión a red&quot; a verdadero</translation>
     </message>
     <message>
       <source>Miscellaneous</source>
@@ -2701,7 +2787,7 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     </message>
     <message>
       <source>Set Network Connected to True:\nForces games to detect an active network connection. Actual online capabilities are not yet supported.</source>
-      <translation>Cambia la opción «Conexión a red» a verdadero:\nFuerza a los juegos a detectar una conexión de red activa. Las funciones reales de red aún no están soportadas.</translation>
+      <translation>Cambia la opción &quot;Conexión a red&quot; a verdadero:\nFuerza a los juegos a detectar una conexión de red activa. Las funciones reales de red aún no están soportadas.</translation>
     </message>
     <message>
       <source>Enable Vulkan Validation Layers:\nEnables a system that validates the state of the Vulkan renderer and logs information about its internal state.\nThis will reduce performance and likely change the behavior of emulation.\nYou need the Vulkan SDK for this to work.</source>
@@ -2793,15 +2879,15 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     </message>
     <message>
       <source>GUI Updates:\nRelease: Official versions released every month that may be very outdated, but are more reliable and tested.\nNightly: Development versions that have all the latest features and fixes, but may contain bugs and are less stable.\n\n*This update applies only to the Qt user interface. To update the emulator core, please use the &apos;Version Manager&apos; menu.</source>
-      <translation>Actualizaciones de la interfaz:\nPrincipal: las versiones oficiales mensuales podrían estar muy obsoletas, pero son más fiables y han sido más testadas.\n«Nightly»: versiones de desarrollo con las últimas características y correcciones, pero que pueden contener fallos y ser menos estables.\n\n* Esta actualización solo se aplica a la interfaz de usuario Qt. Para actualizar el núcleo del emulador debes utilizar el gestor de versiones.</translation>
+      <translation>Actualizaciones de la interfaz:\nPrincipal: las versiones oficiales mensuales podrían estar muy obsoletas, pero son más fiables y han sido más testadas.\n&quot;Nightly&quot;: versiones de desarrollo con las últimas características y correcciones, pero que pueden contener fallos y ser menos estables.\n\n* Esta actualización solo se aplica a la interfaz de usuario Qt. Para actualizar el núcleo del emulador debes utilizar el gestor de versiones.</translation>
     </message>
     <message>
       <source>Cannot create portable launcher folder</source>
-      <translation>No se ha podido crear la carpeta «portable» del lanzador</translation>
+      <translation>No se ha podido crear la carpeta &quot;portable&quot; del lanzador</translation>
     </message>
     <message>
       <source>Portable launcherDir folder created</source>
-      <translation>Carpeta «portable» de launcherDir creada</translation>
+      <translation>Carpeta &quot;portable&quot; de launcherDir creada</translation>
     </message>
     <message>
       <source>USB Device</source>
@@ -2889,7 +2975,7 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     </message>
     <message>
       <source>Audio Backend</source>
-      <translation>«Back-end» de audio</translation>
+      <translation>Back-end de audio</translation>
     </message>
     <message>
       <source>Mic Device</source>
@@ -2994,6 +3080,14 @@ Selecciona una versión del emulador en el panel derecho.</translation>
     <message>
       <source>shadNet:\nCompatibility is very limited at the moment.\nYou can register at https://www.shadps4.net/shadnet/register/.</source>
       <translation>shadNet:\nEn estos momentos, su compatibilidad es muy limitada.\nPuedes registrarte en https://www.shadps4.net/shadnet/register/.</translation>
+    </message>
+    <message>
+      <source>Red Zone Protection</source>
+      <translation>Protección de zona roja</translation>
+    </message>
+    <message>
+      <source>Static Patching</source>
+      <translation>Parches estáticos</translation>
     </message>
   </context>
   <context>
@@ -3362,7 +3456,7 @@ Selecciona una versión del emulador en el panel derecho.</translation>
       <source>First you need to choose a location to save the versions in
 &apos;Path to save versions&apos;</source>
       <translation>Debes elegir una ubicación para guardar las versiones
-en «Ruta de versiones guardadas»</translation>
+en &quot;Ruta de versiones guardadas&quot;</translation>
     </message>
     <message>
       <source>Do you want to download the version</source>
@@ -3498,11 +3592,11 @@ en «Ruta de versiones guardadas»</translation>
     </message>
     <message>
       <source>Unable to get hash of latest pre-release.</source>
-      <translation>No se ha podido obtener el «hash» de la última versión prelanzamiento.</translation>
+      <translation>No se ha podido obtener el hash de la última versión prelanzamiento.</translation>
     </message>
     <message>
       <source>Downloading Pre-release (Nightly), please wait...</source>
-      <translation>Descargando versión prelanzamiento («nightly»), espera...</translation>
+      <translation>Descargando versión prelanzamiento (&quot;nightly&quot;), espera...</translation>
     </message>
   </context>
   <context>

@@ -1315,12 +1315,96 @@ Por favor, digite suas chaves e salve-as.</translation>
       <source>Add to Steam</source>
       <translation>Adicionar ao Steam</translation>
     </message>
+    <message>
+      <source>Zar Compression</source>
+      <translation>Compressão Zar</translation>
+    </message>
+    <message>
+      <source>Compress game to zar</source>
+      <translation>Compactar jogo como zar</translation>
+    </message>
+    <message>
+      <source>Compress update to zar</source>
+      <translation>Compactar atualização como zar</translation>
+    </message>
+    <message>
+      <source>This is already packed as a ZArchive.</source>
+      <translation>Isto já está empacotado como um ZArchive.</translation>
+    </message>
+    <message>
+      <source>This folder could not be found on disk.</source>
+      <translation>Não foi possível encontrar esta pasta no disco.</translation>
+    </message>
+    <message>
+      <source>Convert %1 to ZArchive</source>
+      <translation>Converter %1 para ZArchive</translation>
+    </message>
+    <message>
+      <source>ZArchive Files (*.zar)</source>
+      <translation>Arquivos ZArchive (*.zar)</translation>
+    </message>
+    <message>
+      <source>%1 already exists. Overwrite it?</source>
+      <translation>%1 já existe. Sobrescrevê-lo?</translation>
+    </message>
+    <message>
+      <source>This will pack &quot;%1&quot; into a single read-only .zar archive. Depending on the size this can take a while, and the archive will temporarily need as much free disk space as the original.
+
+The original folder is left untouched until conversion succeeds, you&apos;ll be asked afterward whether to delete it.</source>
+      <translation>Isso compactará &quot;%1&quot; em um único arquivo .zar de somente leitura. Dependendo do tamanho, o processo pode levar algum tempo e exigirá temporariamente tanto espaço livre em disco quanto o arquivo original.
+
+A pasta original permanece inalterada até que a conversão seja concluída com sucesso; em seguida, será perguntado se deseja excluí-la.</translation>
+    </message>
+    <message>
+      <source>
+
+Continue?</source>
+      <translation>
+
+Continuar?</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Cancelar</translation>
+    </message>
+    <message>
+      <source>Failed to convert to ZArchive:
+%1</source>
+      <translation>Falha ao converter para ZArchive:
+%1</translation>
+    </message>
+    <message>
+      <source>Conversion finished. Delete the original folder now to free up disk space?
+
+%1</source>
+      <translation>Conversão concluída. Deseja excluir imediatamente a pasta original para liberar espaço em disco?
+
+%1</translation>
+    </message>
+    <message>
+      <source>The archive was created, but the original folder could not be fully deleted. You can remove it manually.</source>
+      <translation>O arquivamento foi criado, mas não foi possível excluir a pasta original completamente. Você pode removê-la manualmente.</translation>
+    </message>
+    <message>
+      <source>Packing: %1</source>
+      <translation>Empacotando: %1</translation>
+    </message>
+    <message>
+      <source>
+
+This game has a separate update/patch folder. Only the base game will be archived; the update/patch folder will not be included and will be left as-is. Use &quot;Convert Update to ZArchive&quot; separately if you&apos;d like to archive it too.</source>
+      <translation>Este jogo possui uma pasta separada para atualizações/patches. Apenas o jogo base será arquivado; a pasta de atualizações/patches não será incluída e permanecerá como está. Utilize &quot;Converter Atualização para ZArchive&quot; separadamente caso também deseje arquivá-la.</translation>
+    </message>
+    <message>
+      <source>Convert to ZArchive</source>
+      <translation>Converter para ZArchive</translation>
+    </message>
   </context>
   <context>
     <name>HelpDialog</name>
     <message>
       <source>Quickstart</source>
-      <translation>Introdução</translation>
+      <translation>Início Rápido</translation>
     </message>
     <message>
       <source>FAQ</source>
@@ -1355,7 +1439,7 @@ Por favor, digite suas chaves e salve-as.</translation>
     </message>
     <message>
       <source>Quit Emulation</source>
-      <translation>Sair da emulação</translation>
+      <translation>Sair da Emulação</translation>
     </message>
     <message>
       <source>Reload Button Mappings</source>
@@ -1704,7 +1788,7 @@ Por favor, digite suas chaves e salve-as.</translation>
     <name>LogPresetsDialog</name>
     <message>
       <source>Log Filter Presets</source>
-      <translation>Predefinições do Filtro do Registro</translation>
+      <translation>Predefinições do Filtro do Log</translation>
     </message>
     <message>
       <source>Comment</source>
@@ -1739,7 +1823,7 @@ Por favor, digite suas chaves e salve-as.</translation>
     <name>MainWindow</name>
     <message>
       <source>Open/Add Elf Folder</source>
-      <translation>Abrir/Adicionar pasta Elf</translation>
+      <translation>Abrir/Adicionar Pasta Elf</translation>
     </message>
     <message>
       <source>Boot Game</source>
@@ -1787,7 +1871,7 @@ Por favor, digite suas chaves e salve-as.</translation>
     </message>
     <message>
       <source>Tiny</source>
-      <translation>Muito pequeno</translation>
+      <translation>Minúsculo</translation>
     </message>
     <message>
       <source>Small</source>
@@ -1843,7 +1927,7 @@ Por favor, digite suas chaves e salve-as.</translation>
     </message>
     <message>
       <source>View</source>
-      <translation>Ver</translation>
+      <translation>Visualizar</translation>
     </message>
     <message>
       <source>Game List Icons</source>
@@ -1924,10 +2008,6 @@ Por favor, digite suas chaves e salve-as.</translation>
     <message>
       <source>Games: </source>
       <translation>Jogos: </translation>
-    </message>
-    <message>
-      <source>ELF files (*.bin *.elf *.oelf)</source>
-      <translation>Arquivos ELF (*.bin *.elf *.oelf)</translation>
     </message>
     <message>
       <source>Game Boot</source>
@@ -2061,6 +2141,10 @@ Selecione uma versão do emulador no painel direito.</translation>
       <source>Manage Users</source>
       <translation>Gerenciar Usuários</translation>
     </message>
+    <message>
+      <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
+      <translation>arquivos inicializáveis (*.bin *.elf *.oelf *.zar)</translation>
+    </message>
   </context>
   <context>
     <name>QObject</name>
@@ -2125,7 +2209,7 @@ Selecione uma versão do emulador no painel direito.</translation>
     </message>
     <message>
       <source>Log Filter</source>
-      <translation>Filtro do Registro</translation>
+      <translation>Filtro do Log</translation>
     </message>
     <message>
       <source>Open Log Location</source>
@@ -2489,7 +2573,7 @@ Selecione uma versão do emulador no painel direito.</translation>
     </message>
     <message>
       <source>Separate Log Files</source>
-      <translation>Separar Arquivos de Registro</translation>
+      <translation>Separar Arquivos de Log</translation>
     </message>
     <message>
       <source>Separate Log Files:\nWrites a separate logfile for each game.</source>
@@ -2905,15 +2989,15 @@ Selecione uma versão do emulador no painel direito.</translation>
     </message>
     <message>
       <source>Log Sync</source>
-      <translation>Sincronização de Registro</translation>
+      <translation>Sincronização de Log</translation>
     </message>
     <message>
       <source>Log Skip Duplicate</source>
-      <translation>Ignorar Registros Duplicados</translation>
+      <translation>Ignorar Duplicadas no Log</translation>
     </message>
     <message>
       <source>Log Max Skip Duration</source>
-      <translation>Duração Máxima para Ignorar Registros</translation>
+      <translation>Duração Máxima para Ignorar Log</translation>
     </message>
     <message>
       <source> ms</source>
@@ -2921,7 +3005,7 @@ Selecione uma versão do emulador no painel direito.</translation>
     </message>
     <message>
       <source>Log Size Limit</source>
-      <translation>Tamanho Limite do Registro</translation>
+      <translation>Tamanho Limite do Log</translation>
     </message>
     <message>
       <source> B</source>
@@ -2929,7 +3013,7 @@ Selecione uma versão do emulador no painel direito.</translation>
     </message>
     <message>
       <source>Log Append</source>
-      <translation>Anexar ao Registro</translation>
+      <translation>Anexar ao Log</translation>
     </message>
     <message>
       <source>wincolor</source>
@@ -2941,31 +3025,31 @@ Selecione uma versão do emulador no painel direito.</translation>
     </message>
     <message>
       <source>Log Append:\nAppend to existing logs.</source>
-      <translation>Anexar ao Registro:\nAdiciona aos registros existentes.</translation>
+      <translation>Anexar ao Log:\nAdiciona aos logs existentes.</translation>
     </message>
     <message>
       <source>Log Max Skip Duration:\nInterval without writing same lines (ms) - only if &apos;Log Skip Duplicate&apos; enabled.</source>
-      <translation>Duração Máxima para Ignorar Registros:\nIntervalo sem escrever as mesmas linhas (ms) - somente se &apos;Ignorar Registros Duplicados&apos; estiver ativado.</translation>
+      <translation>Duração Máxima para Ignorar Log:\nIntervalo sem escrever as mesmas linhas (ms) - somente se &apos;Ignorar Duplicadas no Log&apos; estiver ativado.</translation>
     </message>
     <message>
       <source>Log Size Limit:\nMaximum size of log files (bytes).</source>
-      <translation>Tamanho Limite do Registro:\nTamanho máximo dos arquivos de registro (em bytes).</translation>
+      <translation>Tamanho Limite do Log:\nTamanho máximo dos arquivos de log (em bytes).</translation>
     </message>
     <message>
       <source>Log Skip Duplicate:\nSave storage by avoiding writing log that is identical.</source>
-      <translation>Ignorar Registros Duplicados:\nEconomize espaço de armazenamento evitando gravar registros idênticos.</translation>
+      <translation>Ignorar Duplicadas no Log:\nEconomize espaço de armazenamento evitando gravar registros idênticos.</translation>
     </message>
     <message>
       <source>Log Sync:\nSwitch between sync (order) or async (performance).</source>
-      <translation>Sincronização de Registro:\nAlternar entre síncrono (ordem) ou assíncrono (desempenho).</translation>
+      <translation>Sincronização de Log:\nAlternar entre síncrono (ordem) ou assíncrono (desempenho).</translation>
     </message>
     <message>
       <source>Log Type:\nChoose between wincolor or msvc log types.\nwincolor: Default logging for Windows\nmsvc: Logging for debugging</source>
-      <translation>Tipo de Registro:\nEscolha entre os tipos de registro wincolor ou msvc.\nwincolor: O monitoramento padrão do Windows\nmsvc: Monitoramento para depuração</translation>
+      <translation>Tipo de Log:\nEscolha entre os tipos de registro wincolor ou msvc.\nwincolor: O monitoramento padrão do Windows\nmsvc: Monitoramento para depuração</translation>
     </message>
     <message>
       <source>Log Filter:\nFilters the log to only print specific information.\nExamples: &quot;Core:Debug&quot; &quot;Lib.Pad:Debug Common.Filesystem:Error&quot; &quot;*:Critical&quot;\nLevels: trace, debug, info, warning, error, critical, off - in this order, a specific level silences all levels preceding it in the list and logs every level after it.</source>
-      <translation>Filtro do Registro:\nFiltra o registro para exibir apenas informações específicas.\nExemplos: &quot;Core:Trace&quot; &quot;Lib.Pad:Debug Common.Filesystem:Error&quot; &quot;*:Critical&quot;\nNíveis: trace, debug, info, warning, error, critical - nesta ordem, um nível específico silencia todos os níveis anteriores na lista e registra todos os níveis após este.</translation>
+      <translation>Filtro do Log:\nFiltra o log para exibir apenas informações específicas.\nExemplos: &quot;Core:Trace&quot; &quot;Lib.Pad:Debug Common.Filesystem:Error&quot; &quot;*:Critical&quot;\nNíveis: trace, debug, info, warning, error, critical - nesta ordem, um nível específico silencia todos os níveis anteriores na lista e registra todos os níveis após este.</translation>
     </message>
     <message>
       <source>Enable shadNet</source>
@@ -2985,7 +3069,7 @@ Selecione uma versão do emulador no painel direito.</translation>
     </message>
     <message>
       <source>Enable UPNP</source>
-      <translation>Ativar UPnP</translation>
+      <translation>Habilitar UPnP</translation>
     </message>
     <message>
       <source>WebAPI Server</source>
@@ -2994,6 +3078,14 @@ Selecione uma versão do emulador no painel direito.</translation>
     <message>
       <source>shadNet:\nCompatibility is very limited at the moment.\nYou can register at https://www.shadps4.net/shadnet/register/.</source>
       <translation>shadNet:\nA compatibilidade é muito limitada no momento.\nVocê pode se registrar em https://www.shadps4.net/shadnet/register/.</translation>
+    </message>
+    <message>
+      <source>Red Zone Protection</source>
+      <translation>Proteção da Zona Vermelha</translation>
+    </message>
+    <message>
+      <source>Static Patching</source>
+      <translation>Correção Estática</translation>
     </message>
   </context>
   <context>

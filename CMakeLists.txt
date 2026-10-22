@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright 2025 shadPS4 Emulator Project
+# SPDX-FileCopyrightText: Copyright 2025-2026 shadPS4 Emulator Project
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 # Version 3.24 needed for FetchContent OVERRIDE_FIND_PACKAGE
@@ -206,6 +206,7 @@ find_package(SDL3 3.1.2 CONFIG)
 find_package(toml11 4.2.0 CONFIG)
 find_package(VulkanHeaders 1.4.329 CONFIG)
 find_package(OpenAL CONFIG)
+find_package(ZArchive 0.1.2 MODULE)
 list(POP_BACK CMAKE_MODULE_PATH)
 
 add_subdirectory(externals)
@@ -272,10 +273,13 @@ set(CORE src/core/file_format/elf.cpp
          src/core/file_format/trp.h
          src/core/file_sys/game_backend.cpp
          src/core/file_sys/game_backend.h
+         src/core/file_sys/zar_packer.cpp
+         src/core/file_sys/zar_packer.h
          src/core/file_sys/backends/host_directory_backend.cpp
          src/core/file_sys/backends/host_directory_backend.h
          src/core/file_sys/backends/zarchive_backend.cpp
          src/core/file_sys/backends/zarchive_backend.h
+         src/core/cpu_patches.h
          src/core/emulator_state.cpp
          src/core/emulator_state.h
          src/core/emulator_settings.cpp
@@ -313,6 +317,7 @@ set(QT_GUI src/qt_gui/about_dialog.cpp
            src/qt_gui/background_music_player.h
            src/qt_gui/cheats_patches.cpp
            src/qt_gui/cheats_patches.h
+           src/qt_gui/cheats_patches.ui
            src/qt_gui/compatibility_info.cpp
            src/qt_gui/compatibility_info.h
            src/qt_gui/control_settings.cpp
@@ -324,6 +329,7 @@ set(QT_GUI src/qt_gui/about_dialog.cpp
            src/qt_gui/main_window_ui.h
            src/qt_gui/main_window.cpp
            src/qt_gui/main_window.h
+           src/qt_gui/gui_context_menus.cpp
            src/qt_gui/gui_context_menus.h
            src/qt_gui/game_list_utils.h
            src/qt_gui/game_info.cpp

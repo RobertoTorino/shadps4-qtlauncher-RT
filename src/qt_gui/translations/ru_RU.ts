@@ -1315,6 +1315,92 @@ Please enter your keys and save them.</source>
       <source>Add to Steam</source>
       <translation>Добавить в Steam</translation>
     </message>
+    <message>
+      <source>Zar Compression</source>
+      <translation>Сжатие Zar</translation>
+    </message>
+    <message>
+      <source>Compress game to zar</source>
+      <translation>Сжать игру в zar</translation>
+    </message>
+    <message>
+      <source>Compress update to zar</source>
+      <translation>Сжать обновление в zar</translation>
+    </message>
+    <message>
+      <source>This is already packed as a ZArchive.</source>
+      <translation>Это уже упаковано как ZArchive.</translation>
+    </message>
+    <message>
+      <source>This folder could not be found on disk.</source>
+      <translation>Эта папка не найдена на диске.</translation>
+    </message>
+    <message>
+      <source>Convert %1 to ZArchive</source>
+      <translation>Конвертировать %1 в ZArchive</translation>
+    </message>
+    <message>
+      <source>ZArchive Files (*.zar)</source>
+      <translation>Файлы ZArchive (*.zar)</translation>
+    </message>
+    <message>
+      <source>%1 already exists. Overwrite it?</source>
+      <translation>%1 уже существует. Перезаписать его?</translation>
+    </message>
+    <message>
+      <source>This will pack &quot;%1&quot; into a single read-only .zar archive. Depending on the size this can take a while, and the archive will temporarily need as much free disk space as the original.
+
+The original folder is left untouched until conversion succeeds, you&apos;ll be asked afterward whether to delete it.</source>
+      <translation>Это запакует &quot;%1&quot; в один архив .zar только для чтения. В зависимости от размера это может занять время, и для архива временно потребуется столько же свободного места на диске, сколько занимает оригинал.
+
+Оригинальная папка остается нетронутой до завершения преобразования, после этого вам будет предложено удалить её.</translation>
+    </message>
+    <message>
+      <source>
+
+Continue?</source>
+      <translation>
+
+Продолжить?</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Отменить</translation>
+    </message>
+    <message>
+      <source>Failed to convert to ZArchive:
+%1</source>
+      <translation>Не удалось преобразовать в ZArchive:
+%1</translation>
+    </message>
+    <message>
+      <source>Conversion finished. Delete the original folder now to free up disk space?
+
+%1</source>
+      <translation>Преобразование завершено. Удалить оригинальную папку, чтобы освободить место на диске?
+
+%1</translation>
+    </message>
+    <message>
+      <source>The archive was created, but the original folder could not be fully deleted. You can remove it manually.</source>
+      <translation>Архив был создан, но оригинальная папка не может быть полностью удалена. Вы можете удалить её вручную.</translation>
+    </message>
+    <message>
+      <source>Packing: %1</source>
+      <translation>Упаковка: %1</translation>
+    </message>
+    <message>
+      <source>
+
+This game has a separate update/patch folder. Only the base game will be archived; the update/patch folder will not be included and will be left as-is. Use &quot;Convert Update to ZArchive&quot; separately if you&apos;d like to archive it too.</source>
+      <translation>
+
+В этой игре есть отдельная папка/обновление. Только базовая игра будет архивирована; папка update/patch не будет включена и останется как есть. Используйте &quot;Преобразовать Обновление в ZArchive&quot; отдельно, если вы&apos;хотели бы сделать архив тоже.</translation>
+    </message>
+    <message>
+      <source>Convert to ZArchive</source>
+      <translation>Конвертировать в ZArchive</translation>
+    </message>
   </context>
   <context>
     <name>HelpDialog</name>
@@ -1926,10 +2012,6 @@ Please enter your keys and save them.</source>
       <translation>Игры: </translation>
     </message>
     <message>
-      <source>ELF files (*.bin *.elf *.oelf)</source>
-      <translation>Файлы ELF (*.bin *.elf *.oelf)</translation>
-    </message>
-    <message>
       <source>Game Boot</source>
       <translation>Запуск игры</translation>
     </message>
@@ -2060,6 +2142,10 @@ Select an emulator version from the right panel.</source>
     <message>
       <source>Manage Users</source>
       <translation>Управление пользователями</translation>
+    </message>
+    <message>
+      <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
+      <translation>загрузочные файлы (*.bin *.elf *.oelf *.zar)</translation>
     </message>
   </context>
   <context>
@@ -2994,6 +3080,14 @@ Select an emulator version from the right panel.</source>
     <message>
       <source>shadNet:\nCompatibility is very limited at the moment.\nYou can register at https://www.shadps4.net/shadnet/register/.</source>
       <translation>shadNet:\nСовместимость в данный момент очень ограничена.\nВы можете зарегистрироваться на https://www.shadps4.net/shadnet/register/.</translation>
+    </message>
+    <message>
+      <source>Red Zone Protection</source>
+      <translation>Защита красной зоны</translation>
+    </message>
+    <message>
+      <source>Static Patching</source>
+      <translation>Статическое исправление</translation>
     </message>
   </context>
   <context>

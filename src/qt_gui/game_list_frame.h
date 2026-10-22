@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
+// SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
@@ -11,6 +11,8 @@
 #include <QNetworkRequest>
 #include <QPainter>
 #include <QScrollBar>
+#include <QTableWidgetItem>
+#include <QTreeWidgetItem>
 
 #include "background_music_player.h"
 #include "compatibility_info.h"
@@ -29,6 +31,7 @@ public:
                            std::shared_ptr<IpcClient> ipc_client, QWidget* parent = nullptr);
 Q_SIGNALS:
     void GameListFrameClosed();
+    void RequestRefreshList(const QString& serial);
 
 public Q_SLOTS:
     void SetListBackgroundImage(QTableWidgetItem* item);
@@ -41,7 +44,7 @@ public Q_SLOTS:
                               int previousColumn);
 
 private:
-    void SetTableItem(int row, int column, QString itemStr);
+    void SetTableItem(int row, int column, QString itemStr, QString tooltip = {});
     void SetRegionFlag(int row, int column, QString itemStr);
     void SetFavoriteIcon(int row, int column);
     void SetCompatibilityItem(int row, int column, CompatibilityEntry entry);
@@ -76,9 +79,14 @@ public:
         return std::stof(str.substr(0, str.size() - offset));
     }
 
-    static float parseSizeMB(const std::string& size) {
-        float num = parseAsFloat(size, 3);
-        return (size[size.size() - 2] == 'G') ? num * 1024 : num;
+    static int parsePlayTime(const std::string& time) {
+        int hours = 0;
+        int minutes = 0;
+        int seconds = 0;
+        if (sscanf(time.c_str(), "%d:%d:%d", &hours, &minutes, &seconds) != 3) {
+            return 0;
+        }
+        return hours * 3600 + minutes * 60 + seconds;
     }
 
     static bool CompareStringsAscending(GameInfo a, GameInfo b, int columnIndex) {
@@ -98,11 +106,11 @@ public:
         case 5:
             return parseAsFloat(a.fw, 0) < parseAsFloat(b.fw, 0);
         case 6:
-            return parseSizeMB(b.size) < parseSizeMB(a.size);
+            return b.stored_size < a.stored_size;
         case 7:
             return a.version < b.version;
         case 8:
-            return a.play_time < b.play_time;
+            return parsePlayTime(a.play_time) < parsePlayTime(b.play_time);
         case 9:
             return a.path < b.path;
         default:
@@ -127,11 +135,11 @@ public:
         case 5:
             return parseAsFloat(a.fw, 0) > parseAsFloat(b.fw, 0);
         case 6:
-            return parseSizeMB(b.size) > parseSizeMB(a.size);
+            return b.stored_size > a.stored_size;
         case 7:
             return a.version > b.version;
         case 8:
-            return a.play_time > b.play_time;
+            return parsePlayTime(a.play_time) > parsePlayTime(b.play_time);
         case 9:
             return a.path > b.path;
         default:

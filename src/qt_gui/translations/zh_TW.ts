@@ -1313,6 +1313,90 @@ Please enter your keys and save them.</source>
       <source>Add to Steam</source>
       <translation>新增到 Steam</translation>
     </message>
+    <message>
+      <source>Zar Compression</source>
+      <translation>Zar壓縮</translation>
+    </message>
+    <message>
+      <source>Compress game to zar</source>
+      <translation>將遊戲壓縮成zar格式</translation>
+    </message>
+    <message>
+      <source>Compress update to zar</source>
+      <translation>將更新檔壓縮成zar格式</translation>
+    </message>
+    <message>
+      <source>This is already packed as a ZArchive.</source>
+      <translation>這個已經封裝成 ZArchive 檔案。</translation>
+    </message>
+    <message>
+      <source>This folder could not be found on disk.</source>
+      <translation>在磁碟上找不到這個資料夾。</translation>
+    </message>
+    <message>
+      <source>Convert %1 to ZArchive</source>
+      <translation>將 %1 轉換成 ZArchive 檔案</translation>
+    </message>
+    <message>
+      <source>ZArchive Files (*.zar)</source>
+      <translation>ZArchive檔案 (*.zar)</translation>
+    </message>
+    <message>
+      <source>%1 already exists. Overwrite it?</source>
+      <translation>已存在 %1 ，確定要覆蓋嗎？</translation>
+    </message>
+    <message>
+      <source>This will pack &quot;%1&quot; into a single read-only .zar archive. Depending on the size this can take a while, and the archive will temporarily need as much free disk space as the original.
+
+The original folder is left untouched until conversion succeeds, you&apos;ll be asked afterward whether to delete it.</source>
+      <translation>這個操作將會把&quot;%1&quot;壓縮成一個唯讀的 .zar 檔案。根據檔案大小，這個過程可能要花一些時間，檔案壓縮時會需要用到跟原始檔案一樣多的可用磁碟空間。
+
+原始資料夾在轉換成功後並不會被刪除，&apos;轉換成功後會先詢問您是否要刪除它。</translation>
+    </message>
+    <message>
+      <source>
+
+Continue?</source>
+      <translation>
+
+要繼續嗎？</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <source>Failed to convert to ZArchive:
+%1</source>
+      <translation>無法轉換成 ZArchive 檔案：
+%1</translation>
+    </message>
+    <message>
+      <source>Conversion finished. Delete the original folder now to free up disk space?
+
+%1</source>
+      <translation>轉換完成。現在要刪除原始資料夾以釋放磁碟空間嗎？
+
+%1</translation>
+    </message>
+    <message>
+      <source>The archive was created, but the original folder could not be fully deleted. You can remove it manually.</source>
+      <translation>已建立封存檔，但無法徹底刪除原始資料夾。你可以手動移除它。</translation>
+    </message>
+    <message>
+      <source>Packing: %1</source>
+      <translation>正在封裝：%1</translation>
+    </message>
+    <message>
+      <source>
+
+This game has a separate update/patch folder. Only the base game will be archived; the update/patch folder will not be included and will be left as-is. Use &quot;Convert Update to ZArchive&quot; separately if you&apos;d like to archive it too.</source>
+      <translation>這款遊戲含有獨立的更新檔/修補檔資料夾。只會封存遊戲本體，更新檔/修補檔資料夾並不會包含在內，維持原狀。如果你&apos;也想封存這種資料夾&apos;，請分別使用&quot;將更新檔轉換成 ZArchive&quot;這個功能。</translation>
+    </message>
+    <message>
+      <source>Convert to ZArchive</source>
+      <translation>轉換成 ZArchive 檔案</translation>
+    </message>
   </context>
   <context>
     <name>HelpDialog</name>
@@ -1920,10 +2004,6 @@ Please enter your keys and save them.</source>
       <translation>遊戲： </translation>
     </message>
     <message>
-      <source>ELF files (*.bin *.elf *.oelf)</source>
-      <translation>ELF 檔案 (*.bin *.elf *.oelf)</translation>
-    </message>
-    <message>
       <source>Game Boot</source>
       <translation>遊戲啟動</translation>
     </message>
@@ -2054,6 +2134,10 @@ Select an emulator version from the right panel.</source>
     <message>
       <source>Manage Users</source>
       <translation>管理使用者</translation>
+    </message>
+    <message>
+      <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
+      <translation>可啟動檔案 (*.bin *.elf *.oelf *.zar)</translation>
     </message>
   </context>
   <context>
@@ -2988,6 +3072,14 @@ Select an emulator version from the right panel.</source>
     <message>
       <source>shadNet:\nCompatibility is very limited at the moment.\nYou can register at https://www.shadps4.net/shadnet/register/.</source>
       <translation>shadNet:\n目前相容性非常有限。\n你可以在 https://www.shadps4.net/shadnet/register/ 進行註冊。</translation>
+    </message>
+    <message>
+      <source>Red Zone Protection</source>
+      <translation>紅色高風險區域保護措施</translation>
+    </message>
+    <message>
+      <source>Static Patching</source>
+      <translation>正在靜態修補</translation>
     </message>
   </context>
   <context>
