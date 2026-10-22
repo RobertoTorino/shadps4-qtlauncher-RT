@@ -164,7 +164,8 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
     ui->pathsTabLayout->insertWidget(2, save_data_group);
 
     ui->advancedLayout->insertWidget(0, ui->copyGPUBuffersCheckBox);
-    clear_graphics_caches_button = new QPushButton(tr("Clear Graphic Caches"), ui->advancedGroupBox);
+    clear_graphics_caches_button =
+        new QPushButton(tr("Clear Graphic Caches"), ui->advancedGroupBox);
     clear_graphics_caches_button->setObjectName("clearGraphicsCachesButton");
     restart_emulator_button = new QPushButton(tr("Restart Emulator"), ui->advancedGroupBox);
     restart_emulator_button->setObjectName("restartEmulatorButton");
@@ -548,9 +549,9 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         clear_graphics_caches_button->setEnabled(!is_game_running);
         restart_emulator_button->setEnabled(is_game_running);
         connect(clear_graphics_caches_button, &QPushButton::clicked, this,
-            &SettingsDialog::ClearGraphicsCaches);
+                &SettingsDialog::ClearGraphicsCaches);
         connect(restart_emulator_button, &QPushButton::clicked, this,
-            [this]() { m_ipc_client->restartEmulator(); });
+                [this]() { m_ipc_client->restartEmulator(); });
     }
 
     // Experimental
@@ -1032,12 +1033,12 @@ void SettingsDialog::ClearGraphicsCaches() {
     }
 
     const auto cache_dir = Common::FS::GetUserPath(Common::FS::PathType::CacheDir);
-    const auto shader_dumps =
-        Common::FS::GetUserPath(Common::FS::PathType::ShaderDir) / "dumps";
-    if (QMessageBox::question(
-            this, tr("Clear Graphic Caches"),
-            tr("Delete generated pipeline caches and shader dumps?\n\nShader patches are preserved."),
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes) {
+    const auto shader_dumps = Common::FS::GetUserPath(Common::FS::PathType::ShaderDir) / "dumps";
+    if (QMessageBox::question(this, tr("Clear Graphic Caches"),
+                              tr("Delete generated pipeline caches and shader dumps?\n\nShader "
+                                 "patches are preserved."),
+                              QMessageBox::Yes | QMessageBox::No,
+                              QMessageBox::No) != QMessageBox::Yes) {
         return;
     }
 
@@ -1048,9 +1049,8 @@ void SettingsDialog::ClearGraphicsCaches() {
         if (error) {
             QString path_text;
             Common::FS::PathToQString(path_text, path);
-            failures.append(tr("%1: %2")
-                                .arg(QDir::toNativeSeparators(path_text),
-                                     QString::fromStdString(error.message())));
+            failures.append(tr("%1: %2").arg(QDir::toNativeSeparators(path_text),
+                                             QString::fromStdString(error.message())));
         }
     }
 
@@ -1059,15 +1059,14 @@ void SettingsDialog::ClearGraphicsCaches() {
     if (create_error) {
         QString path_text;
         Common::FS::PathToQString(path_text, cache_dir);
-        failures.append(tr("%1: %2")
-                            .arg(QDir::toNativeSeparators(path_text),
-                                 QString::fromStdString(create_error.message())));
+        failures.append(tr("%1: %2").arg(QDir::toNativeSeparators(path_text),
+                                         QString::fromStdString(create_error.message())));
     }
 
     if (!failures.isEmpty()) {
-        QMessageBox::warning(this, tr("Clear Graphic Caches"),
-                             tr("Some cache entries could not be removed:\n%1")
-                                 .arg(failures.join("\n")));
+        QMessageBox::warning(
+            this, tr("Clear Graphic Caches"),
+            tr("Some cache entries could not be removed:\n%1").arg(failures.join("\n")));
         return;
     }
 
@@ -1086,10 +1085,9 @@ void SettingsDialog::ClearLogs() {
     QString log_dir_text;
     Common::FS::PathToQString(log_dir_text, log_dir);
     log_dir_text = QDir::toNativeSeparators(log_dir_text);
-    if (QMessageBox::question(this, tr("Clear Logs"),
-                              tr("Delete all log files from:\n%1").arg(log_dir_text),
-                              QMessageBox::Yes | QMessageBox::No,
-                              QMessageBox::No) != QMessageBox::Yes) {
+    if (QMessageBox::question(
+            this, tr("Clear Logs"), tr("Delete all log files from:\n%1").arg(log_dir_text),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes) {
         return;
     }
 
@@ -1097,8 +1095,7 @@ void SettingsDialog::ClearLogs() {
     QStringList failures;
     std::error_code iterator_error;
     for (std::filesystem::recursive_directory_iterator iterator(
-             log_dir, std::filesystem::directory_options::skip_permission_denied,
-             iterator_error),
+             log_dir, std::filesystem::directory_options::skip_permission_denied, iterator_error),
          end;
          iterator != end; iterator.increment(iterator_error)) {
         if (iterator_error) {
@@ -1116,9 +1113,8 @@ void SettingsDialog::ClearLogs() {
         } else {
             QString path_text;
             Common::FS::PathToQString(path_text, iterator->path());
-            failures.append(tr("%1: %2")
-                                .arg(QDir::toNativeSeparators(path_text),
-                                     QString::fromStdString(remove_error.message())));
+            failures.append(tr("%1: %2").arg(QDir::toNativeSeparators(path_text),
+                                             QString::fromStdString(remove_error.message())));
         }
     }
 
@@ -1128,14 +1124,12 @@ void SettingsDialog::ClearLogs() {
                                  .arg(QString::number(removed_count), failures.join("\n")));
     } else {
         QMessageBox::information(this, tr("Clear Logs"),
-                                 tr("Cleared %1 log file(s).")
-                                     .arg(QString::number(removed_count)));
+                                 tr("Cleared %1 log file(s).").arg(QString::number(removed_count)));
     }
 }
 
 void SettingsDialog::OpenConfigToml() {
-    const auto config_path =
-        Common::FS::GetUserPath(Common::FS::PathType::UserDir) / "config.json";
+    const auto config_path = Common::FS::GetUserPath(Common::FS::PathType::UserDir) / "config.json";
     QString config_path_text;
     Common::FS::PathToQString(config_path_text, config_path);
     config_path_text = QDir::toNativeSeparators(config_path_text);

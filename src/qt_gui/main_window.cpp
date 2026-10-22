@@ -21,6 +21,7 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+
 #include <psapi.h>
 #endif
 
@@ -154,9 +155,9 @@ QIcon CreateControllerToolbarIcon(const QIcon& icon) {
         return icon;
     }
 
-    const QPixmap artwork = QPixmap::fromImage(source.copy(visibleBounds))
-                                .scaled(QSize(60, 50), Qt::KeepAspectRatio,
-                                        Qt::SmoothTransformation);
+    const QPixmap artwork =
+        QPixmap::fromImage(source.copy(visibleBounds))
+            .scaled(QSize(60, 50), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     QPixmap canvas(60, 50);
     canvas.fill(Qt::transparent);
     QPainter painter(&canvas);
@@ -214,8 +215,7 @@ bool MainWindow::Init() {
     setMinimumSize(900, 405);
     const std::string_view revision(Common::g_scm_rev);
     const std::string window_title =
-        fmt::format("shadPS4QtLauncher - build {} - {}", revision.substr(0, 7),
-                    Common::g_scm_date);
+        fmt::format("shadPS4QtLauncher - build {} - {}", revision.substr(0, 7), Common::g_scm_date);
     setWindowTitle(QString::fromStdString(window_title));
     this->show();
     // load game list
@@ -264,11 +264,10 @@ void MainWindow::UpdateSystemUsageStatus() {
         return;
     }
 
-    const double total_mb =
-        static_cast<double>(memory_status.ullTotalPhys) / (1024.0 * 1024.0);
-    const double used_mb = static_cast<double>(memory_status.ullTotalPhys -
-                                               memory_status.ullAvailPhys) /
-                           (1024.0 * 1024.0);
+    const double total_mb = static_cast<double>(memory_status.ullTotalPhys) / (1024.0 * 1024.0);
+    const double used_mb =
+        static_cast<double>(memory_status.ullTotalPhys - memory_status.ullAvailPhys) /
+        (1024.0 * 1024.0);
 
     double app_mb = 0.0;
     using GetProcessMemoryInfoFn = BOOL(WINAPI*)(HANDLE, PPROCESS_MEMORY_COUNTERS, DWORD);
@@ -301,13 +300,12 @@ void MainWindow::UpdateSystemUsageStatus() {
 
     const double system_percent = total_mb > 0.0 ? (used_mb / total_mb) * 100.0 : 0.0;
     const double app_percent = total_mb > 0.0 ? (app_mb / total_mb) * 100.0 : 0.0;
-    m_system_usage_label->setText(
-        tr("SYSTEM: %1/%2MB (%3%) | APP: %4MB (%5%)")
-            .arg(QString::number(static_cast<qulonglong>(used_mb + 0.5)))
-            .arg(QString::number(static_cast<qulonglong>(total_mb + 0.5)))
-            .arg(QString::number(system_percent, 'f', 1))
-            .arg(QString::number(static_cast<qulonglong>(app_mb + 0.5)))
-            .arg(QString::number(app_percent, 'f', 2)));
+    m_system_usage_label->setText(tr("SYSTEM: %1/%2MB (%3%) | APP: %4MB (%5%)")
+                                      .arg(QString::number(static_cast<qulonglong>(used_mb + 0.5)))
+                                      .arg(QString::number(static_cast<qulonglong>(total_mb + 0.5)))
+                                      .arg(QString::number(system_percent, 'f', 1))
+                                      .arg(QString::number(static_cast<qulonglong>(app_mb + 0.5)))
+                                      .arg(QString::number(app_percent, 'f', 2)));
 #else
     m_system_usage_label->setText(tr("SYSTEM: unavailable | APP: unavailable"));
 #endif
@@ -400,9 +398,9 @@ void MainWindow::SnapshotCapture() {
         const QString suffix = burst_count > 1
                                    ? QStringLiteral("_%1").arg(index + 1, 2, 10, QLatin1Char('0'))
                                    : QString();
-        const auto output_path = output_directory / Common::FS::PathFromQString(
-                                                        QStringLiteral("Snapshot_%1%2.png")
-                                                            .arg(timestamp, suffix));
+        const auto output_path =
+            output_directory /
+            Common::FS::PathFromQString(QStringLiteral("Snapshot_%1%2.png").arg(timestamp, suffix));
         QString output_file;
         Common::FS::PathToQString(output_file, output_path);
         if (!screenshot.save(output_file, "PNG")) {
@@ -417,10 +415,9 @@ void MainWindow::SnapshotCapture() {
                                    : tr("Screenshot burst saved: %1 images.").arg(saved_count),
                                3000);
     } else {
-        QMessageBox::warning(this, tr("Screenshot"),
-                             tr("Captured %1 of %2 screenshots.")
-                                 .arg(saved_count)
-                                 .arg(burst_count));
+        QMessageBox::warning(
+            this, tr("Screenshot"),
+            tr("Captured %1 of %2 screenshots.").arg(saved_count).arg(burst_count));
     }
 #endif
 }
@@ -429,9 +426,8 @@ QString MainWindow::BuildSystemInfoText() const {
 #ifdef Q_OS_WIN
     QSettings os_settings("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
                           QSettings::NativeFormat);
-    QSettings cpu_settings(
-        "HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
-        QSettings::NativeFormat);
+    QSettings cpu_settings("HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
+                           QSettings::NativeFormat);
 
     QString os_name = os_settings.value("ProductName").toString().trimmed();
     if (os_name.isEmpty()) {
@@ -474,9 +470,10 @@ QString MainWindow::BuildSystemInfoText() const {
 
     MEMORYSTATUSEX memory_status{};
     memory_status.dwLength = sizeof(memory_status);
-    const QString total_ram = GlobalMemoryStatusEx(&memory_status)
-                                  ? QString::number(memory_status.ullTotalPhys / (1024ull * 1024ull))
-                                  : tr("Unavailable");
+    const QString total_ram =
+        GlobalMemoryStatusEx(&memory_status)
+            ? QString::number(memory_status.ullTotalPhys / (1024ull * 1024ull))
+            : tr("Unavailable");
 
     return tr("Operating System: %1\nWindows Build: %2\nCPU: %3\nGPU: %4\nTotal RAM: %5 MB")
         .arg(os_name, build_text, cpu_name, gpu_names.join(", "), total_ram);
@@ -611,17 +608,15 @@ void MainWindow::UpdateToolbarButtons() {
         if (isIconBlack) {
             ui->toolbarPauseAction->setIcon(QIcon(":images/pause_icon.png"));
         } else {
-            ui->toolbarPauseAction->setIcon(
-                RecolorIcon(QIcon(":images/pause_icon.png"), isWhite));
+            ui->toolbarPauseAction->setIcon(RecolorIcon(QIcon(":images/pause_icon.png"), isWhite));
         }
         ui->toolbarPauseAction->setText(tr("Pause"));
     }
 }
 
 void MainWindow::UpdateToolbarLabels() {
-    ui->toolBar->setToolButtonStyle(ui->toggleLabelsAct->isChecked()
-                                        ? Qt::ToolButtonTextUnderIcon
-                                        : Qt::ToolButtonIconOnly);
+    ui->toolBar->setToolButtonStyle(ui->toggleLabelsAct->isChecked() ? Qt::ToolButtonTextUnderIcon
+                                                                     : Qt::ToolButtonIconOnly);
     ui->toolbarPlayAction->setText(tr("Play"));
     ui->toolbarPauseAction->setText(is_paused ? tr("Resume") : tr("Pause"));
     ui->toolbarStopAction->setText(tr("Stop"));
@@ -780,11 +775,10 @@ void MainWindow::CreateConnects() {
         }
         m_gui_settings->SetValue(gui::mw_showLog, state);
     });
-    connect(m_log_dock_widget.data(), &QDockWidget::visibilityChanged, this,
-            [this](bool visible) {
-                ui->showLogAct->setChecked(visible);
-                m_gui_settings->SetValue(gui::mw_showLog, visible);
-            });
+    connect(m_log_dock_widget.data(), &QDockWidget::visibilityChanged, this, [this](bool visible) {
+        ui->showLogAct->setChecked(visible);
+        m_gui_settings->SetValue(gui::mw_showLog, visible);
+    });
 
     connect(ui->sizeSlider, &QSlider::valueChanged, this, [this](int value) {
         if (isTableList) {
@@ -815,22 +809,18 @@ void MainWindow::CreateConnects() {
     connect(ui->toolbarPlayAction, &QAction::triggered, ui->playButton, &QPushButton::click);
     connect(ui->toolbarPauseAction, &QAction::triggered, ui->pauseButton, &QPushButton::click);
     connect(ui->toolbarStopAction, &QAction::triggered, ui->stopButton, &QPushButton::click);
-    connect(ui->toolbarRestartAction, &QAction::triggered, ui->restartButton,
-            &QPushButton::click);
-    connect(ui->toolbarExitAction, &QAction::triggered, this,
-            &MainWindow::TerminateApplication);
+    connect(ui->toolbarRestartAction, &QAction::triggered, ui->restartButton, &QPushButton::click);
+    connect(ui->toolbarExitAction, &QAction::triggered, this, &MainWindow::TerminateApplication);
     connect(ui->toolbarFullscreenAction, &QAction::triggered, ui->fullscreenButton,
             &QPushButton::click);
     connect(ui->toolbarControllerAction, &QAction::triggered, ui->controllerButton,
             &QPushButton::click);
     connect(ui->toolbarSettingsAction, &QAction::triggered, ui->settingsButton,
             &QPushButton::click);
-    connect(ui->toolbarInfoAction, &QAction::triggered, ui->systemInfoButton,
-            &QPushButton::click);
+    connect(ui->toolbarInfoAction, &QAction::triggered, ui->systemInfoButton, &QPushButton::click);
     connect(ui->toolbarSnapshotAction, &QAction::triggered, this, &MainWindow::SnapshotCapture);
-    connect(ui->snapshotBurstSpinBox, &QSpinBox::valueChanged, this, [this](int value) {
-        m_gui_settings->SetValue(gui::mw_snapshotBurstCount, value);
-    });
+    connect(ui->snapshotBurstSpinBox, &QSpinBox::valueChanged, this,
+            [this](int value) { m_gui_settings->SetValue(gui::mw_snapshotBurstCount, value); });
     auto* snapshotHotkeyAction = new QAction(this);
     snapshotHotkeyAction->setShortcut(QKeySequence(Qt::Key_F12));
     snapshotHotkeyAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -1499,15 +1489,17 @@ void MainWindow::InstallPackages() {
     }
 }
 
-void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_num, int total_pkgs) {
+void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_num,
+                                int total_pkgs) {
     using namespace T7::Pkg;
 
     PKGInstaller installer;
 
     const auto validation = installer.ValidatePackage(pkg_path);
     if (!validation.success) {
-        QMessageBox::critical(this, tr("PKG Installation Error"),
-                             QString::fromStdString("Failed to validate PKG: " + validation.error));
+        QMessageBox::critical(
+            this, tr("PKG Installation Error"),
+            QString::fromStdString("Failed to validate PKG: " + validation.error));
         return;
     }
 
@@ -1571,7 +1563,8 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
 
     if (install_base_dir.empty()) {
         QMessageBox::critical(this, tr("PKG Installation Error"),
-                             tr("No game installation directory configured.\nPlease configure game directories in Settings > Game Install Directory."));
+                              tr("No game installation directory configured.\nPlease configure "
+                                 "game directories in Settings > Game Install Directory."));
         return;
     }
 
@@ -1579,8 +1572,9 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
 
     if (is_patch) {
         if (!installed_game) {
-            QMessageBox::critical(this, tr("PKG Installation Error"),
-                                 tr("Patch requires base game to be installed.\nTitle ID: %1").arg(title_id));
+            QMessageBox::critical(
+                this, tr("PKG Installation Error"),
+                tr("Patch requires base game to be installed.\nTitle ID: %1").arg(title_id));
             return;
         }
 
@@ -1598,13 +1592,12 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
         }
         QMessageBox message(this);
         message.setWindowTitle(tr("PKG Installation"));
-           const QString destination_text = use_separate_update
-                                        ? tr("a separate update folder")
-                                        : tr("the existing game folder");
-           message.setText(tr("Patch detected.\n\nTitle ID: %1\nInstalled Version: %2\n"
-                          "PKG Version: %3\n\nInstall this patch into %4?")
-                           .arg(title_id, installed_version,
-                               app_ver.isEmpty() ? tr("Unknown") : app_ver, destination_text));
+        const QString destination_text =
+            use_separate_update ? tr("a separate update folder") : tr("the existing game folder");
+        message.setText(tr("Patch detected.\n\nTitle ID: %1\nInstalled Version: %2\n"
+                           "PKG Version: %3\n\nInstall this patch into %4?")
+                            .arg(title_id, installed_version,
+                                 app_ver.isEmpty() ? tr("Unknown") : app_ver, destination_text));
         message.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         message.setDefaultButton(QMessageBox::No);
         if (message.exec() != QMessageBox::Yes) {
@@ -1612,8 +1605,9 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
         }
     } else if (is_dlc) {
         if (!installed_game) {
-            QMessageBox::critical(this, tr("PKG Installation Error"),
-                                 tr("DLC requires base game to be installed.\nTitle ID: %1").arg(title_id));
+            QMessageBox::critical(
+                this, tr("PKG Installation Error"),
+                tr("DLC requires base game to be installed.\nTitle ID: %1").arg(title_id));
             return;
         }
 
@@ -1623,7 +1617,7 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
             entitlement_label = validation.content_id.substr(last_dash + 1);
         } else {
             QMessageBox::critical(this, tr("PKG Installation Error"),
-                                 tr("Invalid DLC content ID format"));
+                                  tr("Invalid DLC content ID format"));
             return;
         }
         if (!std::all_of(entitlement_label.begin(), entitlement_label.end(),
@@ -1641,14 +1635,16 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
             return;
         }
 
-        final_install_path = EmulatorSettings.GetAddonInstallDir() / validation.title_id / entitlement_label;
+        final_install_path =
+            EmulatorSettings.GetAddonInstallDir() / validation.title_id / entitlement_label;
 
         if (std::filesystem::exists(final_install_path / "sce_sys" / "param.sfo")) {
             QMessageBox msgBox(this);
             msgBox.setWindowTitle(tr("PKG Installation"));
-            msgBox.setText(tr("This DLC is already installed.\n\nTitle ID: %1\nContent ID: %2\n\nDo you want to reinstall it?")
-                          .arg(title_id)
-                          .arg(QString::fromStdString(validation.content_id)));
+            msgBox.setText(tr("This DLC is already installed.\n\nTitle ID: %1\nContent ID: "
+                              "%2\n\nDo you want to reinstall it?")
+                               .arg(title_id)
+                               .arg(QString::fromStdString(validation.content_id)));
             msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
             msgBox.setDefaultButton(QMessageBox::No);
 
@@ -1662,9 +1658,11 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
         if (std::filesystem::exists(final_install_path / "eboot.bin")) {
             QMessageBox msgBox(this);
             msgBox.setWindowTitle(tr("PKG Installation"));
-            msgBox.setText(tr("A game with this title ID is already installed.\n\nTitle ID: %1\nInstalled Version: Unknown\nPKG Version: %2\n\nDo you want to overwrite it?")
-                          .arg(title_id)
-                          .arg(app_ver.isEmpty() ? tr("Unknown") : app_ver));
+            msgBox.setText(
+                tr("A game with this title ID is already installed.\n\nTitle ID: %1\nInstalled "
+                   "Version: Unknown\nPKG Version: %2\n\nDo you want to overwrite it?")
+                    .arg(title_id)
+                    .arg(app_ver.isEmpty() ? tr("Unknown") : app_ver));
             msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
             msgBox.setDefaultButton(QMessageBox::No);
             if (msgBox.exec() != QMessageBox::Yes) {
@@ -1673,22 +1671,25 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
         }
     }
 
-    const auto staging_path = final_install_path.parent_path() /
-                              (final_install_path.filename().string() + ".installing");
+    const auto staging_path =
+        final_install_path.parent_path() / (final_install_path.filename().string() + ".installing");
     try {
         std::filesystem::remove_all(staging_path);
         std::filesystem::create_directories(staging_path);
     } catch (const std::exception& e) {
         QMessageBox::critical(this, tr("PKG Installation Error"),
-                             tr("Failed to prepare installation directory:\n%1")
-                             .arg(QString::fromStdString(e.what())));
+                              tr("Failed to prepare installation directory:\n%1")
+                                  .arg(QString::fromStdString(e.what())));
         return;
     }
 
     QProgressDialog progress(this);
     progress.setWindowTitle(tr("Installing PKG"));
     progress.setLabelText(tr("Installing package %1 of %2...\n\nTitle ID: %3\nCategory: %4")
-                         .arg(pkg_num).arg(total_pkgs).arg(title_id).arg(category));
+                              .arg(pkg_num)
+                              .arg(total_pkgs)
+                              .arg(title_id)
+                              .arg(category));
     progress.setRange(0, 100);
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
@@ -1696,7 +1697,8 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
     QApplication::processEvents();
 
     std::string error;
-    const bool success = installer.Extract(pkg_path, staging_path,
+    const bool success = installer.Extract(
+        pkg_path, staging_path,
         [&progress](int current, int total, const std::string& message) {
             if (total > 0) {
                 progress.setValue((current * 100) / total);
@@ -1704,13 +1706,15 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
             progress.setLabelText(QString::fromStdString(message));
             QApplication::processEvents();
             return !progress.wasCanceled();
-        }, error);
+        },
+        error);
 
     if (!success) {
         std::error_code cleanup_error;
         std::filesystem::remove_all(staging_path, cleanup_error);
-        QMessageBox::critical(this, tr("PKG Installation Error"),
-                             tr("Failed to extract package:\n%1").arg(QString::fromStdString(error)));
+        QMessageBox::critical(
+            this, tr("PKG Installation Error"),
+            tr("Failed to extract package:\n%1").arg(QString::fromStdString(error)));
         return;
     }
 
@@ -1732,9 +1736,13 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
     progress.setValue(100);
 
     QMessageBox::information(this, tr("PKG Installation Complete"),
-                            tr("Successfully installed package %1 of %2\n\nTitle ID: %3\nCategory: %4\nInstall Path: %5")
-                            .arg(pkg_num).arg(total_pkgs).arg(title_id).arg(category)
-                            .arg(QString::fromStdString(final_install_path.string())));
+                             tr("Successfully installed package %1 of %2\n\nTitle ID: "
+                                "%3\nCategory: %4\nInstall Path: %5")
+                                 .arg(pkg_num)
+                                 .arg(total_pkgs)
+                                 .arg(title_id)
+                                 .arg(category)
+                                 .arg(QString::fromStdString(final_install_path.string())));
 }
 
 void MainWindow::InstallDirectory() {
@@ -1883,8 +1891,7 @@ void MainWindow::SetUiIcons(bool isWhite) {
     ui->toolbarRestartAction->setIcon(ui->restartButton->icon());
     ui->toolbarExitAction->setIcon(ui->exitButton->icon());
     ui->toolbarFullscreenAction->setIcon(ui->fullscreenButton->icon());
-    ui->toolbarControllerAction->setIcon(
-        CreateControllerToolbarIcon(ui->controllerButton->icon()));
+    ui->toolbarControllerAction->setIcon(CreateControllerToolbarIcon(ui->controllerButton->icon()));
     ui->toolbarSettingsAction->setIcon(ui->settingsButton->icon());
     ui->toolbarInfoAction->setIcon(ui->systemInfoButton->icon());
     ui->toolbarSnapshotAction->setIcon(ui->snapshotButton->icon());
