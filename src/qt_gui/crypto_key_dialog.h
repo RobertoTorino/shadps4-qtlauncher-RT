@@ -44,6 +44,7 @@ public:
 
 private slots:
     void LoadKeys();
+    void ImportKeys();
     void SaveKeys();
     void ValidateHexInput();
 
@@ -86,14 +87,14 @@ private:
     }
 
     inline static const QHash<QString, HexSizeConstraint> kRsaConstraints = {
-        {"Modulus", {128, INT_MAX, "Modulus"}},
-        {"PublicExponent", {1, 8, "Public Exponent"}},
-        {"PrivateExponent", {128, INT_MAX, "Private Exponent"}},
-        {"Prime1", {64, INT_MAX, "Prime 1"}},
-        {"Prime2", {64, INT_MAX, "Prime 2"}},
-        {"Exponent1", {64, INT_MAX, "Exponent 1"}},
-        {"Exponent2", {64, INT_MAX, "Exponent 2"}},
-        {"Coefficient", {64, INT_MAX, "Coefficient"}},
+        {"Modulus", {256, 256, "Modulus"}},
+        {"PublicExponent", {4, 4, "Public Exponent"}},
+        {"PrivateExponent", {256, 256, "Private Exponent"}},
+        {"Prime1", {128, 128, "Prime 1"}},
+        {"Prime2", {128, 128, "Prime 2"}},
+        {"Exponent1", {128, 128, "Exponent 1"}},
+        {"Exponent2", {128, 128, "Exponent 2"}},
+        {"Coefficient", {128, 128, "Coefficient"}},
     };
 
     /* Canonical hex validator
@@ -136,6 +137,7 @@ private:
     void UpdateTabStatus(QVector<QWidget*> fields, QWidget* requiredField, QLabel* statusLabel);
     void UpdateAllTabStatuses();
     void LoadJsonIntoFields(const QJsonObject& root);
+    bool ImportJsonFile(const QString& path);
     void LoadJsonField(const QJsonObject& obj, const QString& key, QPlainTextEdit* edit);
     QString GetFirstValidationError();
 
@@ -174,6 +176,7 @@ private:
     // Global Buttons
     // ----------------------------
     QPushButton* loadButton;
+    QPushButton* importButton;
     QPushButton* saveButton;
     QPushButton* closeButton;
 

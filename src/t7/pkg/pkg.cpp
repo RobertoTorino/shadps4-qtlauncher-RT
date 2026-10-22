@@ -232,8 +232,8 @@ bool PKGInstaller::ExtractSceMetadata(const std::filesystem::path& pkg_path,
 
     auto keyManager = KeyManager::GetInstance();
     if (!keyManager || !keyManager->HasKeys()) {
-        error = "Cryptographic keys are missing. Configure them in Settings > Keys before "
-            "installing packages.";
+        error = "Cryptographic keys are missing. Configure them in Settings > Manage "
+            "Cryptographic Keys before installing packages.";
         return false;
     }
 

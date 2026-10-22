@@ -1,0 +1,19 @@
+﻿Folder PATH listing
+Volume serial number is 6225-FC8B
+C:.
+    about_icon.png
+    controller_icon.png
+    exit_icon.png
+    fullscreen_icon.png
+    pause_icon.png
+    play_icon.png
+    restart_game_icon.png
+    screenshot_icon.png
+    settings_icon.png
+    shadps4.ico
+    shadps4.png
+    shadps4.svg
+    tree.txt
+    
+No subfolders exist 
+

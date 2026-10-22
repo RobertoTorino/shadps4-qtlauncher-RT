@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <QFile>
+#include <QFileDialog>
 #include <QFontDatabase>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -68,11 +69,11 @@ void CryptoManagerDialog::SetupUI() {
         QGridLayout* grid = new QGridLayout(fieldsWidget);
 
         int row = 0;
-        auto createHexTextEdit = [this, &grid](const QString& label,
+        auto createHexTextEdit = [this, &grid](const char* field_id, const QString& label,
                                                int rowIndex) -> QPlainTextEdit* {
             QLabel* lbl = new QLabel(label + ":");
             QPlainTextEdit* edit = new HexPlainTextEdit();
-            edit->setProperty("rsaField", label);
+            edit->setProperty("rsaField", field_id);
             edit->setPlaceholderText(tr("Enter %1").arg(label));
             edit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
             edit->setMaximumHeight(60);
@@ -96,14 +97,16 @@ void CryptoManagerDialog::SetupUI() {
             return edit;
         };
 
-        fields.exponent1 = createHexTextEdit(tr("Exponent1"), row++);
-        fields.exponent2 = createHexTextEdit(tr("Exponent2"), row++);
-        fields.publicExponent = createHexTextEdit(tr("Public Exponent"), row++);
-        fields.coefficient = createHexTextEdit(tr("Coefficient"), row++);
-        fields.modulus = createHexTextEdit(tr("Modulus"), row++);
-        fields.prime1 = createHexTextEdit(tr("Prime 1"), row++);
-        fields.prime2 = createHexTextEdit(tr("Prime 2"), row++);
-        fields.privateExponent = createHexTextEdit(tr("Private Exponent"), row++);
+        fields.exponent1 = createHexTextEdit("Exponent1", tr("Exponent1"), row++);
+        fields.exponent2 = createHexTextEdit("Exponent2", tr("Exponent2"), row++);
+        fields.publicExponent =
+            createHexTextEdit("PublicExponent", tr("Public Exponent"), row++);
+        fields.coefficient = createHexTextEdit("Coefficient", tr("Coefficient"), row++);
+        fields.modulus = createHexTextEdit("Modulus", tr("Modulus"), row++);
+        fields.prime1 = createHexTextEdit("Prime1", tr("Prime 1"), row++);
+        fields.prime2 = createHexTextEdit("Prime2", tr("Prime 2"), row++);
+        fields.privateExponent =
+            createHexTextEdit("PrivateExponent", tr("Private Exponent"), row++);
 
         fieldsWidget->setMinimumWidth(500);
         fieldsWidget->setMinimumHeight(row * 60);
@@ -119,8 +122,7 @@ void CryptoManagerDialog::SetupUI() {
         layout->addWidget(statusLabel);
 
         layout->addStretch();
-        // To do: uncomment tabs when needed
-        // tabWidget->addTab(tab, title);
+        tabWidget->addTab(tab, title);
 
         return tab;
     };
@@ -149,15 +151,18 @@ void CryptoManagerDialog::SetupUI() {
     // Global buttons
     // ----------------------------
     QHBoxLayout* buttonLayout = new QHBoxLayout();
-    loadButton = new QPushButton(tr("Load Key"));
-    saveButton = new QPushButton(tr("Save Key"));
+    loadButton = new QPushButton(tr("Reload"));
+    importButton = new QPushButton(tr("Import JSON..."));
+    saveButton = new QPushButton(tr("Save"));
     closeButton = new QPushButton(tr("Close"));
 
     connect(loadButton, &QPushButton::clicked, this, &CryptoManagerDialog::LoadKeys);
+    connect(importButton, &QPushButton::clicked, this, &CryptoManagerDialog::ImportKeys);
     connect(saveButton, &QPushButton::clicked, this, &CryptoManagerDialog::SaveKeys);
     connect(closeButton, &QPushButton::clicked, this, &QDialog::accept);
 
     buttonLayout->addWidget(loadButton);
+    buttonLayout->addWidget(importButton);
     buttonLayout->addWidget(saveButton);
     buttonLayout->addWidget(closeButton);
     mainLayout->addLayout(buttonLayout);
@@ -179,6 +184,14 @@ void CryptoManagerDialog::LoadKeys() {
     }
     PopulateFields();
     UpdateAllTabStatuses();
+}
+
+void CryptoManagerDialog::ImportKeys() {
+    const QString path = QFileDialog::getOpenFileName(this, tr("Import Cryptographic Keys"), {},
+                                                      tr("JSON files (*.json)"));
+    if (!path.isEmpty()) {
+        ImportJsonFile(path);
+    }
 }
 
 void CryptoManagerDialog::SaveKeys() {
@@ -228,8 +241,13 @@ bool CryptoManagerDialog::ValidateAllFields() {
         return false;
 
     auto validateKeyset = [&](const KeysetFields& kf) {
+        bool any_value = false;
+        bool all_values = true;
         for (auto* edit : kf.all()) {
             QString hex = edit->toPlainText().remove(QRegularExpression("\\s"));
+
+            any_value |= !hex.isEmpty();
+            all_values &= !hex.isEmpty();
 
             if (!IsValidHexString(hex))
                 return false;
@@ -243,7 +261,7 @@ bool CryptoManagerDialog::ValidateAllFields() {
                     return false;
             }
         }
-        return true;
+        return !any_value || all_values;
     };
 
     return validateKeyset(fakeKeysetFields) && validateKeyset(debugKeysetFields) &&
@@ -257,12 +275,16 @@ void CryptoManagerDialog::UpdateTabStatus(QVector<QWidget*> fields, QWidget* req
                                           QLabel* statusLabel) {
     bool anyInvalid = false;
     bool allEmpty = true;
+    bool anyEmpty = false;
 
     for (QWidget* field : fields) {
         QString hex = ExtractHex(field);
 
-        if (!hex.isEmpty())
+        if (!hex.isEmpty()) {
             allEmpty = false;
+        } else {
+            anyEmpty = true;
+        }
 
         if (!IsValidHexString(hex))
             anyInvalid = true;
@@ -274,9 +296,9 @@ void CryptoManagerDialog::UpdateTabStatus(QVector<QWidget*> fields, QWidget* req
         }
     }
 
-    bool missingRequired = false;
-    if (requiredField)
-        missingRequired = ExtractHex(requiredField).isEmpty();
+    const bool missingRequired = !allEmpty &&
+                                 (anyEmpty ||
+                                  (requiredField && ExtractHex(requiredField).isEmpty()));
 
     if (allEmpty) {
         statusLabel->setText(tr("Status: All fields empty"));
@@ -388,10 +410,14 @@ void CryptoManagerDialog::dropEvent(QDropEvent* event) {
         return;
     }
 
+    ImportJsonFile(path);
+}
+
+bool CryptoManagerDialog::ImportJsonFile(const QString& path) {
     QFile file(path);
     if (!file.open(QFile::ReadOnly)) {
         QMessageBox::warning(this, tr("Error"), tr("Unable to open file."));
-        return;
+        return false;
     }
 
     QByteArray raw = file.readAll();
@@ -400,20 +426,28 @@ void CryptoManagerDialog::dropEvent(QDropEvent* event) {
 
     if (err.error != QJsonParseError::NoError) {
         QMessageBox::critical(this, tr("JSON Error"), err.errorString());
-        return;
+        return false;
     }
 
     if (!doc.isObject()) {
         QMessageBox::critical(this, tr("Error"), tr("Invalid JSON format."));
-        return;
+        return false;
     }
 
     QJsonObject root = doc.object();
     LoadJsonIntoFields(root);
-    CollectKeys();
     UpdateAllTabStatuses();
 
-    QMessageBox::information(this, tr("Success"), tr("Keys successfully loaded from JSON!"));
+    if (!ValidateAllFields()) {
+        QMessageBox::critical(this, tr("Validation Error"), GetFirstValidationError());
+        return false;
+    }
+
+    CollectKeys();
+
+    QMessageBox::information(this, tr("Keys Imported"),
+                             tr("Key format was validated. Select Save to apply the imported keys."));
+    return true;
 }
 
 void CryptoManagerDialog::LoadJsonIntoFields(const QJsonObject& root) {
@@ -490,8 +524,13 @@ QString CryptoManagerDialog::GetFirstValidationError() {
     }
 
     auto checkKeyset = [&](const KeysetFields& kf) -> QString {
+        bool any_value = false;
+        bool all_values = true;
         for (auto* edit : kf.all()) {
             QString hex = edit->toPlainText().remove(QRegularExpression("\\s"));
+
+            any_value |= !hex.isEmpty();
+            all_values &= !hex.isEmpty();
 
             if (!IsValidHexString(hex)) {
                 return tr("%1 contains invalid hex or has odd length.")
@@ -510,6 +549,9 @@ QString CryptoManagerDialog::GetFirstValidationError() {
                     return FormatSizeError(tr(c.displayName), bytes, c);
                 }
             }
+        }
+        if (any_value && !all_values) {
+            return tr("Every RSA component is required when a keyset is configured.");
         }
         return {};
     };

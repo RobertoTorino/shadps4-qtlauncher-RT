@@ -5,8 +5,10 @@
 
 #include <memory>
 #include <span>
+#include <QCheckBox>
 #include <QDialog>
 #include <QGroupBox>
+#include <QLineEdit>
 #include <QPushButton>
 
 #include "common/path_util.h"
@@ -52,6 +54,7 @@ private:
     void GetPhysicalDevices();
     void SaveSettings();
     void RefreshAudioDevices();
+    void ClearGraphicsCaches();
     void ClearLogs();
     void OpenConfigToml();
 
@@ -66,8 +69,17 @@ private:
     bool is_game_running = false;
     bool is_game_specific = false;
     bool is_game_saving = false;
+    bool save_data_path_changed = false;
 
     std::unique_ptr<Ui::SettingsDialog> ui;
     std::shared_ptr<gui_settings> m_gui_settings;
     std::shared_ptr<IpcClient> m_ipc_client;
+    QCheckBox* separate_updates_checkbox{};
+    QGroupBox* user_name_group{};
+    QLineEdit* user_name_edit{};
+    QGroupBox* save_data_group{};
+    QLineEdit* save_data_path_edit{};
+    QPushButton* save_data_browse_button{};
+    QPushButton* clear_graphics_caches_button{};
+    QPushButton* restart_emulator_button{};
 };

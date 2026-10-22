@@ -49,6 +49,7 @@
 #include "settings_dialog.h"
 #include "skylander_dialog.h"
 #include "t7/pkg/pkg.h"
+#include "t7/pkg/pkg_crypto.h"
 #include "user_manager_dialog.h"
 
 #ifdef Q_OS_WIN
@@ -336,6 +337,7 @@ void MainWindow::PauseGame() {
 }
 
 void MainWindow::StopGame() {
+    statusBar->showMessage(tr("Game stopping..."));
     m_ipc_client->stopEmulator();
 }
 
@@ -480,6 +482,7 @@ void MainWindow::onGameClosed() {
     EmulatorState::GetInstance()->SetGameRunning(false);
     is_paused = false;
     UpdateToolbarButtons();
+    statusBar->showMessage(tr("Game stopped"));
 
     // clear dialogs when game closed
     skylander_dialog* sky_diag = skylander_dialog::get_dlg(this, m_ipc_client);
@@ -1448,6 +1451,32 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
         return;
     }
 
+    auto validate_crypto_keys = []() {
+        std::string error;
+        const auto key_manager = KeyManager::GetInstance();
+        return key_manager && Crypto(key_manager->GetAllKeys()).Validate(error);
+    };
+    if (!validate_crypto_keys()) {
+        const auto choice = QMessageBox::question(
+            this, tr("Cryptographic Keys Required"),
+            tr("Installing PKG files requires complete Fake Keyset and Pkg Derived Key3 "
+               "RSA keysets. Open Crypto Key Manager to import or enter them now?"),
+            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Yes);
+        if (choice != QMessageBox::Yes) {
+            return;
+        }
+
+        CryptoManagerDialog key_dialog(this);
+        key_dialog.exec();
+        if (!validate_crypto_keys()) {
+            QMessageBox::critical(
+                this, tr("PKG Installation Error"),
+                tr("The required Fake Keyset and Pkg Derived Key3 keysets are still missing or "
+                   "invalid."));
+            return;
+        }
+    }
+
     const QString title_id = QString::fromStdString(validation.title_id);
     const QString category = QString::fromStdString(validation.category);
     const QString app_ver = QString::fromStdString(validation.app_ver);
@@ -1495,20 +1524,27 @@ void MainWindow::InstallPackage(const std::filesystem::path& pkg_path, int pkg_n
             return;
         }
 
+        const bool use_separate_update = EmulatorSettings.IsSeparateUpdateFolder();
         final_install_path = *installed_game;
+        if (use_separate_update) {
+            final_install_path += "-UPDATE";
+        }
         QString installed_version = tr("Unknown");
         PSF installed_psf;
-        if (installed_psf.Open(final_install_path / "sce_sys" / "param.sfo")) {
+        if (installed_psf.Open(*installed_game / "sce_sys" / "param.sfo")) {
             if (const auto version = installed_psf.GetString("APP_VER")) {
                 installed_version = QString::fromStdString(std::string{*version});
             }
         }
         QMessageBox message(this);
         message.setWindowTitle(tr("PKG Installation"));
-        message.setText(tr("Patch detected.\n\nTitle ID: %1\nInstalled Version: %2\n"
-                           "PKG Version: %3\n\nInstall this patch over the existing game?")
-                            .arg(title_id, installed_version,
-                                 app_ver.isEmpty() ? tr("Unknown") : app_ver));
+           const QString destination_text = use_separate_update
+                                        ? tr("a separate update folder")
+                                        : tr("the existing game folder");
+           message.setText(tr("Patch detected.\n\nTitle ID: %1\nInstalled Version: %2\n"
+                          "PKG Version: %3\n\nInstall this patch into %4?")
+                           .arg(title_id, installed_version,
+                               app_ver.isEmpty() ? tr("Unknown") : app_ver, destination_text));
         message.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         message.setDefaultButton(QMessageBox::No);
         if (message.exec() != QMessageBox::Yes) {
@@ -1950,6 +1986,7 @@ tr("No emulator version was selected.\nThe Version Manager menu will then open.\
 
     final_args.append(args);
 
+    statusBar->showMessage(tr("Launching game..."));
     EmulatorState::GetInstance()->SetGameRunning(true);
     last_game_path = path;
 
@@ -2029,6 +2066,7 @@ void MainWindow::StartEmulatorExecutable(std::filesystem::path emuPath, QString 
         return;
     }
 
+    statusBar->showMessage(tr("Launching game..."));
     EmulatorState::GetInstance()->SetGameRunning(true);
     QString workDir = QDir::currentPath();
     m_ipc_client->startEmulator(fileInfo, args, workDir, disable_ipc);

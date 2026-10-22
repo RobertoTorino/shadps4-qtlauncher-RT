@@ -23,6 +23,7 @@
 #include "background_music_player.h"
 #include "common/logging/log.h"
 #include "core/emulator_state.h"
+#include "core/user_settings.h"
 #include "log_presets_dialog.h"
 #include "sdl_event_wrapper.h"
 #include "settings_dialog.h"
@@ -135,6 +136,47 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
     ui->tabWidgetSettings->setUsesScrollButtons(false);
     GetPhysicalDevices();
 
+    separate_updates_checkbox =
+        new QCheckBox(tr("Enable Separate Update Folder"), ui->emulatorSettingsGroupBox);
+    separate_updates_checkbox->setObjectName("separateUpdatesCheckBox");
+    ui->additionalSettingsVLayout->insertWidget(0, separate_updates_checkbox);
+
+    ui->GUILayout->addWidget(ui->heightDivider);
+
+    user_name_group = new QGroupBox(tr("Username"), ui->userTabContents);
+    user_name_group->setObjectName("userNameGroupBox");
+    auto* user_name_layout = new QVBoxLayout(user_name_group);
+    user_name_edit = new QLineEdit(user_name_group);
+    user_name_edit->setObjectName("userNameLineEdit");
+    user_name_layout->addWidget(user_name_edit);
+    ui->userTabVLayout->insertWidget(0, user_name_group);
+
+    save_data_group = new QGroupBox(tr("Save Data Path"), ui->pathsTabContents);
+    save_data_group->setObjectName("saveDataGroupBox");
+    auto* save_data_layout = new QHBoxLayout(save_data_group);
+    save_data_path_edit = new QLineEdit(save_data_group);
+    save_data_path_edit->setObjectName("currentSaveDataPath");
+    save_data_path_edit->setReadOnly(true);
+    save_data_browse_button = new QPushButton(tr("Browse"), save_data_group);
+    save_data_browse_button->setObjectName("saveDataBrowseButton");
+    save_data_layout->addWidget(save_data_path_edit);
+    save_data_layout->addWidget(save_data_browse_button);
+    ui->pathsTabLayout->insertWidget(2, save_data_group);
+
+    ui->advancedLayout->insertWidget(0, ui->copyGPUBuffersCheckBox);
+    clear_graphics_caches_button = new QPushButton(tr("Clear Graphic Caches"), ui->advancedGroupBox);
+    clear_graphics_caches_button->setObjectName("clearGraphicsCachesButton");
+    restart_emulator_button = new QPushButton(tr("Restart Emulator"), ui->advancedGroupBox);
+    restart_emulator_button->setObjectName("restartEmulatorButton");
+    ui->advancedLayout->addWidget(clear_graphics_caches_button);
+    ui->advancedLayout->addWidget(restart_emulator_button);
+
+    ui->logSyncCheckBox->setVisible(false);
+    ui->logTypeComboBox->clear();
+    ui->logTypeComboBox->addItems({tr("async"), tr("sync")});
+    ui->openConfigTomlButton->setText(tr("Open config.json"));
+    ui->vkSyncValidationCheckBox->setText(tr("Enable Vulkan Synchronisation Validation"));
+
     initialHeight = this->height();
 
     // Add a small clear "x" button inside the Log Filter input
@@ -154,6 +196,8 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         // Frontend tab
         ui->tabWidgetSettings->setTabVisible(1, false);
         ui->chooseHomeTabComboBox->removeItem(1);
+        separate_updates_checkbox->setVisible(false);
+        user_name_group->setVisible(false);
 
     } else {
         // Experimental tab
@@ -166,7 +210,7 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
 
     ui->buttonBox->button(QDialogButtonBox::StandardButton::Close)->setFocus();
 
-    logTypeMap = {{tr("wincolor"), "wincolor"}, {tr("msvc"), "msvc"}};
+    logTypeMap = {{tr("async"), "async"}, {tr("sync"), "sync"}};
     screenModeMap = {{tr("Fullscreen (Borderless)"), "Fullscreen (Borderless)"},
                      {tr("Windowed"), "Windowed"},
                      {tr("Fullscreen"), "Fullscreen"}};
@@ -448,6 +492,15 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
                 ui->sysmodulesPath->setText(sysmodules_path_string);
             }
         });
+
+        connect(save_data_browse_button, &QPushButton::clicked, this, [this]() {
+            const QString selected_path = QFileDialog::getExistingDirectory(
+                this, tr("Select the save data folder"), save_data_path_edit->text());
+            if (!selected_path.isEmpty()) {
+                save_data_path_edit->setText(QDir::toNativeSeparators(selected_path));
+                save_data_path_changed = true;
+            }
+        });
     }
 
     // LOG TAB
@@ -484,6 +537,12 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
                     state ? ui->vkLayersGroupBox->setVisible(true)
                           : ui->vkLayersGroupBox->setVisible(false);
                 });
+        clear_graphics_caches_button->setEnabled(!is_game_running);
+        restart_emulator_button->setEnabled(is_game_running);
+        connect(clear_graphics_caches_button, &QPushButton::clicked, this,
+            &SettingsDialog::ClearGraphicsCaches);
+        connect(restart_emulator_button, &QPushButton::clicked, this,
+            [this]() { m_ipc_client->restartEmulator(); });
     }
 
     // Experimental
@@ -527,6 +586,7 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         ui->consoleLanguageGroupBox->installEventFilter(this);
         ui->emulatorLanguageGroupBox->installEventFilter(this);
         ui->showSplashCheckBox->installEventFilter(this);
+        separate_updates_checkbox->installEventFilter(this);
         ui->discordRPCCheckbox->installEventFilter(this);
         ui->gameSizeCheckBox->installEventFilter(this);
         ui->volumeSliderElement->installEventFilter(this);
@@ -545,6 +605,8 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         ui->disableTrophycheckBox->installEventFilter(this);
         ui->OpenCustomTrophyLocationButton->installEventFilter(this);
         ui->PortableUserFolderGroupBox->installEventFilter(this);
+        user_name_group->installEventFilter(this);
+        user_name_edit->installEventFilter(this);
 
         // Input
         ui->hideCursorGroupBox->installEventFilter(this);
@@ -575,6 +637,9 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         ui->currentDLCFolder->installEventFilter(this);
         ui->homeFolderButton->installEventFilter(this);
         ui->folderButton->installEventFilter(this);
+        save_data_group->installEventFilter(this);
+        save_data_path_edit->installEventFilter(this);
+        save_data_browse_button->installEventFilter(this);
 
         // Log
         ui->logAppendCheckBox->installEventFilter(this);
@@ -602,6 +667,8 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         ui->openConfigTomlButton->installEventFilter(this);
         ui->collectShaderCheckBox->installEventFilter(this);
         ui->copyGPUBuffersCheckBox->installEventFilter(this);
+        clear_graphics_caches_button->installEventFilter(this);
+        restart_emulator_button->installEventFilter(this);
 
         // Experimental
         ui->readbacksGroupBox->installEventFilter(this);
@@ -661,6 +728,14 @@ void SettingsDialog::LoadValuesFromConfig() {
 
     // Entries with no game-specific settings
     if (!is_game_specific) {
+        separate_updates_checkbox->setChecked(EmulatorSettings.IsSeparateUpdateFolder());
+        user_name_edit->setText(QString::fromStdString(UserManagement.GetDefaultUser().user_name));
+
+        const auto save_data_path = EmulatorSettings.GetSaveDataRoot();
+        QString save_data_path_string;
+        Common::FS::PathToQString(save_data_path_string, save_data_path);
+        save_data_path_edit->setText(QDir::toNativeSeparators(save_data_path_string));
+
         const auto home_path = EmulatorSettings.GetHomeDir();
         QString home_path_string;
         Common::FS::PathToQString(home_path_string, home_path);
@@ -788,16 +863,7 @@ void SettingsDialog::LoadValuesFromConfig() {
     ui->logSizeLimitLineEdit->setValue(EmulatorSettings.GetLogSizeLimit());
     ui->logSkipDuplicateCheckBox->setChecked(EmulatorSettings.IsLogSkipDuplicate());
     ui->logMaxSkipDurationGroupBox->setVisible(ui->logSkipDuplicateCheckBox->isChecked());
-    ui->logSyncCheckBox->setChecked(EmulatorSettings.IsLogSync());
-#ifdef _WIN32
-    std::string logType = EmulatorSettings.GetLogType();
-    QString translatedText_logType = logTypeMap.key(QString::fromStdString(logType));
-    if (!translatedText_logType.isEmpty()) {
-        ui->logTypeComboBox->setCurrentText(translatedText_logType);
-    }
-#else
-    ui->logTypeGroupBox->setVisible(false);
-#endif
+    ui->logTypeComboBox->setCurrentText(EmulatorSettings.IsLogSync() ? tr("sync") : tr("async"));
 
     ui->debugDump->setChecked(EmulatorSettings.IsDebugDump());
     ui->vkValidationCheckBox->setChecked(EmulatorSettings.IsVkValidationEnabled());
@@ -910,6 +976,57 @@ void SettingsDialog::VolumeSliderChange(int value) {
     ui->volumeText->setText(QString::number(ui->horizontalVolumeSlider->sliderPosition()) + "%");
 }
 
+void SettingsDialog::ClearGraphicsCaches() {
+    if (is_game_running) {
+        QMessageBox::warning(this, tr("Clear Graphic Caches"),
+                             tr("Stop the running game before clearing graphic caches."));
+        return;
+    }
+
+    const auto cache_dir = Common::FS::GetUserPath(Common::FS::PathType::CacheDir);
+    const auto shader_dumps =
+        Common::FS::GetUserPath(Common::FS::PathType::ShaderDir) / "dumps";
+    if (QMessageBox::question(
+            this, tr("Clear Graphic Caches"),
+            tr("Delete generated pipeline caches and shader dumps?\n\nShader patches are preserved."),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes) {
+        return;
+    }
+
+    QStringList failures;
+    for (const auto& path : {cache_dir, shader_dumps}) {
+        std::error_code error;
+        std::filesystem::remove_all(path, error);
+        if (error) {
+            QString path_text;
+            Common::FS::PathToQString(path_text, path);
+            failures.append(tr("%1: %2")
+                                .arg(QDir::toNativeSeparators(path_text),
+                                     QString::fromStdString(error.message())));
+        }
+    }
+
+    std::error_code create_error;
+    std::filesystem::create_directories(cache_dir, create_error);
+    if (create_error) {
+        QString path_text;
+        Common::FS::PathToQString(path_text, cache_dir);
+        failures.append(tr("%1: %2")
+                            .arg(QDir::toNativeSeparators(path_text),
+                                 QString::fromStdString(create_error.message())));
+    }
+
+    if (!failures.isEmpty()) {
+        QMessageBox::warning(this, tr("Clear Graphic Caches"),
+                             tr("Some cache entries could not be removed:\n%1")
+                                 .arg(failures.join("\n")));
+        return;
+    }
+
+    QMessageBox::information(this, tr("Clear Graphic Caches"),
+                             tr("Generated graphic caches were cleared."));
+}
+
 void SettingsDialog::ClearLogs() {
     if (EmulatorState::GetInstance()->IsGameRunning()) {
         QMessageBox::warning(this, tr("Clear Logs"),
@@ -970,13 +1087,13 @@ void SettingsDialog::ClearLogs() {
 
 void SettingsDialog::OpenConfigToml() {
     const auto config_path =
-        Common::FS::GetUserPath(Common::FS::PathType::UserDir) / "config.toml";
+        Common::FS::GetUserPath(Common::FS::PathType::UserDir) / "config.json";
     QString config_path_text;
     Common::FS::PathToQString(config_path_text, config_path);
     config_path_text = QDir::toNativeSeparators(config_path_text);
     if (!std::filesystem::exists(config_path) ||
         !QDesktopServices::openUrl(QUrl::fromLocalFile(config_path_text))) {
-        QMessageBox::warning(this, tr("Open config.toml"),
+        QMessageBox::warning(this, tr("Open config.json"),
                              tr("Could not open:\n%1").arg(config_path_text));
     }
 }
@@ -998,6 +1115,8 @@ void SettingsDialog::updateNoteTextEdit(const QString& elementName) {
         text = tr("Console Language:\\nSets the language that the PS4 game uses.\\nIt's recommended to set this to a language the game supports, which will vary by region.");
     } else if (elementName == "emulatorLanguageGroupBox") {
         text = tr("Emulator Language:\\nSets the language of the emulator's user interface.");
+    } else if (elementName == "separateUpdatesCheckBox") {
+        text = tr("Enable Separate Update Folder:\nInstalls game updates into a sibling CUSA00000-UPDATE folder for easier management.");
     } else if (elementName == "showSplashCheckBox") {
         text = tr("Show Splash Screen:\\nShows the game's splash screen (a special image) while the game is starting.");
     } else if (elementName == "discordRPCCheckbox") {
@@ -1049,8 +1168,14 @@ void SettingsDialog::updateNoteTextEdit(const QString& elementName) {
         text = tr("Log Type:\\nChoose between wincolor or msvc log types.\\nwincolor: Default logging for Windows\\nmsvc: Logging for debugging");
     }
 
+    if (elementName == "logTypeGroupBox") {
+        text = tr("Log Type: Choose sync for ordered output or async for better performance.");
+    }
+
     //User
-    if (elementName == "OpenCustomTrophyLocationButton") {
+    if (elementName == "userNameGroupBox" || elementName == "userNameLineEdit") {
+        text = tr("Username:\nSets the default PS4 profile username, which may be displayed by some games.");
+    } else if (elementName == "OpenCustomTrophyLocationButton") {
         text = tr("Open the custom trophy images/sounds folder:\\nYou can add custom images to the trophies and an audio.\\nAdd the files to custom_trophy with the following names:\\ntrophy.wav OR trophy.mp3, bronze.png, gold.png, platinum.png, silver.png\\nNote: The sound will only work in QT versions.");
     }
 
@@ -1110,6 +1235,12 @@ void SettingsDialog::updateNoteTextEdit(const QString& elementName) {
         text = tr("Browse:\\nBrowse for a folder to set as the home folder.");
     }
 
+    if (elementName == "saveDataGroupBox" || elementName == "currentSaveDataPath") {
+        text = tr("Save Data Path:\nThe root folder where per-user game save data will be stored.");
+    } else if (elementName == "saveDataBrowseButton") {
+        text = tr("Browse:\nSelect the root folder for game save data.");
+    }
+
     // Debug
     if (elementName == "debugDump") {
         text = tr("Enable Debug Dumping:\\nSaves the import and export symbols and file header information of the currently running PS4 program to a directory.");
@@ -1131,6 +1262,10 @@ void SettingsDialog::updateNoteTextEdit(const QString& elementName) {
         text = tr("Host Debug Markers:\\nInserts emulator-side information like markers for specific AMDGPU commands around Vulkan commands, as well as giving resources debug names.\\nIf you have this enabled, you should enable Crash Diagnostics.\\nUseful for programs like RenderDoc.");
     } else if (elementName == "openConfigTomlButton") {
         text = tr("Open config.toml:\\nOpens the main configuration file in your default editor.");
+    } else if (elementName == "clearGraphicsCachesButton") {
+        text = tr("Clear Graphic Caches:\nDeletes generated pipeline caches and shader dumps while preserving shader patches.");
+    } else if (elementName == "restartEmulatorButton") {
+        text = tr("Restart Emulator:\nStops the running emulator and launches a fresh instance of the same game.");
     } else if (elementName == "copyGPUBuffersCheckBox") {
         text = tr("Copy GPU Buffers:\\nGets around race conditions involving GPU submits.\\nMay or may not help with PM4 type 0 crashes.");
     } else if (elementName == "collectShaderCheckBox") {
@@ -1168,6 +1303,10 @@ void SettingsDialog::updateNoteTextEdit(const QString& elementName) {
         text = tr("Enable Readback Linear Images:\\nEnables async downloading of GPU modified linear images.\\nMight fix issues in some games.");
     } else if (elementName == "dmemGroupBox") {
         text = tr("Additional DMem Allocation:\\nForces allocation of the specified amount of additional DMem. Crashes or causes issues in some games.");
+    }
+
+    if (elementName == "openConfigTomlButton") {
+        text = tr("Open config.json: Opens the active global configuration file in your default editor.");
     }
 
     // clang-format on
@@ -1240,11 +1379,8 @@ void SettingsDialog::UpdateSettings(bool is_specific) {
     EmulatorSettings.SetLogSeparate(ui->logSeparateCheckBox->isChecked(), is_specific);
     EmulatorSettings.SetLogSizeLimit(ui->logSizeLimitLineEdit->value(), is_specific);
     EmulatorSettings.SetLogSkipDuplicate(ui->logSkipDuplicateCheckBox->isChecked(), is_specific);
-    EmulatorSettings.SetLogSync(ui->logSyncCheckBox->isChecked(), is_specific);
-#ifdef _WIN32
-    EmulatorSettings.SetLogType(logTypeMap.value(ui->logTypeComboBox->currentText()).toStdString(),
+    EmulatorSettings.SetLogSync(logTypeMap.value(ui->logTypeComboBox->currentText()) == "sync",
                                 is_specific);
-#endif
 
     EmulatorSettings.SetHdrAllowed(ui->enableHDRCheckBox->isChecked(), is_specific);
     EmulatorSettings.SetCursorState(ui->hideCursorComboBox->currentIndex(), is_specific);
@@ -1299,6 +1435,21 @@ void SettingsDialog::UpdateSettings(bool is_specific) {
 
     // Entries with no game-specific settings
     if (!is_game_specific) {
+        EmulatorSettings.SetSeparateUpdateFolder(separate_updates_checkbox->isChecked());
+        if (save_data_path_changed) {
+            EmulatorSettings.SetSaveDataRoot(
+                Common::FS::PathFromQString(save_data_path_edit->text()));
+        }
+
+        const QString user_name = user_name_edit->text().trimmed();
+        if (!user_name.isEmpty()) {
+            const auto default_user = UserManagement.GetDefaultUser();
+            if (default_user.user_name != user_name.toStdString()) {
+                UserManagement.RenameUser(default_user.user_id, user_name.toStdString());
+                UserManagement.Save();
+            }
+        }
+
         std::vector<GameInstallDir> dirs_with_states;
         for (int i = 0; i < ui->gameFoldersListWidget->count(); i++) {
             QListWidgetItem* item = ui->gameFoldersListWidget->item(i);

@@ -192,6 +192,7 @@ struct GeneralSettings {
     Setting<std::vector<GameInstallDir>> install_dirs;
     Setting<std::filesystem::path> addon_install_dir;
     Setting<std::filesystem::path> home_dir;
+    Setting<std::filesystem::path> save_data_path;
     Setting<std::filesystem::path> sys_modules_dir;
     Setting<std::filesystem::path> font_dir;
 
@@ -208,6 +209,7 @@ struct GeneralSettings {
     Setting<double> trophy_notification_duration{6.0};
     Setting<std::string> trophy_notification_side{"right"};
     Setting<bool> show_splash{false};
+    Setting<bool> separate_update_folder{false};
     Setting<bool> connected_to_network{false};
     Setting<bool> discord_rpc_enabled{false};
     Setting<bool> show_fps_counter{false};
@@ -238,13 +240,12 @@ struct GeneralSettings {
             make_override<GeneralSettings>("enable_upnp", &GeneralSettings::enable_upnp)};
     }
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GeneralSettings, install_dirs, addon_install_dir, home_dir,
-                                   sys_modules_dir, font_dir, volume_slider, neo_mode, dev_kit_mode,
-                                   extra_dmem_in_mbytes, shad_net_enabled, trophy_popup_disabled,
-                                   trophy_notification_duration, show_splash, enable_upnp,
-                                   trophy_notification_side, connected_to_network,
-                                   discord_rpc_enabled, show_fps_counter, console_language,
-                                   shadnet_server, signaling_info, shadnet_webapi_server)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
+    GeneralSettings, install_dirs, addon_install_dir, home_dir, save_data_path, sys_modules_dir,
+    font_dir, volume_slider, neo_mode, dev_kit_mode, extra_dmem_in_mbytes, shad_net_enabled,
+    trophy_popup_disabled, trophy_notification_duration, show_splash, separate_update_folder,
+    enable_upnp, trophy_notification_side, connected_to_network, discord_rpc_enabled,
+    show_fps_counter, console_language, shadnet_server, signaling_info, shadnet_webapi_server)
 
 // -------------------------------
 // Log settings
@@ -512,6 +513,8 @@ public:
 
     std::filesystem::path GetHomeDir();
     void SetHomeDir(const std::filesystem::path& dir);
+    std::filesystem::path GetSaveDataRoot();
+    void SetSaveDataRoot(const std::filesystem::path& dir);
     std::filesystem::path GetSysModulesDir();
     void SetSysModulesDir(const std::filesystem::path& dir);
     std::filesystem::path GetFontsDir();
@@ -609,6 +612,7 @@ public:
     SETTING_FORWARD(m_general, TrophyNotificationDuration, trophy_notification_duration)
     SETTING_FORWARD(m_general, TrophyNotificationSide, trophy_notification_side)
     SETTING_FORWARD_BOOL(m_general, ShowSplash, show_splash)
+    SETTING_FORWARD_BOOL(m_general, SeparateUpdateFolder, separate_update_folder)
     SETTING_FORWARD(m_general, AddonInstallDir, addon_install_dir)
     SETTING_FORWARD_BOOL(m_general, ConnectedToNetwork, connected_to_network)
     SETTING_FORWARD(m_general, ShadNetServer, shadnet_server)
