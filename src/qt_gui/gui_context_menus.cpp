@@ -284,6 +284,8 @@ int GuiContextMenus::RequestGameMenu(const QPoint& pos, QVector<GameInfo>& m_gam
 
     menu.addMenu(compatibilityMenu);
 
+    // Only the list view fills in the compatibility data, so look it up for the grid view too
+    m_games[itemID].compatibility = m_compat_info->GetCompatibilityInfo(m_games[itemID].serial);
     bool const compat_entry_exists =
         m_games[itemID].compatibility.status != CompatibilityStatus::Unknown;
 
@@ -562,30 +564,8 @@ int GuiContextMenus::RequestGameMenu(const QPoint& pos, QVector<GameInfo>& m_gam
                                                           ? m_games[itemID].serial + ".log"
                                                           : "shad_log.txt");
             QString filePath = logPath + "/" + fileName;
-            QStringList arguments;
             if (QFile::exists(filePath)) {
-#ifdef Q_OS_WIN
-                arguments << "/select," << filePath.replace("/", "\\");
-                QProcess::startDetached("explorer", arguments);
-
-#elif defined(Q_OS_MAC)
-                arguments << "-R" << filePath;
-                QProcess::startDetached("open", arguments);
-
-#elif defined(Q_OS_LINUX)
-                QStringList arguments;
-                arguments << "--select" << filePath;
-                if (!QProcess::startDetached("nautilus", arguments)) {
-                    // Failed to open Nautilus to select file
-                    arguments.clear();
-                    arguments << logPath;
-                    if (!QProcess::startDetached("xdg-open", arguments)) {
-                        // Failed to open directory on Linux
-                    }
-                }
-#else
-                QDesktopServices::openUrl(QUrl::fromLocalFile(logPath));
-#endif
+                ShowInFileManager(Common::FS::PathFromQString(filePath), widget);
             } else {
                 QMessageBox msgBox;
                 msgBox.setIcon(QMessageBox::Information);

@@ -1032,6 +1032,10 @@ Skriv inn nøklene og lagre dem.</translation>
       <source>TB</source>
       <translation>TB</translation>
     </message>
+    <message>
+      <source>Total: %1</source>
+      <translation>Totalt: %1</translation>
+    </message>
   </context>
   <context>
     <name>GuiContextMenus</name>
@@ -1046,22 +1050,6 @@ Skriv inn nøklene og lagre dem.</translation>
     <message>
       <source>Trophy Viewer</source>
       <translation>Troféviser</translation>
-    </message>
-    <message>
-      <source>Open Folder...</source>
-      <translation>Åpne mappe …</translation>
-    </message>
-    <message>
-      <source>Open Game Folder</source>
-      <translation>Åpne spillmappa</translation>
-    </message>
-    <message>
-      <source>Open Save Data Folder</source>
-      <translation>Åpne lagrede datamappa</translation>
-    </message>
-    <message>
-      <source>Open Log Folder</source>
-      <translation>Åpne loggmappa</translation>
     </message>
     <message>
       <source>Copy info...</source>
@@ -1144,16 +1132,8 @@ Skriv inn nøklene og lagre dem.</translation>
       <translation>Er du sikker på at du vil slette %1&apos;s %2 mappa?</translation>
     </message>
     <message>
-      <source>Open Update Folder</source>
-      <translation>Åpne oppdateringsmappa</translation>
-    </message>
-    <message>
       <source>Delete Save Data</source>
       <translation>Slett lagret data</translation>
-    </message>
-    <message>
-      <source>This game has no update folder to open!</source>
-      <translation>Dette spillet har ingen oppdateringsmappe å åpne!</translation>
     </message>
     <message>
       <source>No log file found for this game!</source>
@@ -1292,10 +1272,6 @@ Skriv inn nøklene og lagre dem.</translation>
       <translation>Skyggelegger hurtiglager</translation>
     </message>
     <message>
-      <source>This game has no save folder to open!</source>
-      <translation>Dette spillet har ingen lagret datamappe å åpne!</translation>
-    </message>
-    <message>
       <source>A trophy key is required to use the Trophy Viewer. This can be inputted by clicking Settings - Manage Cryptographic keys.</source>
       <translation>En trofénøkkel er nødvendig for å bruke troféviseren. Du kan skrive inn dette ved å trykke «Innstillinger» → «Håndter kryptografiske nøkler».</translation>
     </message>
@@ -1400,6 +1376,60 @@ Dette spillet har en separat oppdatering/rettelse-mappe. Kun spillet kan arkiver
     <message>
       <source>Convert to ZArchive</source>
       <translation>Konverter til ZArchive</translation>
+    </message>
+    <message>
+      <source>Unable to open the file manager for:
+%1</source>
+      <translation>Klarte ikke åpne filbehandler for:
+%1</translation>
+    </message>
+    <message>
+      <source>Open Path...</source>
+      <translation>Åpne sti …</translation>
+    </message>
+    <message>
+      <source>Open Game Path</source>
+      <translation>Åpne sti til spill</translation>
+    </message>
+    <message>
+      <source>Open Update Path</source>
+      <translation>Åpne sti til oppdatering</translation>
+    </message>
+    <message>
+      <source>Open Mods Path</source>
+      <translation>Åpne sti til modifikasjoner</translation>
+    </message>
+    <message>
+      <source>Open DLC Path</source>
+      <translation>Åpne sti til nedlastbart innhold</translation>
+    </message>
+    <message>
+      <source>Open Save Data Path</source>
+      <translation>Åpne sti til lagrede data</translation>
+    </message>
+    <message>
+      <source>Open Log Path</source>
+      <translation>Åpne sti til logg</translation>
+    </message>
+    <message>
+      <source>This game has no game path to open!</source>
+      <translation>Dette spillet har ingen sti for spill å åpne!</translation>
+    </message>
+    <message>
+      <source>This game has no update path to open!</source>
+      <translation>Dette spillet har ingen sti for oppdatering å åpne!</translation>
+    </message>
+    <message>
+      <source>This game has no mods path to open!</source>
+      <translation>Dette spillet har ingen sti for modifikasjoner å åpne!</translation>
+    </message>
+    <message>
+      <source>This game has no DLC path to open!</source>
+      <translation>Dette spillet har ingen sti for nedlastbart innhold å åpne!</translation>
+    </message>
+    <message>
+      <source>This game has no save path to open!</source>
+      <translation>Dette spillet har ingen sti for lagrede data å åpne!</translation>
     </message>
   </context>
   <context>
@@ -2147,6 +2177,36 @@ Velg en emulatorversjon fra høyre panel.</translation>
       <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
       <translation>oppstartsfiler (*.bin *.elf *.oelf *.zar)</translation>
     </message>
+    <message>
+      <source>Error</source>
+      <translation>Feil</translation>
+    </message>
+    <message>
+      <source>Rosetta 2 is not installed.
+
+Please install Rosetta 2 from Terminal using &apos;softwareupdate --install-rosetta&apos;.</source>
+      <translation>Rosetta 2 er ikke installert.
+
+Installer Rosetta 2 fra terminalen med «softwareupdate --install-rosetta».</translation>
+    </message>
+    <message>
+      <source>Patches directory does not exist.</source>
+      <translation>Mappa for rettelser finnes ikke.</translation>
+    </message>
+    <message>
+      <source>Update files.json</source>
+      <translation>Oppdater files.json</translation>
+    </message>
+    <message>
+      <source>Processing complete.
+Folders processed: %1</source>
+      <translation>Behandling fullført.
+Mapper behandlet: %1</translation>
+    </message>
+    <message>
+      <source>Update files.json (Patches)</source>
+      <translation>Oppdater files.json (rettelser)</translation>
+    </message>
   </context>
   <context>
     <name>QObject</name>
@@ -2283,7 +2343,7 @@ Velg en emulatorversjon fra høyre panel.</translation>
     </message>
     <message>
       <source>Game Folders</source>
-      <translation>Spillmapper</translation>
+      <translation>Sti for spill</translation>
     </message>
     <message>
       <source>Add...</source>
@@ -2316,10 +2376,6 @@ Velg en emulatorversjon fra høyre panel.</translation>
     <message>
       <source>Collect Shaders</source>
       <translation>Lagre skyggeleggere</translation>
-    </message>
-    <message>
-      <source>Copy GPU Buffers</source>
-      <translation>Kopier GPU-buffere</translation>
     </message>
     <message>
       <source>Host Debug Markers</source>
@@ -2483,7 +2539,7 @@ Velg en emulatorversjon fra høyre panel.</translation>
     </message>
     <message>
       <source>Game Folders:\nThe list of folders to check for installed games.</source>
-      <translation>Spillmapper:\nListe over mapper som brukes for å se etter installerte spill.</translation>
+      <translation>Sti for spill:\nListe over mapper som brukes for å se etter installerte spill.</translation>
     </message>
     <message>
       <source>Add:\nAdd a folder to the list.</source>
@@ -2746,10 +2802,6 @@ Velg en emulatorversjon fra høyre panel.</translation>
       <translation>Bruk utvikler-konsollmodus</translation>
     </message>
     <message>
-      <source>Set &quot;Network Connected&quot; to True</source>
-      <translation>Bruk emulering av nettverkstilgang</translation>
-    </message>
-    <message>
       <source>Miscellaneous</source>
       <translation>Diverse</translation>
     </message>
@@ -2823,7 +2875,7 @@ Velg en emulatorversjon fra høyre panel.</translation>
     </message>
     <message>
       <source>PS4 Sysmodules Path:\nThe folder where PS4 sysmodules are loaded from.</source>
-      <translation>PS4 «Sysmodules»-mappe:\nMappa hvor PS4-systemmoduler lastes fra.</translation>
+      <translation>Sti for PS4-systemmoduler:\nMappa hvor PS4-systemmoduler lastes fra.</translation>
     </message>
     <message>
       <source>Browse:\nBrowse for a folder to set as the sysmodules path.</source>
@@ -2875,7 +2927,7 @@ Velg en emulatorversjon fra høyre panel.</translation>
     </message>
     <message>
       <source>PS4 Sysmodules Path</source>
-      <translation>PS4 «sys_modules»-mappe</translation>
+      <translation>Sti for PS4-systemmoduler</translation>
     </message>
     <message>
       <source>GUI Updates:\nRelease: Official versions released every month that may be very outdated, but are more reliable and tested.\nNightly: Development versions that have all the latest features and fixes, but may contain bugs and are less stable.\n\n*This update applies only to the Qt user interface. To update the emulator core, please use the &apos;Version Manager&apos; menu.</source>
@@ -2959,11 +3011,11 @@ Velg en emulatorversjon fra høyre panel.</translation>
     </message>
     <message>
       <source>Home Folder Location (Saves, Inputs, Trophy Data)</source>
-      <translation>Hjemmemappe-plassering (lagret spilldata, inndata og trofédata)</translation>
+      <translation>Sti for hjem (lagret spilldata, inndata og trofédata)</translation>
     </message>
     <message>
       <source>Home Folder Location:\nThe folder where save data, trophy files, and input configs are stored for all users.</source>
-      <translation>Hjemmemappe-plassering\nMappa hvor lagret spilldata, troféfiler og inndataoppsett lagres for alle brukere.</translation>
+      <translation>Sti for hjem\nMappa hvor lagret spilldata, troféfiler og inndataoppsett lagres for alle brukere.</translation>
     </message>
     <message>
       <source>Browse:\nBrowse for a folder to set as the home folder.</source>
@@ -3058,10 +3110,6 @@ Velg en emulatorversjon fra høyre panel.</translation>
       <translation>Bruk ShadNet</translation>
     </message>
     <message>
-      <source>ShadNet</source>
-      <translation>ShadNet</translation>
-    </message>
-    <message>
       <source>Server</source>
       <translation>Tjener</translation>
     </message>
@@ -3082,12 +3130,52 @@ Velg en emulatorversjon fra høyre panel.</translation>
       <translation>ShadNet:\nKompatibilitet er veldig begrenset for øyeblikket.\nDu kan registrere deg på https://www.shadps4.net/shadnet/register/.</translation>
     </message>
     <message>
-      <source>Red Zone Protection</source>
-      <translation>Rød sone beskyttelse</translation>
+      <source>Red Zone CPU Patches</source>
+      <translation>Retting av prosessorens rødsone</translation>
     </message>
     <message>
-      <source>Static Patching</source>
-      <translation>Statisk retting</translation>
+      <source>Enable Red Zone CPU Patches</source>
+      <translation>Bruk retting av prosessorens rødsone</translation>
+    </message>
+    <message>
+      <source>Network</source>
+      <translation>Nettverk</translation>
+    </message>
+    <message>
+      <source>Network Settings</source>
+      <translation>Nettverksinnstillinger</translation>
+    </message>
+    <message>
+      <source>Set Network Connected Status as True</source>
+      <translation>Bruk emulering av nettverkstilgang</translation>
+    </message>
+    <message>
+      <source>Disable HTTPS</source>
+      <translation>Slå av HTTPS</translation>
+    </message>
+    <message>
+      <source>P2P Port</source>
+      <translation>P2P-port</translation>
+    </message>
+    <message>
+      <source>Copy GPU Command Buffers</source>
+      <translation>Kopier GPU-kommandobuffere</translation>
+    </message>
+    <message>
+      <source>PS4 Fonts Path</source>
+      <translation>Sti for PS4-skriftfiler</translation>
+    </message>
+    <message>
+      <source>Select the fonts folder</source>
+      <translation>Velg mappa for skriftfiler</translation>
+    </message>
+    <message>
+      <source>PS4 Fonts Path:\nThe folder where PS4 system fonts are loaded from.</source>
+      <translation type="unfinished">PS4 Fonts Path:\nThe folder where PS4 system fonts are loaded from.</translation>
+    </message>
+    <message>
+      <source>Browse:\nBrowse for a folder to set as the fonts path.</source>
+      <translation type="unfinished">Browse:\nBrowse for a folder to set as the fonts path.</translation>
     </message>
   </context>
   <context>

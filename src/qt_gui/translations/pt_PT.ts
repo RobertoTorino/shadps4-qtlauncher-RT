@@ -1031,6 +1031,10 @@ Por favor, introduza as suas chaves e guarde-as.</translation>
       <source>TB</source>
       <translation>TB</translation>
     </message>
+    <message>
+      <source>Total: %1</source>
+      <translation>Total: %1</translation>
+    </message>
   </context>
   <context>
     <name>GuiContextMenus</name>
@@ -1045,22 +1049,6 @@ Por favor, introduza as suas chaves e guarde-as.</translation>
     <message>
       <source>Trophy Viewer</source>
       <translation>Visualizador de Troféus</translation>
-    </message>
-    <message>
-      <source>Open Folder...</source>
-      <translation>Abrir Pasta...</translation>
-    </message>
-    <message>
-      <source>Open Game Folder</source>
-      <translation>Abrir Pasta do Jogo</translation>
-    </message>
-    <message>
-      <source>Open Save Data Folder</source>
-      <translation>Abrir Pasta de Dados Guardados</translation>
-    </message>
-    <message>
-      <source>Open Log Folder</source>
-      <translation>Abrir Pasta de Registo</translation>
     </message>
     <message>
       <source>Copy info...</source>
@@ -1143,16 +1131,8 @@ Por favor, introduza as suas chaves e guarde-as.</translation>
       <translation>Tem certeza de que deseja eliminar o diretório %2 de %1?</translation>
     </message>
     <message>
-      <source>Open Update Folder</source>
-      <translation>Abrir Pasta da Atualização</translation>
-    </message>
-    <message>
       <source>Delete Save Data</source>
       <translation>Eliminar Dados Guardados</translation>
-    </message>
-    <message>
-      <source>This game has no update folder to open!</source>
-      <translation>Este jogo não tem nenhuma pasta de atualização para abrir!</translation>
     </message>
     <message>
       <source>No log file found for this game!</source>
@@ -1291,10 +1271,6 @@ Por favor, introduza as suas chaves e guarde-as.</translation>
       <translation>Cache de Sombreamento</translation>
     </message>
     <message>
-      <source>This game has no save folder to open!</source>
-      <translation>Este jogo não tem uma pasta de dados guardados para abrir!</translation>
-    </message>
-    <message>
       <source>A trophy key is required to use the Trophy Viewer. This can be inputted by clicking Settings - Manage Cryptographic keys.</source>
       <translation>Uma chave de troféus é necessária para utilizar o Visualizador de Troféus. Pode ser introduzida através ao clicar na opção Gerir Chaves Criptográficas sob Definições.</translation>
     </message>
@@ -1399,6 +1375,60 @@ Este jogo tem uma atualização/pasta de correções separada. Apenas o jogo bas
     <message>
       <source>Convert to ZArchive</source>
       <translation>Converter para ZArchive</translation>
+    </message>
+    <message>
+      <source>Unable to open the file manager for:
+%1</source>
+      <translation type="unfinished">Unable to open the file manager for:
+%1</translation>
+    </message>
+    <message>
+      <source>Open Path...</source>
+      <translation type="unfinished">Open Path...</translation>
+    </message>
+    <message>
+      <source>Open Game Path</source>
+      <translation type="unfinished">Open Game Path</translation>
+    </message>
+    <message>
+      <source>Open Update Path</source>
+      <translation type="unfinished">Open Update Path</translation>
+    </message>
+    <message>
+      <source>Open Mods Path</source>
+      <translation type="unfinished">Open Mods Path</translation>
+    </message>
+    <message>
+      <source>Open DLC Path</source>
+      <translation type="unfinished">Open DLC Path</translation>
+    </message>
+    <message>
+      <source>Open Save Data Path</source>
+      <translation type="unfinished">Open Save Data Path</translation>
+    </message>
+    <message>
+      <source>Open Log Path</source>
+      <translation type="unfinished">Open Log Path</translation>
+    </message>
+    <message>
+      <source>This game has no game path to open!</source>
+      <translation type="unfinished">This game has no game path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no update path to open!</source>
+      <translation type="unfinished">This game has no update path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no mods path to open!</source>
+      <translation type="unfinished">This game has no mods path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no DLC path to open!</source>
+      <translation type="unfinished">This game has no DLC path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no save path to open!</source>
+      <translation type="unfinished">This game has no save path to open!</translation>
     </message>
   </context>
   <context>
@@ -2146,6 +2176,36 @@ Selecione uma versão do emulador no painel direito.</translation>
       <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
       <translation>ficheiros executáveis (*.bin *.elf *.oelf *.zar)</translation>
     </message>
+    <message>
+      <source>Error</source>
+      <translation>Erro</translation>
+    </message>
+    <message>
+      <source>Rosetta 2 is not installed.
+
+Please install Rosetta 2 from Terminal using &apos;softwareupdate --install-rosetta&apos;.</source>
+      <translation>A aplicação Rosetta 2 não está instalada.
+
+Por favor, instale a aplicação Rosetta 2 a partir do Terminal com o comando &apos;softwareupdate --install-rosetta&apos;.</translation>
+    </message>
+    <message>
+      <source>Patches directory does not exist.</source>
+      <translation type="unfinished">Patches directory does not exist.</translation>
+    </message>
+    <message>
+      <source>Update files.json</source>
+      <translation type="unfinished">Update files.json</translation>
+    </message>
+    <message>
+      <source>Processing complete.
+Folders processed: %1</source>
+      <translation type="unfinished">Processing complete.
+Folders processed: %1</translation>
+    </message>
+    <message>
+      <source>Update files.json (Patches)</source>
+      <translation type="unfinished">Update files.json (Patches)</translation>
+    </message>
   </context>
   <context>
     <name>QObject</name>
@@ -2315,10 +2375,6 @@ Selecione uma versão do emulador no painel direito.</translation>
     <message>
       <source>Collect Shaders</source>
       <translation>Recolher Shaders</translation>
-    </message>
-    <message>
-      <source>Copy GPU Buffers</source>
-      <translation>Copiar Buffers da GPU</translation>
     </message>
     <message>
       <source>Host Debug Markers</source>
@@ -2494,7 +2550,7 @@ Selecione uma versão do emulador no painel direito.</translation>
     </message>
     <message>
       <source>Enable Debug Dumping:\nSaves the import and export symbols and file header information of the currently running PS4 program to a directory.</source>
-      <translation>Ativar Dumping da Depuração:\nArmazena os símbolos de importação, exportação e informações do cabeçalho de ficheiros do atual programa PS4 num diretório.</translation>
+      <translation>Ativar Exportação da Depuração:\nArmazena os símbolos de importação, exportação e informações do cabeçalho de ficheiros do programa da PS4 que está a ser executado num diretório.</translation>
     </message>
     <message>
       <source>Enable RenderDoc Debugging:\nIf enabled, the emulator will provide compatibility with Renderdoc to allow capture and analysis of the currently rendered frame.</source>
@@ -2744,10 +2800,6 @@ Alterar este valor pode ter efeitos adversos, como aumentar a velocidade do jogo
     <message>
       <source>Enable Devkit Console Mode</source>
       <translation>Ativar Modo de Consola de Programador</translation>
-    </message>
-    <message>
-      <source>Set &quot;Network Connected&quot; to True</source>
-      <translation>Definir &quot;Ligação de Rede&quot; como Verdadeiro</translation>
     </message>
     <message>
       <source>Miscellaneous</source>
@@ -3059,10 +3111,6 @@ Atualmente provoca instabilidade numa abundância de jogos testados.</translatio
       <translation>Ativar a shadNet</translation>
     </message>
     <message>
-      <source>ShadNet</source>
-      <translation>ShadNet</translation>
-    </message>
-    <message>
       <source>Server</source>
       <translation>Servidor</translation>
     </message>
@@ -3083,12 +3131,52 @@ Atualmente provoca instabilidade numa abundância de jogos testados.</translatio
       <translation>shadNet:\nA compatibilidade é reduzida no momento.\nPode registar-se em https://www.shadps4.net/shadnet/register/.</translation>
     </message>
     <message>
-      <source>Red Zone Protection</source>
-      <translation>Proteção da Zona Vermelha</translation>
+      <source>Red Zone CPU Patches</source>
+      <translation>Correções da Zona Vermelha da CPU</translation>
     </message>
     <message>
-      <source>Static Patching</source>
-      <translation>Correção Estática</translation>
+      <source>Enable Red Zone CPU Patches</source>
+      <translation>Ativar Correções da Zona Vermelha da CPU</translation>
+    </message>
+    <message>
+      <source>Network</source>
+      <translation>Rede</translation>
+    </message>
+    <message>
+      <source>Network Settings</source>
+      <translation>Definições de Rede</translation>
+    </message>
+    <message>
+      <source>Set Network Connected Status as True</source>
+      <translation>Definir Estado de Conexão da Rede como Verdadeiro</translation>
+    </message>
+    <message>
+      <source>Disable HTTPS</source>
+      <translation>Desativar HTTPS</translation>
+    </message>
+    <message>
+      <source>P2P Port</source>
+      <translation>Porta P2P</translation>
+    </message>
+    <message>
+      <source>Copy GPU Command Buffers</source>
+      <translation>Copiar Memórias Intermédias de Comandos da GPU</translation>
+    </message>
+    <message>
+      <source>PS4 Fonts Path</source>
+      <translation type="unfinished">PS4 Fonts Path</translation>
+    </message>
+    <message>
+      <source>Select the fonts folder</source>
+      <translation type="unfinished">Select the fonts folder</translation>
+    </message>
+    <message>
+      <source>PS4 Fonts Path:\nThe folder where PS4 system fonts are loaded from.</source>
+      <translation type="unfinished">PS4 Fonts Path:\nThe folder where PS4 system fonts are loaded from.</translation>
+    </message>
+    <message>
+      <source>Browse:\nBrowse for a folder to set as the fonts path.</source>
+      <translation type="unfinished">Browse:\nBrowse for a folder to set as the fonts path.</translation>
     </message>
   </context>
   <context>

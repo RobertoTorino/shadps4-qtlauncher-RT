@@ -1032,6 +1032,10 @@ Please enter your keys and save them.</source>
       <source>TB</source>
       <translation>ТБ</translation>
     </message>
+    <message>
+      <source>Total: %1</source>
+      <translation type="unfinished">Total: %1</translation>
+    </message>
   </context>
   <context>
     <name>GuiContextMenus</name>
@@ -1046,22 +1050,6 @@ Please enter your keys and save them.</source>
     <message>
       <source>Trophy Viewer</source>
       <translation>Просмотр трофеев</translation>
-    </message>
-    <message>
-      <source>Open Folder...</source>
-      <translation>Открыть папку...</translation>
-    </message>
-    <message>
-      <source>Open Game Folder</source>
-      <translation>Открыть папку с игрой</translation>
-    </message>
-    <message>
-      <source>Open Save Data Folder</source>
-      <translation>Открыть папку сохранений</translation>
-    </message>
-    <message>
-      <source>Open Log Folder</source>
-      <translation>Открыть папку логов</translation>
     </message>
     <message>
       <source>Copy info...</source>
@@ -1144,16 +1132,8 @@ Please enter your keys and save them.</source>
       <translation>Вы уверены, что хотите удалить папку %2 %1?</translation>
     </message>
     <message>
-      <source>Open Update Folder</source>
-      <translation>Открыть папку обновлений</translation>
-    </message>
-    <message>
       <source>Delete Save Data</source>
       <translation>Удалить сохранения</translation>
-    </message>
-    <message>
-      <source>This game has no update folder to open!</source>
-      <translation>У этой игры нет папки обновлений, которую можно открыть!</translation>
     </message>
     <message>
       <source>No log file found for this game!</source>
@@ -1292,10 +1272,6 @@ Please enter your keys and save them.</source>
       <translation>Кэш шейдеров</translation>
     </message>
     <message>
-      <source>This game has no save folder to open!</source>
-      <translation>У этой игры нет папки сохранений, которую можно открыть!</translation>
-    </message>
-    <message>
       <source>A trophy key is required to use the Trophy Viewer. This can be inputted by clicking Settings - Manage Cryptographic keys.</source>
       <translation>Ключ трофеев требуется для просмотра трофеев. Это можно ввести, нажав Настройки - Управление криптографическими ключами.</translation>
     </message>
@@ -1400,6 +1376,60 @@ This game has a separate update/patch folder. Only the base game will be archive
     <message>
       <source>Convert to ZArchive</source>
       <translation>Конвертировать в ZArchive</translation>
+    </message>
+    <message>
+      <source>Unable to open the file manager for:
+%1</source>
+      <translation type="unfinished">Unable to open the file manager for:
+%1</translation>
+    </message>
+    <message>
+      <source>Open Path...</source>
+      <translation type="unfinished">Open Path...</translation>
+    </message>
+    <message>
+      <source>Open Game Path</source>
+      <translation type="unfinished">Open Game Path</translation>
+    </message>
+    <message>
+      <source>Open Update Path</source>
+      <translation type="unfinished">Open Update Path</translation>
+    </message>
+    <message>
+      <source>Open Mods Path</source>
+      <translation type="unfinished">Open Mods Path</translation>
+    </message>
+    <message>
+      <source>Open DLC Path</source>
+      <translation type="unfinished">Open DLC Path</translation>
+    </message>
+    <message>
+      <source>Open Save Data Path</source>
+      <translation type="unfinished">Open Save Data Path</translation>
+    </message>
+    <message>
+      <source>Open Log Path</source>
+      <translation type="unfinished">Open Log Path</translation>
+    </message>
+    <message>
+      <source>This game has no game path to open!</source>
+      <translation type="unfinished">This game has no game path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no update path to open!</source>
+      <translation type="unfinished">This game has no update path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no mods path to open!</source>
+      <translation type="unfinished">This game has no mods path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no DLC path to open!</source>
+      <translation type="unfinished">This game has no DLC path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no save path to open!</source>
+      <translation type="unfinished">This game has no save path to open!</translation>
     </message>
   </context>
   <context>
@@ -2147,6 +2177,36 @@ Select an emulator version from the right panel.</source>
       <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
       <translation>загрузочные файлы (*.bin *.elf *.oelf *.zar)</translation>
     </message>
+    <message>
+      <source>Error</source>
+      <translation>Ошибка</translation>
+    </message>
+    <message>
+      <source>Rosetta 2 is not installed.
+
+Please install Rosetta 2 from Terminal using &apos;softwareupdate --install-rosetta&apos;.</source>
+      <translation>Rosetta 2 не установлена.
+
+Пожалуйста, установите Rosetta 2 из терминала с помощью &apos;softwareupdate --install-rosetta&apos;.</translation>
+    </message>
+    <message>
+      <source>Patches directory does not exist.</source>
+      <translation type="unfinished">Patches directory does not exist.</translation>
+    </message>
+    <message>
+      <source>Update files.json</source>
+      <translation type="unfinished">Update files.json</translation>
+    </message>
+    <message>
+      <source>Processing complete.
+Folders processed: %1</source>
+      <translation type="unfinished">Processing complete.
+Folders processed: %1</translation>
+    </message>
+    <message>
+      <source>Update files.json (Patches)</source>
+      <translation type="unfinished">Update files.json (Patches)</translation>
+    </message>
   </context>
   <context>
     <name>QObject</name>
@@ -2316,10 +2376,6 @@ Select an emulator version from the right panel.</source>
     <message>
       <source>Collect Shaders</source>
       <translation>Собирать шейдеры</translation>
-    </message>
-    <message>
-      <source>Copy GPU Buffers</source>
-      <translation>Копировать буферы GPU</translation>
     </message>
     <message>
       <source>Host Debug Markers</source>
@@ -2746,10 +2802,6 @@ Select an emulator version from the right panel.</source>
       <translation>Включить режим консоли Devkit</translation>
     </message>
     <message>
-      <source>Set &quot;Network Connected&quot; to True</source>
-      <translation>Установить &quot;Сеть подключена&quot; на True</translation>
-    </message>
-    <message>
       <source>Miscellaneous</source>
       <translation>Прочее</translation>
     </message>
@@ -3058,10 +3110,6 @@ Select an emulator version from the right panel.</source>
       <translation>Включить shadNet</translation>
     </message>
     <message>
-      <source>ShadNet</source>
-      <translation>ShadNet</translation>
-    </message>
-    <message>
       <source>Server</source>
       <translation>Сервер</translation>
     </message>
@@ -3082,12 +3130,52 @@ Select an emulator version from the right panel.</source>
       <translation>shadNet:\nСовместимость в данный момент очень ограничена.\nВы можете зарегистрироваться на https://www.shadps4.net/shadnet/register/.</translation>
     </message>
     <message>
-      <source>Red Zone Protection</source>
-      <translation>Защита красной зоны</translation>
+      <source>Red Zone CPU Patches</source>
+      <translation type="unfinished">Red Zone CPU Patches</translation>
     </message>
     <message>
-      <source>Static Patching</source>
-      <translation>Статическое исправление</translation>
+      <source>Enable Red Zone CPU Patches</source>
+      <translation type="unfinished">Enable Red Zone CPU Patches</translation>
+    </message>
+    <message>
+      <source>Network</source>
+      <translation type="unfinished">Network</translation>
+    </message>
+    <message>
+      <source>Network Settings</source>
+      <translation type="unfinished">Network Settings</translation>
+    </message>
+    <message>
+      <source>Set Network Connected Status as True</source>
+      <translation type="unfinished">Set Network Connected Status as True</translation>
+    </message>
+    <message>
+      <source>Disable HTTPS</source>
+      <translation type="unfinished">Disable HTTPS</translation>
+    </message>
+    <message>
+      <source>P2P Port</source>
+      <translation type="unfinished">P2P Port</translation>
+    </message>
+    <message>
+      <source>Copy GPU Command Buffers</source>
+      <translation type="unfinished">Copy GPU Command Buffers</translation>
+    </message>
+    <message>
+      <source>PS4 Fonts Path</source>
+      <translation type="unfinished">PS4 Fonts Path</translation>
+    </message>
+    <message>
+      <source>Select the fonts folder</source>
+      <translation type="unfinished">Select the fonts folder</translation>
+    </message>
+    <message>
+      <source>PS4 Fonts Path:\nThe folder where PS4 system fonts are loaded from.</source>
+      <translation type="unfinished">PS4 Fonts Path:\nThe folder where PS4 system fonts are loaded from.</translation>
+    </message>
+    <message>
+      <source>Browse:\nBrowse for a folder to set as the fonts path.</source>
+      <translation type="unfinished">Browse:\nBrowse for a folder to set as the fonts path.</translation>
     </message>
   </context>
   <context>

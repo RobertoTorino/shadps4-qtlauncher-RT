@@ -5,6 +5,8 @@
 #include <QDateTime>
 #include <QDockWidget>
 #include <QImage>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPainter>
@@ -236,6 +238,8 @@ bool MainWindow::Init() {
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     statusBar.reset(new QStatusBar);
     this->setStatusBar(statusBar.data());
+    statusLabel = new QLabel(statusBar.data());
+    statusBar->addWidget(statusLabel);
     m_system_usage_label = new QLabel(statusBar.data());
     statusBar->addPermanentWidget(m_system_usage_label);
     auto* system_usage_timer = new QTimer(this);
@@ -246,7 +250,7 @@ bool MainWindow::Init() {
     int numGames = m_game_info->m_games.size();
     QString statusMessage = tr("Games: ") + QString::number(numGames) + " (" +
                             QString::number(duration.count()) + "ms)";
-    statusBar->showMessage(statusMessage);
+    statusLabel->setText(statusMessage);
 
     return true;
 }
@@ -489,6 +493,7 @@ void MainWindow::ShowSystemInfo() {
 }
 
 void MainWindow::onGameClosed() {
+    ui->logDisplay->FinishSource();
     EmulatorState::GetInstance()->SetGameRunning(false);
     is_paused = false;
     UpdateToolbarButtons();
@@ -647,15 +652,16 @@ void MainWindow::CreateDockWindows(bool newDock) {
         m_game_list_frame.reset(
             new GameListFrame(m_gui_settings, m_game_info, m_compat_info, m_ipc_client, this));
         m_game_list_frame->setObjectName("gamelist");
+        m_game_list_frame->installEventFilter(this);
         m_game_grid_frame.reset(
             new GameGridFrame(m_gui_settings, m_game_info, m_compat_info, m_ipc_client, this));
         m_game_grid_frame->setObjectName("gamegridlist");
+        m_game_grid_frame->installEventFilter(this);
         m_elf_viewer.reset(new ElfViewer(m_gui_settings, this));
         m_elf_viewer->setObjectName("elflist");
 
         m_log_dock_widget.reset(new QDockWidget(tr("Game Log"), this));
-        ui->logDisplay = new QTextEdit(m_log_dock_widget.data());
-        ui->logDisplay->setReadOnly(true);
+        ui->logDisplay = new LogFileViewer(m_log_dock_widget.data());
         m_log_dock_widget->setAllowedAreas(Qt::AllDockWidgetAreas);
         m_log_dock_widget->setFeatures(QDockWidget::DockWidgetClosable |
                                        QDockWidget::DockWidgetMovable |
@@ -762,6 +768,8 @@ void MainWindow::CheckUpdateMain(bool checkSave) {
 
 void MainWindow::CreateConnects() {
     connect(this, &MainWindow::WindowResized, this, &MainWindow::HandleResize);
+    ui->refreshGameListAct->setShortcut(QKeySequence::Refresh);
+
     connect(ui->exitAct, &QAction::triggered, this, &QWidget::close);
     connect(ui->refreshGameListAct, &QAction::triggered, this, &MainWindow::ForceRefreshGameTable);
     connect(ui->refreshButton, &QPushButton::clicked, this, &MainWindow::ForceRefreshGameTable);
@@ -1322,15 +1330,69 @@ void MainWindow::CreateConnects() {
             isIconBlack = false;
         }
     });
-
-    QObject::connect(m_ipc_client.get(), &IpcClient::LogEntrySent, this, &MainWindow::PrintLog);
 }
 
-void MainWindow::PrintLog(QString entry, QColor textColor) {
-    ui->logDisplay->setTextColor(textColor);
-    ui->logDisplay->append(entry);
-    QScrollBar* sb = ui->logDisplay->verticalScrollBar();
-    sb->setValue(sb->maximum());
+void MainWindow::PrepareLogFile(const QString& work_dir, const QStringList& args) {
+    QString user_dir = QDir(work_dir).absoluteFilePath(Common::FS::PORTABLE_DIR);
+    if (!QFileInfo(user_dir).isDir()) {
+        Common::FS::PathToQString(user_dir, Common::FS::GetUserPath(Common::FS::PathType::UserDir));
+    }
+
+    QString game_path;
+    for (int i = 0; i < args.size(); ++i) {
+        if ((args[i] == "--game" || args[i] == "-g") && i + 1 < args.size()) {
+            game_path = args[++i];
+        } else if (args[i].startsWith("--game=")) {
+            game_path = args[i].mid(7);
+        }
+    }
+    QString serial;
+    if (!game_path.isEmpty()) {
+        auto root = Common::FS::PathFromQString(QDir(work_dir).absoluteFilePath(game_path));
+        if (!Core::FileSys::ResolveGameRoot(root)) {
+            root = root.parent_path();
+        }
+        if (const auto bytes = Core::FileSys::ReadGameFile(root, "sce_sys/param.sfo")) {
+            PSF game_psf;
+            if (game_psf.Open(*bytes)) {
+                if (const auto id = game_psf.GetString("TITLE_ID")) {
+                    serial = QString::fromUtf8(id->data(), static_cast<qsizetype>(id->size()));
+                }
+            }
+        }
+    }
+
+    bool enabled = true;
+    bool separate = false;
+    const auto read_settings = [&](const QString& path) {
+        QFile config(path);
+        if (config.open(QIODevice::ReadOnly)) {
+            const auto log =
+                QJsonDocument::fromJson(config.readAll()).object().value("Log").toObject();
+            if (const auto value = log.value("enable"); value.isBool()) {
+                enabled = value.toBool();
+            }
+            if (const auto value = log.value("separate"); value.isBool()) {
+                separate = value.toBool();
+            }
+        }
+    };
+    const bool global = args.contains("--config-global");
+    if (!args.contains("--config-clean") || global) {
+        read_settings(QDir(user_dir).filePath("config.json"));
+        if (!serial.isEmpty() && !global) {
+            read_settings(QDir(user_dir).filePath(QString::fromLatin1(Common::FS::CUSTOM_CONFIGS) +
+                                                  "/" + serial + ".json"));
+        }
+    }
+    const QString filename = game_path.isEmpty()             ? "shadps4.log"
+                             : separate && !serial.isEmpty() ? serial + ".log"
+                                                             : Common::FS::LOG_FILE;
+    const QString path =
+        QDir(user_dir).filePath(QString::fromLatin1(Common::FS::LOG_DIR) + "/" + filename);
+    if (ui && ui->logDisplay) {
+        ui->logDisplay->SetSource(enabled ? path : QString(), true);
+    }
 }
 
 void MainWindow::StartGameWithArgs(QStringList args) {
@@ -1412,10 +1474,9 @@ void MainWindow::ReloadGameTable(bool force_size_refresh, const QString& force_s
     m_game_list_frame->PopulateGameList(false);
     m_game_grid_frame->clearContents();
     m_game_grid_frame->PopulateGameGrid(m_game_info->m_games, false);
-    statusBar->clearMessage();
     int numGames = m_game_info->m_games.size();
     QString statusMessage = tr("Games: ") + QString::number(numGames);
-    statusBar->showMessage(statusMessage);
+    statusLabel->setText(statusMessage);
     m_game_list_frame->ToggleColumnVisibility();
 }
 
@@ -2059,6 +2120,7 @@ tr("No emulator version was selected.\nThe Version Manager menu will then open.\
     last_game_path = path;
 
     QString workDir = QDir::currentPath();
+    PrepareLogFile(workDir, final_args);
     m_ipc_client->startEmulator(fileInfo, final_args, workDir);
     m_ipc_client->setActiveController(GamepadSelect::GetSelectedGamepad());
 }
@@ -2072,6 +2134,7 @@ void MainWindow::StartEmulatorExecutable(std::filesystem::path emuPath, QString 
     }
 
     bool gameFound = false;
+    last_game_path.clear();
     if (std::filesystem::exists(Common::FS::PathFromQString(gameArg))) {
         last_game_path = Common::FS::PathFromQString(gameArg);
         if (Core::FileSys::IsZArchiveFile(last_game_path)) {
@@ -2097,13 +2160,17 @@ void MainWindow::StartEmulatorExecutable(std::filesystem::path emuPath, QString 
             if (enabled && std::filesystem::exists(dir)) {
                 for (const auto& entry : std::filesystem::directory_iterator(dir)) {
                     if (entry.is_directory()) {
-                        if (entry.path().filename().string() == gameArg.toStdString()) {
+                        QString entry_name;
+                        Common::FS::PathToQString(entry_name, entry.path().filename());
+                        if (entry_name == gameArg) {
                             last_game_path = entry.path() / "eboot.bin";
                             gameFound = true;
                             break;
                         }
                     } else if (Core::FileSys::IsZArchiveFile(entry.path())) {
-                        if (entry.path().stem().string() == gameArg.toStdString()) {
+                        QString entry_name;
+                        Common::FS::PathToQString(entry_name, entry.path().stem());
+                        if (entry_name == gameArg) {
                             last_game_path = entry.path() / "eboot.bin";
                             gameFound = true;
                             break;
@@ -2137,6 +2204,7 @@ void MainWindow::StartEmulatorExecutable(std::filesystem::path emuPath, QString 
     statusBar->showMessage(tr("Launching game..."));
     EmulatorState::GetInstance()->SetGameRunning(true);
     QString workDir = QDir::currentPath();
+    PrepareLogFile(workDir, args);
     m_ipc_client->startEmulator(fileInfo, args, workDir, disable_ipc);
 }
 
@@ -2172,8 +2240,9 @@ void MainWindow::RestartEmulator() {
     }
 
     QFileInfo fileInfo(exe);
-    QString workDir = fileInfo.absolutePath();
+    QString workDir = QDir::currentPath();
 
+    PrepareLogFile(workDir, args);
     m_ipc_client->startEmulator(fileInfo, args, workDir);
 }
 

@@ -10,13 +10,14 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QSplitter>
-#include <QTextEdit>
 #include <QToolBar>
+
+#include "log_file_viewer.h"
 
 class Ui_MainWindow {
 public:
     QSplitter* splitter;
-    QTextEdit* logDisplay;
+    LogFileViewer* logDisplay = nullptr;
     QAction* bootGameAct;
     QAction* installPkgAct;
     QAction* addElfFolderAct;
@@ -449,7 +450,6 @@ public:
     } // setupUi
 
     void retranslateUi(QMainWindow* MainWindow) {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "shadPS4", nullptr));
         addElfFolderAct->setText(
             QCoreApplication::translate("MainWindow", "Open/Add Elf Folder", nullptr));
         installPkgAct->setText(QCoreApplication::translate("MainWindow", "Install Packages...", nullptr));

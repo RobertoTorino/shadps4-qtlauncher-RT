@@ -240,6 +240,7 @@ void GameGridFrame::RefreshGridBackgroundImage() {
     QColor transparentColor = QColor(135, 206, 235, 40);
     palette.setColor(QPalette::Highlight, transparentColor);
     this->setPalette(palette);
+    this->viewport()->setPalette(palette);
 }
 
 void GameGridFrame::resizeEvent(QResizeEvent* event) {
@@ -272,7 +273,7 @@ void GameGridFrame::SetGameConfigIcon(QWidget* parentWidget, QVector<GameInfo> m
     std::string serialStr = m_games_[gameCounter].serial;
 
     bool hasGameConfig = std::filesystem::exists(
-        Common::FS::GetUserPath(Common::FS::PathType::CustomConfigs) / (serialStr + ".toml"));
+        Common::FS::GetUserPath(Common::FS::PathType::CustomConfigs) / (serialStr + ".json"));
 
     QLabel* label = new QLabel(parentWidget);
     label->setPixmap(QPixmap(":images/game_settings.png")

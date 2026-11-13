@@ -15,7 +15,7 @@
     </message>
     <message>
       <source>This software should not be used to play games you have not legally obtained.</source>
-      <translation>এই সফটওয়্যার ব্যবহার করে আইনগতভাবে অর্জন করেননি এমন গেম খেলা উচিত নয়।</translation>
+      <translation>এই সফটওয়্যার ব্যবহার করে আইনগতভাবে অর্জন করেননি এমন গেম খেলা উচিত না।</translation>
     </message>
   </context>
   <context>
@@ -50,7 +50,7 @@
     </message>
     <message>
       <source>Repository:</source>
-      <translation>রিপোজিটরি:</translation>
+      <translation>Repository:</translation>
     </message>
     <message>
       <source>Download Cheats</source>
@@ -74,11 +74,11 @@
     </message>
     <message>
       <source>Select Patch File:</source>
-      <translation>প্যাচ ফাইল নির্বাচন করুন:</translation>
+      <translation>Patch ফাইল নির্বাচন করুন:</translation>
     </message>
     <message>
       <source>Download Patches</source>
-      <translation>প্যাচ ডাউনলোড করুন</translation>
+      <translation>Patches ডাউনলোড করুন</translation>
     </message>
     <message>
       <source>Save</source>
@@ -86,11 +86,11 @@
     </message>
     <message>
       <source>Cheats</source>
-      <translation>চিট</translation>
+      <translation>Cheats</translation>
     </message>
     <message>
       <source>Patches</source>
-      <translation>প্যাচ</translation>
+      <translation>Patches</translation>
     </message>
     <message>
       <source>Error</source>
@@ -98,7 +98,7 @@
     </message>
     <message>
       <source>No patch selected.</source>
-      <translation>কোনো প্যাচ নির্বাচন করা হয়নি।</translation>
+      <translation>কোনো Patch নির্বাচন করা হয়নি।</translation>
     </message>
     <message>
       <source>Unable to open files.json for reading.</source>
@@ -835,7 +835,7 @@ Please enter your keys and save them.</source>
     </message>
     <message>
       <source>Save Changes</source>
-      <translation>পরিবর্তন সংরক্ষণ করুন</translation>
+      <translation>পরিবর্তনগুলো সংরক্ষণ করুন</translation>
     </message>
     <message>
       <source>Do you want to save changes?</source>
@@ -847,15 +847,15 @@ Please enter your keys and save them.</source>
     </message>
     <message>
       <source>Do you want to reset your custom default config to the original default config?</source>
-      <translation>আপনার কাস্টম ডিফল্ট কনফিগকে মূল ডিফল্ট কনফিগে রিসেট করতে চান?</translation>
+      <translation>আপনার custom default config কে মূল original default config এ reset করতে চান?</translation>
     </message>
     <message>
       <source>Do you want to reset this config to your custom default config?</source>
-      <translation>এই কনফিগকে আপনার কাস্টম ডিফল্ট কনফিগে রিসেট করতে চান?</translation>
+      <translation>এই config কে আপনার custom default config এ reset করতে চান?</translation>
     </message>
     <message>
       <source>Reset to Default</source>
-      <translation>ডিফল্টে রিসেট করুন</translation>
+      <translation>Default এ reset করুন</translation>
     </message>
   </context>
   <context>
@@ -869,7 +869,7 @@ Please enter your keys and save them.</source>
     <name>GameInfoClass</name>
     <message>
       <source>Loading game list, please wait :3</source>
-      <translation>গেমের তালিকা লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন :3</translation>
+      <translation>Game এর তালিকা load হচ্ছে, দয়া করে অপেক্ষা করুন :3</translation>
     </message>
     <message>
       <source>Cancel</source>
@@ -877,7 +877,7 @@ Please enter your keys and save them.</source>
     </message>
     <message>
       <source>Loading...</source>
-      <translation>লোড হচ্ছে...</translation>
+      <translation>Load হচ্ছে...</translation>
     </message>
   </context>
   <context>
@@ -888,7 +888,7 @@ Please enter your keys and save them.</source>
     </message>
     <message>
       <source>Browse</source>
-      <translation>ব্রাউজ</translation>
+      <translation>Browse</translation>
     </message>
     <message>
       <source>Error</source>
@@ -1032,6 +1032,10 @@ Please enter your keys and save them.</source>
       <source>TB</source>
       <translation>TB</translation>
     </message>
+    <message>
+      <source>Total: %1</source>
+      <translation type="unfinished">Total: %1</translation>
+    </message>
   </context>
   <context>
     <name>GuiContextMenus</name>
@@ -1046,22 +1050,6 @@ Please enter your keys and save them.</source>
     <message>
       <source>Trophy Viewer</source>
       <translation>Trophy Viewer</translation>
-    </message>
-    <message>
-      <source>Open Folder...</source>
-      <translation>ফোল্ডার খুলুন...</translation>
-    </message>
-    <message>
-      <source>Open Game Folder</source>
-      <translation>গেমের ফোল্ডার খুলুন</translation>
-    </message>
-    <message>
-      <source>Open Save Data Folder</source>
-      <translation>Save Data Folder খুলুন</translation>
-    </message>
-    <message>
-      <source>Open Log Folder</source>
-      <translation>লগ ফোল্ডার খুলুন</translation>
     </message>
     <message>
       <source>Copy info...</source>
@@ -1093,7 +1081,7 @@ Please enter your keys and save them.</source>
     </message>
     <message>
       <source>Delete Game</source>
-      <translation>গেম মুছুন</translation>
+      <translation>Game মুছুন</translation>
     </message>
     <message>
       <source>Delete Update</source>
@@ -1105,7 +1093,7 @@ Please enter your keys and save them.</source>
     </message>
     <message>
       <source>Delete Trophy</source>
-      <translation>ট্রফি মুছুন</translation>
+      <translation>Trophy মুছুন</translation>
     </message>
     <message>
       <source>Compatibility...</source>
@@ -1144,16 +1132,8 @@ Please enter your keys and save them.</source>
       <translation>আপনি কি নিশ্চিত যে আপনি %1এর %2 অবস্থান মুছতে চান?</translation>
     </message>
     <message>
-      <source>Open Update Folder</source>
-      <translation>আপডেট ফোল্ডার খুলুন</translation>
-    </message>
-    <message>
       <source>Delete Save Data</source>
       <translation>সেভ ডেটা মুছুন</translation>
-    </message>
-    <message>
-      <source>This game has no update folder to open!</source>
-      <translation>এই গেমে খোলার মতো কোনো আপডেট ফোল্ডার নেই!</translation>
     </message>
     <message>
       <source>No log file found for this game!</source>
@@ -1292,10 +1272,6 @@ Please enter your keys and save them.</source>
       <translation>শেডার ক্যাশ</translation>
     </message>
     <message>
-      <source>This game has no save folder to open!</source>
-      <translation>এই গেমে খোলার মতো কোনো সেভ ফোল্ডার নেই!</translation>
-    </message>
-    <message>
       <source>A trophy key is required to use the Trophy Viewer. This can be inputted by clicking Settings - Manage Cryptographic keys.</source>
       <translation>ট্রফি ভিউয়ার ব্যবহার করতে একটি ট্রফি কী প্রয়োজন। Settings - Manage Cryptographic Keys-এ ক্লিক করে এটি ইনপুট করা যায়।</translation>
     </message>
@@ -1400,6 +1376,60 @@ This game has a separate update/patch folder. Only the base game will be archive
     <message>
       <source>Convert to ZArchive</source>
       <translation>ZArchive-এ রূপান্তর করুন</translation>
+    </message>
+    <message>
+      <source>Unable to open the file manager for:
+%1</source>
+      <translation type="unfinished">Unable to open the file manager for:
+%1</translation>
+    </message>
+    <message>
+      <source>Open Path...</source>
+      <translation type="unfinished">Open Path...</translation>
+    </message>
+    <message>
+      <source>Open Game Path</source>
+      <translation type="unfinished">Open Game Path</translation>
+    </message>
+    <message>
+      <source>Open Update Path</source>
+      <translation type="unfinished">Open Update Path</translation>
+    </message>
+    <message>
+      <source>Open Mods Path</source>
+      <translation type="unfinished">Open Mods Path</translation>
+    </message>
+    <message>
+      <source>Open DLC Path</source>
+      <translation type="unfinished">Open DLC Path</translation>
+    </message>
+    <message>
+      <source>Open Save Data Path</source>
+      <translation type="unfinished">Open Save Data Path</translation>
+    </message>
+    <message>
+      <source>Open Log Path</source>
+      <translation type="unfinished">Open Log Path</translation>
+    </message>
+    <message>
+      <source>This game has no game path to open!</source>
+      <translation type="unfinished">This game has no game path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no update path to open!</source>
+      <translation type="unfinished">This game has no update path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no mods path to open!</source>
+      <translation type="unfinished">This game has no mods path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no DLC path to open!</source>
+      <translation type="unfinished">This game has no DLC path to open!</translation>
+    </message>
+    <message>
+      <source>This game has no save path to open!</source>
+      <translation type="unfinished">This game has no save path to open!</translation>
     </message>
   </context>
   <context>
@@ -2147,6 +2177,36 @@ Select an emulator version from the right panel.</source>
       <source>bootable files (*.bin *.elf *.oelf *.zar)</source>
       <translation>বুটযোগ্য ফাইল (*.bin *.elf *.oelf *.zar)</translation>
     </message>
+    <message>
+      <source>Error</source>
+      <translation>ত্রুটি</translation>
+    </message>
+    <message>
+      <source>Rosetta 2 is not installed.
+
+Please install Rosetta 2 from Terminal using &apos;softwareupdate --install-rosetta&apos;.</source>
+      <translation>Rosetta 2 install করা নেই।
+
+দয়া করে Terminal থেকে softwareupdate --install-rosetta ব্যবহার করে Rosetta 2 install করুন।</translation>
+    </message>
+    <message>
+      <source>Patches directory does not exist.</source>
+      <translation type="unfinished">Patches directory does not exist.</translation>
+    </message>
+    <message>
+      <source>Update files.json</source>
+      <translation type="unfinished">Update files.json</translation>
+    </message>
+    <message>
+      <source>Processing complete.
+Folders processed: %1</source>
+      <translation type="unfinished">Processing complete.
+Folders processed: %1</translation>
+    </message>
+    <message>
+      <source>Update files.json (Patches)</source>
+      <translation type="unfinished">Update files.json (Patches)</translation>
+    </message>
   </context>
   <context>
     <name>QObject</name>
@@ -2316,10 +2376,6 @@ Select an emulator version from the right panel.</source>
     <message>
       <source>Collect Shaders</source>
       <translation>শেডার সংগ্রহ করুন</translation>
-    </message>
-    <message>
-      <source>Copy GPU Buffers</source>
-      <translation>GPU বাফার কপি করুন</translation>
     </message>
     <message>
       <source>Host Debug Markers</source>
@@ -2746,10 +2802,6 @@ Select an emulator version from the right panel.</source>
       <translation>Devkit Console Mode সক্রিয় করুন</translation>
     </message>
     <message>
-      <source>Set &quot;Network Connected&quot; to True</source>
-      <translation>&quot;Network Connected&quot;-কে True সেট করুন</translation>
-    </message>
-    <message>
       <source>Miscellaneous</source>
       <translation>বিবিধ</translation>
     </message>
@@ -3058,10 +3110,6 @@ Select an emulator version from the right panel.</source>
       <translation>shadNet চালু করুন</translation>
     </message>
     <message>
-      <source>ShadNet</source>
-      <translation>ShadNet</translation>
-    </message>
-    <message>
       <source>Server</source>
       <translation>সার্ভার</translation>
     </message>
@@ -3082,12 +3130,52 @@ Select an emulator version from the right panel.</source>
       <translation>shadNet:\nএই মুহূর্তে সামঞ্জস্যতা খুবই সীমিত।\nআপনি https://www.shadps4.net/shadnet/register/ এ নিবন্ধন করতে পারেন।</translation>
     </message>
     <message>
-      <source>Red Zone Protection</source>
-      <translation>Red Zone Protection</translation>
+      <source>Red Zone CPU Patches</source>
+      <translation type="unfinished">Red Zone CPU Patches</translation>
     </message>
     <message>
-      <source>Static Patching</source>
-      <translation>Static Patching</translation>
+      <source>Enable Red Zone CPU Patches</source>
+      <translation type="unfinished">Enable Red Zone CPU Patches</translation>
+    </message>
+    <message>
+      <source>Network</source>
+      <translation type="unfinished">Network</translation>
+    </message>
+    <message>
+      <source>Network Settings</source>
+      <translation type="unfinished">Network Settings</translation>
+    </message>
+    <message>
+      <source>Set Network Connected Status as True</source>
+      <translation type="unfinished">Set Network Connected Status as True</translation>
+    </message>
+    <message>
+      <source>Disable HTTPS</source>
+      <translation type="unfinished">Disable HTTPS</translation>
+    </message>
+    <message>
+      <source>P2P Port</source>
+      <translation type="unfinished">P2P Port</translation>
+    </message>
+    <message>
+      <source>Copy GPU Command Buffers</source>
+      <translation type="unfinished">Copy GPU Command Buffers</translation>
+    </message>
+    <message>
+      <source>PS4 Fonts Path</source>
+      <translation type="unfinished">PS4 Fonts Path</translation>
+    </message>
+    <message>
+      <source>Select the fonts folder</source>
+      <translation type="unfinished">Select the fonts folder</translation>
+    </message>
+    <message>
+      <source>PS4 Fonts Path:\nThe folder where PS4 system fonts are loaded from.</source>
+      <translation type="unfinished">PS4 Fonts Path:\nThe folder where PS4 system fonts are loaded from.</translation>
+    </message>
+    <message>
+      <source>Browse:\nBrowse for a folder to set as the fonts path.</source>
+      <translation type="unfinished">Browse:\nBrowse for a folder to set as the fonts path.</translation>
     </message>
   </context>
   <context>
